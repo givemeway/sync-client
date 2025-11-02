@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// https://www.prisma.io/docs/orm/prisma-client/queries/transactions
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../DB/prisma-client"
+  previewFeatures = ["fullTextSearch", "relationJoins"]
+  binaryTargets   = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model File {
+  path          String
+  filename      String
+  last_modified DateTime
+  hashvalue     String
+  size          BigInt
+  dirID         String
+  directoryID   Directory @relation(fields: [dirID], references: [uuid])
+
+  @@unique([path, filename])
+  @@index([path, filename])
+}
+
+model Directory {
+  uuid       String   @unique()
+  device     String
+  folder     String
+  path       String
+  created_at DateTime
+  files      File[]
+
+  @@unique([device, folder, path])
+  @@index([path])
+}
