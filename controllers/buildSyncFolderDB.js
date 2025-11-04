@@ -1,27 +1,30 @@
 import { prisma, prisma_queue } from "../Config/prismaDBConfig.js";
 import { v4 as uuidv4 } from "uuid";
+import { get_directory_status } from "./get_file_folder_metadata.js";
 
 export const buildSyncFolderDB = (files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       // read the local DB
-      const [filesObj, dirsObj, filesLength, dirsLength] = await readSyncDB(
-        prisma
-      );
+      const [filesObj, dirsObj] = await readSyncDB(prisma);
+      const updatedFiles = await get_changed_files(filesObj, files);
       // compare the scanned files/folders with the local DB and find which are new or modified
       const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
         prisma,
         filesObj,
         dirsObj,
         files,
-        dirs
+        dirs,
+        updatedFiles
       );
       // create a new DB with the identified files / folders
+      // await createDBWithLocalChanges(changedFiles, changedDirs);
+      // Build the sync DB that will be used to sync to cloud
       await buildSyncDB(prisma_queue, changedFiles, changedDirs);
       // After these files/folders are synced to cloud update the main DB
-      await buildSyncDB(prisma, changedFiles, changedDirs);
+      // await buildSyncDB(prisma, changedFiles, changedDirs);
       // empty the temp DB that holds the files/folders to be uploaded;
-      await delete_db_files_folders(prisma_queue);
+      //await delete_db_files_folders(prisma_queue);
       // Monitor the FileSystem and any changes detected update in new DB
 
       resolve();
@@ -48,9 +51,24 @@ const delete_db_files_folders = (dbCursor) =>
 const buildSyncDB = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
-      await db.$transaction(async (dbcursor) => {
-        await insert_file_directory(dbcursor, files, dirs);
-      });
+      const toBeDeletedFiles = Object.entries(files)
+        .flatMap(([path, filesObj]) =>
+          Object.entries(filesObj).filter(
+            ([filename, fileObj]) => fileObj.sync_status === "delete"
+          )
+        )
+        .flat();
+      const tobeDeletedDirs = Object.entries(dirs)
+        .filter(([_, dirObj]) => dirObj.sync_status === "delete")
+        .map((a) => ({ ...a[1] }));
+
+      console.log("toBeDeletedFiles: ", toBeDeletedFiles);
+      console.log("tobeDeletedDirs: ", tobeDeletedDirs);
+      // await db.$transaction(async (prisma) => {
+      //   await delete_fileItems_db(prisma, files);
+      //   await delete_dirItems_db(prisma, dirs);
+      //   await insert_file_directory(prisma, files, dirs);
+      // });
       resolve();
     } catch (err) {
       console.error(err);
@@ -94,7 +112,46 @@ const readSyncDB = (prisma) =>
     }
   });
 
-const compareChangesWithLocalDB = (prisma, dbFiles, dbDirs, files, dirs) =>
+const get_changed_files = (dbFiles, files) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      let updatedFiles = {};
+      console.log(files);
+      for (const [path, filesObj] of Object.entries(files)) {
+        for (const [filename, fileObj] of Object.entries(filesObj)) {
+          if (
+            dbFiles[path] &&
+            dbFiles[path][filename] &&
+            dbFiles[path][filename].hashvalue !== fileObj.hashvalue
+          ) {
+            if (updatedFiles[path]) {
+              updatedFiles[path][filename] = {
+                ...fileObj,
+                sync_status: "modified",
+              };
+            } else {
+              updatedFiles[path] = {
+                [filename]: { ...fileObj, sync_status: "modified" },
+              };
+            }
+          }
+        }
+      }
+      resolve({ ...files, ...updatedFiles });
+    } catch (err) {
+      console.error(err);
+      reject(err);
+    }
+  });
+
+const compareChangesWithLocalDB = (
+  prisma,
+  dbFiles,
+  dbDirs,
+  files,
+  dirs,
+  updatedFiles
+) =>
   new Promise(async (resolve, reject) => {
     try {
       let changedFiles = {};
@@ -103,42 +160,96 @@ const compareChangesWithLocalDB = (prisma, dbFiles, dbDirs, files, dirs) =>
       let filesCopy = { ...files };
       let dirsCopy = { ...dirs };
       let dbDirsCopy = { ...dbDirs };
+      let keystoDeleteDbFilesCopy = [];
+      let keystoDeleteFilesCopy = [];
+      let keystoDeleteDbDirsCopy = [];
+      let keystoDeleteDirsCopy = [];
 
       for (const [path, fileList] of Object.entries(dbFiles)) {
         for (const [filename, obj] of Object.entries(fileList)) {
           if (files[path] && files[path][filename]) {
             delete dbFilesCopy[path][filename];
             delete filesCopy[path][filename];
-            if (Object.entries(dbFilesCopy[path]).length === 0)
-              delete dbFilesCopy[path];
-            if (Object.entries(filesCopy[path]).length === 0)
-              delete filesCopy[path];
           }
         }
+
+        if (dbFilesCopy[path] && Object.entries(dbFilesCopy[path]).length === 0)
+          keystoDeleteDbFilesCopy.push(path);
+        if (filesCopy[path] && Object.entries(filesCopy[path]).length === 0)
+          keystoDeleteFilesCopy.push(path);
       }
-      changedFiles = { ...filesCopy, ...dbFilesCopy };
+      for (const key of keystoDeleteDbFilesCopy) {
+        delete dbFilesCopy[key];
+      }
+      for (const key of keystoDeleteFilesCopy) {
+        delete filesCopy[key];
+      }
+
+      for (const [path, fileList] of Object.entries(dbFilesCopy)) {
+        for (const [filename, obj] of Object.entries(fileList)) {
+          let sync_status = "delete";
+          dbFilesCopy[path][filename] = { ...obj, sync_status };
+        }
+      }
+      for (const [path, fileList] of Object.entries(filesCopy)) {
+        for (const [filename, obj] of Object.entries(fileList)) {
+          let sync_status = "new";
+          filesCopy[path][filename] = { ...obj, sync_status };
+        }
+      }
+
+      for (const [path, fileList] of Object.entries(filesCopy)) {
+        changedFiles[path] = { ...changedFiles[path], ...fileList };
+      }
+      for (const [path, fileList] of Object.entries(dbFilesCopy)) {
+        changedFiles[path] = { ...changedFiles[path], ...fileList };
+      }
+      for (const [path, fileList] of Object.entries(updatedFiles)) {
+        changedFiles[path] = { ...changedFiles[path], ...fileList };
+      }
+
+      for (const [path, fileList] of Object.entries(changedFiles)) {
+        if (Object.entries(fileList).length === 0) {
+          delete changedFiles[path];
+        }
+      }
       for (const [path, dirList] of Object.entries(dbDirs)) {
-        for (const [folder, obj] of Object.entries(dirList)) {
+        for (const [folder, _] of Object.entries(dirList)) {
           if (dirs[path] && dirs[path][folder]) {
             delete dbDirsCopy[path][folder];
             delete dirsCopy[path][folder];
-            if (Object.entries(dbDirsCopy[path]).length === 0)
-              delete dbDirsCopy[path];
-            if (Object.entries(dirsCopy[path]).length === 0)
-              delete dirsCopy[path];
           }
         }
+        if (dbDirsCopy[path] && Object.entries(dbDirsCopy[path]).length === 0) {
+          keystoDeleteDbDirsCopy.push(path);
+        }
+        if (dirsCopy[path] && Object.entries(dirsCopy[path]).length === 0) {
+          keystoDeleteDirsCopy.push(path);
+        }
       }
-      changedDirs = { ...dirsCopy, ...dbDirsCopy };
+
+      for (const key of keystoDeleteDbDirsCopy) {
+        delete dbDirsCopy[key];
+      }
+      for (const key of keystoDeleteDirsCopy) {
+        delete dirsCopy[key];
+      }
+      for (const [path, fileList] of Object.entries(dirsCopy)) {
+        changedDirs[path] = { ...changedDirs[path], ...fileList };
+      }
+      for (const [path, fileList] of Object.entries(dbDirsCopy)) {
+        changedDirs[path] = { ...changedDirs[path], ...fileList };
+      }
+
       changedDirs = Object.fromEntries(
         Object.entries(changedDirs).map(([p, f]) => [p, f[p]])
       );
+
       let orphanPathArr = [];
       for (const path of Object.keys(changedFiles)) {
         if (!changedDirs[path]) {
           const parts = path.split("/");
           const device = parts[1] === "" ? "/" : parts[1];
-          const folder = parts.at(-1) === "" ? "/" : parts.at(-1);
           const pathparts = getPathTree(parts);
           const orphanPath = await get_orphan_file_directory(
             prisma,
@@ -153,10 +264,50 @@ const compareChangesWithLocalDB = (prisma, dbFiles, dbDirs, files, dirs) =>
           changedDirs[dirObj.path] = dirObj;
         }
       }
+      changedDirs = await get_directory_status(changedDirs);
       resolve([changedFiles, changedDirs]);
     } catch (err) {
       console.log(err);
       resolve(err);
+    }
+  });
+
+const update_queue_db = (db, files, dirs) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      for (const dir of dirs) {
+        await db.directory.upsert({
+          where: {
+            device_folder_path: {
+              device: dir.device,
+              folder: dir.folder,
+              path: dir.path,
+            },
+          },
+          update: { ...dir },
+          data: { ...dir },
+        });
+      }
+      for (const file of files) {
+        await db.file.upsert({
+          where: {
+            filename_path: {
+              filename: file.filename,
+              path: file.path,
+            },
+          },
+          update: {
+            ...file,
+          },
+          data: {
+            ...file,
+          },
+        });
+      }
+      resolve();
+    } catch (err) {
+      console.error(err);
+      reject(err);
     }
   });
 
@@ -177,6 +328,49 @@ const insertFiles = (files) =>
   new Promise(async (resolve, reject) => {
     try {
     } catch (err) {}
+  });
+
+const delete_dirItems_db = (db, dirs) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      for (const dir of dirs) {
+        await prisma.file.deleteMany({
+          where: {
+            path: dir.path,
+          },
+        });
+        await prisma.directory.deleteMany({
+          where: {
+            uuid: dir.uuid,
+          },
+        });
+      }
+
+      resolve();
+    } catch (err) {
+      console.log(err);
+      reject(err);
+    }
+  });
+
+const delete_fileItems_db = (db, files) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      for (const file of files) {
+        await db.file.delete({
+          where: {
+            path_filename: {
+              path: file.path,
+              filename: file.filename,
+            },
+          },
+        });
+      }
+      resolve();
+    } catch (err) {
+      console.error(err);
+      reject(err);
+    }
   });
 
 const insert_file_directory = (db, files, dirs) =>

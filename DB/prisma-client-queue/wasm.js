@@ -95,7 +95,8 @@ exports.Prisma.FileScalarFieldEnum = {
   last_modified: 'last_modified',
   hashvalue: 'hashvalue',
   size: 'size',
-  dirID: 'dirID'
+  dirID: 'dirID',
+  sync_status: 'sync_status'
 };
 
 exports.Prisma.DirectoryScalarFieldEnum = {
@@ -177,13 +178,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client-queue\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev_queue.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
-  "inlineSchemaHash": "e19858ead25c1c3089674b2d10da5dbebebbd82f84455fd6ba0d9d31c8d61941",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client-queue\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev_queue.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  sync_status   String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
+  "inlineSchemaHash": "1be74ec2c6675161569291a91a11ba1a953f3c9d423db8858cd20390112d77a7",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sync_status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

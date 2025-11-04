@@ -21,6 +21,7 @@ model File {
   hashvalue String
   size BigInt
   dirID String
+  sync_status String
   directoryID Directory @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 

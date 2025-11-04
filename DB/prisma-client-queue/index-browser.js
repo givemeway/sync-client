@@ -123,7 +123,8 @@ exports.Prisma.FileScalarFieldEnum = {
   last_modified: 'last_modified',
   hashvalue: 'hashvalue',
   size: 'size',
-  dirID: 'dirID'
+  dirID: 'dirID',
+  sync_status: 'sync_status'
 };
 
 exports.Prisma.DirectoryScalarFieldEnum = {
