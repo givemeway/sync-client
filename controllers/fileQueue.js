@@ -24,7 +24,7 @@ export const recordFileChange = async (filePath, fileStat) => {
 export const updateDirQueue = (path, directoryQueue) =>
   new Promise(async (resolve, reject) => {
     try {
-      const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+      const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
       let folder = relPathParts.at(-1);
       let relPath = relPathParts.slice(1).join("/");
       let device = relPathParts.at(1);
@@ -66,7 +66,7 @@ export const updateDirQueue = (path, directoryQueue) =>
 export const get_file_obj = (path, stats) =>
   new Promise(async (resolve, reject) => {
     try {
-      const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+      const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
       const fileName = pathParts.at(-1);
       let relPath = pathParts.slice(1, -1).join("/");
       relPath = relPath === "" ? "/" : "/" + relPath;
@@ -81,14 +81,14 @@ export const get_file_obj = (path, stats) =>
         resolve(obj);
       } else {
       }
-    } catch (err) {}
+    } catch (err) { }
   });
 
 
 
 export const updateFileQueue = (path, fileQueueObj, stats) =>
   new Promise(async (resolve, reject) => {
-    const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+    const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
     const fileName = pathParts.at(-1);
     let relPath = pathParts.slice(1, -1).join("/");
     relPath = relPath === "" ? "/" : "/" + relPath;

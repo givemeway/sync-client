@@ -8,6 +8,7 @@ import {
   _insert_file,
   get_folder_device_path,
   _get_dirID,
+  _insert_file_folder_metadata_main_db
 } from "./controllers/get_file_folder_metadata.js";
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
@@ -40,6 +41,7 @@ const debouncedAddFile = debounce(async (fileQueueArr) => {
         const { folder, device, relPath } = get_folder_device_path(path, true);
         const { uuid } = await _get_dirID(device, folder, relPath, "new");
         const obj = await _insert_file({ ...file, dirID: uuid }, "new");
+        await _insert_file_folder_metadata_main_db(obj);
       }
     }
     fileQueueArr = [];
@@ -93,7 +95,7 @@ watcher
       } else {
         updateFileQueue(path, fileQueue, stats);
       }
-    } catch (err) {}
+    } catch (err) { }
   })
   .on("change", async (path, stats) => {
     if (INITIAL_SCAN_COMPLETE) {

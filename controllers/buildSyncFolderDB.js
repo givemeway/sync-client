@@ -23,6 +23,7 @@ export const buildSyncFolderDB = (files, dirs) =>
       const [filesObj, dirsObj] = await readSyncDB(prisma);
       const updatedFiles = await get_modified_files(filesObj, files);
       // compare the scanned files/folders with the local DB and find which are new or modified
+
       const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
         prisma,
         filesObj,
@@ -411,7 +412,7 @@ const update_queue_db = (files, dirs) =>
 const insertFiles = (files) =>
   new Promise(async (resolve, reject) => {
     try {
-    } catch (err) {}
+    } catch (err) { }
   });
 
 const delete_dirItems_db = (db, dirs) =>

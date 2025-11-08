@@ -6,7 +6,7 @@ import { stat } from "node:fs/promises";
 import { getPathTree } from "./buildSyncFolderDB.js";
 import { prisma, prisma_queue } from "../Config/prismaDBConfig.js";
 export const SYNC_PATH =
-  "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\sync_folder";
+  "/users/sandeep/desktop/sync-folder";
 
 export const get_metadata = (filesObj, dirObj) =>
   new Promise(async (resolve, reject) => {
@@ -62,20 +62,86 @@ const get_folder_metadata = (dirObj) =>
     resolve(dirs);
   });
 
-const _insert_file_folder_metadata_main_db = (fileObj) =>
+const _insert_into_main_db = (prisma, paths) => new Promise(async (resolve, reject) => {
+  try {
+    for (const path of paths) {
+      const { device, folder, relPath } = get_folder_device_path(path[1], false)
+      const dir = await prisma_queue.directory.findUnique({
+        where: {
+          device_folder_path: {
+            device, folder, path: relPath
+          }
+        },
+        select: {
+          uuid: true,
+          created_at: true,
+          path: true,
+          device: true,
+          folder: true
+        }
+      });
+      if (dir) {
+        await prisma.directory.upsert({
+          where: {
+            device_folder_path: {
+              device, folder, path: relPath
+            }
+          },
+          update: { ...dir },
+          create: { ...dir }
+        })
+        resolve();
+      } else {
+        reject(null)
+      }
+
+    }
+
+  } catch (err) {
+    console.log(err)
+    reject(err)
+  }
+
+});
+const _insert_file_into_main_db = (prisma, fileObj) => new Promise(async (resolve, reject) => {
+  try {
+    let fileObjCopy = { ...fileObj }
+    delete fileObjCopy["sync_status"];
+    await prisma.file.upsert({
+      where: {
+        path_filename: {
+          path: fileObj.path, filename: fileObj.filename
+        }
+      },
+      update: {
+        ...fileObjCopy
+      },
+      create: { ...fileObjCopy }
+    });
+    resolve()
+  } catch (err) {
+    console.error(err)
+    reject(err)
+  }
+});
+
+export const _insert_file_folder_metadata_main_db = (fileObj) =>
   new Promise(async (resolve, reject) => {
     try {
-      const file = await prisma_queue.file.findUnique({
-        where: {
-          path_filename: { filename: fileObj.filename, path: fileObj.path },
-        },
-        select: { uuid: true, path: true },
+      await prisma.$transaction(async (prisma) => {
+        const pathParts = fileObj.path.split("/")
+        const paths = await getPathTree(pathParts);
+        await _insert_into_main_db(prisma, paths);
+        await _insert_file_into_main_db(prisma, fileObj);
       });
-      if (file) {
-      } else {
-        reject(null);
-      }
-    } catch (err) {}
+      resolve()
+    } catch (err) {
+
+      console.error(err);
+      reject(err)
+
+
+    }
   });
 
 export const get_directory_status = (dirs) =>
@@ -101,7 +167,7 @@ export const get_directory_status = (dirs) =>
 export const _delete_directory = (db, path) =>
   new Promise(async (resolve, reject) => {
     try {
-      const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+      const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
       let folder = relPathParts.at(-1);
       let relPath = relPathParts.slice(1).join("/");
       let device = relPathParts.at(1);
@@ -195,8 +261,15 @@ export const _insert_file = (fileObj, status) =>
     try {
       const obj_copy = { ...fileObj, sync_status: status };
       delete obj_copy["absPath"];
-      await prisma_queue.file.create({
-        data: obj_copy,
+      await prisma_queue.file.upsert({
+        where: {
+          path_filename: {
+            path: fileObj.path,
+            filename: fileObj.filename
+          }
+        },
+        update: { ...obj_copy },
+        create: { ...obj_copy }
       });
       resolve(obj_copy);
     } catch (err) {
@@ -235,7 +308,6 @@ const _insert_dir_paths = (paths, status) =>
               created_at: true,
             },
           });
-          console.log("Inside the Delete--> and Dir value", dir);
           if (dir) {
             dirObj = { ...dirObj, ...dir };
             dirs[path] = { ...dirObj };
@@ -283,7 +355,7 @@ const _insert_dir_paths = (paths, status) =>
   });
 
 export const get_folder_device_path = (path, isFile) => {
-  const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+  const relPathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
   let folder = isFile ? relPathParts.at(-2) : relPathParts.at(-1);
   let relPath = !isFile
     ? relPathParts.slice(1).join("/")
@@ -301,7 +373,7 @@ export const get_folder_device_path = (path, isFile) => {
 
 export const _get_file_metadata = (path, stats) =>
   new Promise(async (resolve, reject) => {
-    const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("\\");
+    const pathParts = path.split(SYNC_PATH).slice(1).join("/").split("/");
     const fileName = pathParts.at(-1);
     let relPath = pathParts.slice(1, -1).join("/");
     relPath = relPath === "" ? "/" : "/" + relPath;
