@@ -132,7 +132,8 @@ exports.Prisma.DirectoryScalarFieldEnum = {
   device: 'device',
   folder: 'folder',
   path: 'path',
-  created_at: 'created_at'
+  created_at: 'created_at',
+  sync_status: 'sync_status'
 };
 
 exports.Prisma.SortOrder = {

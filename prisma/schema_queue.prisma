@@ -33,6 +33,7 @@ model Directory {
   folder String
   path String
   created_at DateTime
+  sync_status String
   @@unique([device,folder,path])
   files File[] 
   @@index([path])

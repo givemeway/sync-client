@@ -1,13 +1,27 @@
 import { prisma, prisma_queue } from "../Config/prismaDBConfig.js";
-import { v4 as uuidv4 } from "uuid";
 import { get_directory_status } from "./get_file_folder_metadata.js";
+
+export const update_main_queue_db = (files, dirs) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      await prisma.$transaction(async (prisma) => {
+        await update_db(prisma, files, dirs);
+      });
+      await prisma_queue.$transaction(async (prisma) => {
+        await update_db(prisma, files, dirs);
+      });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
 
 export const buildSyncFolderDB = (files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       // read the local DB
       const [filesObj, dirsObj] = await readSyncDB(prisma);
-      const updatedFiles = await get_changed_files(filesObj, files);
+      const updatedFiles = await get_modified_files(filesObj, files);
       // compare the scanned files/folders with the local DB and find which are new or modified
       const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
         prisma,
@@ -18,15 +32,13 @@ export const buildSyncFolderDB = (files, dirs) =>
         updatedFiles
       );
       // create a new DB with the identified files / folders
-      // await createDBWithLocalChanges(changedFiles, changedDirs);
       // Build the sync DB that will be used to sync to cloud
-      await buildSyncDB(prisma_queue, changedFiles, changedDirs);
+      await update_queue_db(changedFiles, changedDirs);
       // After these files/folders are synced to cloud update the main DB
-      // await buildSyncDB(prisma, changedFiles, changedDirs);
+      await build_main_sync_db(prisma, changedFiles, changedDirs);
       // empty the temp DB that holds the files/folders to be uploaded;
-      //await delete_db_files_folders(prisma_queue);
+      // await delete_db_files_folders(prisma_queue);
       // Monitor the FileSystem and any changes detected update in new DB
-
       resolve();
     } catch (err) {
       console.log(err);
@@ -48,27 +60,51 @@ const delete_db_files_folders = (dbCursor) =>
     }
   });
 
-const buildSyncDB = (db, files, dirs) =>
+const build_main_sync_db = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       const toBeDeletedFiles = Object.entries(files)
         .flatMap(([path, filesObj]) =>
-          Object.entries(filesObj).filter(
-            ([filename, fileObj]) => fileObj.sync_status === "delete"
-          )
+          Object.entries(filesObj)
+            .filter(([filename, fileObj]) => fileObj.sync_status === "delete")
+            .map((a) => ({ ...a[1] }))
         )
         .flat();
       const tobeDeletedDirs = Object.entries(dirs)
         .filter(([_, dirObj]) => dirObj.sync_status === "delete")
         .map((a) => ({ ...a[1] }));
-
+      const toBeInsertfiles = Object.entries(files)
+        .flatMap(([_, filesObj]) =>
+          Object.entries(filesObj)
+            .filter(([_, fileObj]) => fileObj.sync_status !== "delete")
+            .map(([_, obj]) => ({
+              filename: obj.filename,
+              path: obj.path,
+              dirID: obj.dirID,
+              hashvalue: obj.hashvalue,
+              size: obj.size,
+              last_modified: obj.last_modified,
+            }))
+        )
+        .flat();
+      const toBeInsertedDirs = Object.entries(dirs)
+        .filter(([_, dirObj]) => dirObj.sync_status !== "delete")
+        .map(([_, obj]) => ({
+          uuid: obj.uuid,
+          device: obj.device,
+          folder: obj.device,
+          path: obj.path,
+          created_at: obj.created_at,
+        }));
       console.log("toBeDeletedFiles: ", toBeDeletedFiles);
-      console.log("tobeDeletedDirs: ", tobeDeletedDirs);
-      // await db.$transaction(async (prisma) => {
-      //   await delete_fileItems_db(prisma, files);
-      //   await delete_dirItems_db(prisma, dirs);
-      //   await insert_file_directory(prisma, files, dirs);
-      // });
+      console.log("tobeDeletedDirs : ", tobeDeletedDirs);
+      console.log("toBeInsertfiles : ", toBeInsertfiles);
+      console.log("toBeInsertedDirs: ", toBeInsertedDirs);
+      await db.$transaction(async (prisma) => {
+        await delete_fileItems_db(prisma, toBeDeletedFiles);
+        await delete_dirItems_db(prisma, tobeDeletedDirs);
+        await update_db(prisma, toBeInsertfiles, toBeInsertedDirs);
+      });
       resolve();
     } catch (err) {
       console.error(err);
@@ -112,11 +148,10 @@ const readSyncDB = (prisma) =>
     }
   });
 
-const get_changed_files = (dbFiles, files) =>
+const get_modified_files = (dbFiles, files) =>
   new Promise(async (resolve, reject) => {
     try {
       let updatedFiles = {};
-      console.log(files);
       for (const [path, filesObj] of Object.entries(files)) {
         for (const [filename, fileObj] of Object.entries(filesObj)) {
           if (
@@ -138,6 +173,46 @@ const get_changed_files = (dbFiles, files) =>
         }
       }
       resolve({ ...files, ...updatedFiles });
+    } catch (err) {
+      console.error(err);
+      reject(err);
+    }
+  });
+
+const get_files_dirID = (db, files, dirs) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      let filesCopy = { ...files };
+      for (const [path, filesObj] of Object.entries(files)) {
+        const parts = path.split("/");
+        const device = parts[1] === "" ? "/" : parts[1];
+        const folder = parts.at(-1) === "" ? "/" : parts.at(-1);
+        const dir = await prisma.directory.findUnique({
+          where: {
+            device_folder_path: {
+              device,
+              folder,
+              path,
+            },
+          },
+          select: {
+            uuid: true,
+          },
+        });
+        if (dir) {
+          for (const [filename, fileObj] of Object.entries(filesObj)) {
+            filesCopy[path][filename] = { ...fileObj, dirID: dir.uuid };
+          }
+        } else {
+          for (const [filename, fileObj] of Object.entries(filesObj)) {
+            filesCopy[path][filename] = {
+              ...fileObj,
+              dirID: dirs[path]["uuid"],
+            };
+          }
+        }
+      }
+      resolve(filesCopy);
     } catch (err) {
       console.error(err);
       reject(err);
@@ -265,6 +340,7 @@ const compareChangesWithLocalDB = (
         }
       }
       changedDirs = await get_directory_status(changedDirs);
+      changedFiles = await get_files_dirID(prisma, changedFiles, changedDirs);
       resolve([changedFiles, changedDirs]);
     } catch (err) {
       console.log(err);
@@ -272,7 +348,7 @@ const compareChangesWithLocalDB = (
     }
   });
 
-const update_queue_db = (db, files, dirs) =>
+const update_db = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       for (const dir of dirs) {
@@ -285,13 +361,13 @@ const update_queue_db = (db, files, dirs) =>
             },
           },
           update: { ...dir },
-          data: { ...dir },
+          create: { ...dir },
         });
       }
       for (const file of files) {
         await db.file.upsert({
           where: {
-            filename_path: {
+            path_filename: {
               filename: file.filename,
               path: file.path,
             },
@@ -299,7 +375,7 @@ const update_queue_db = (db, files, dirs) =>
           update: {
             ...file,
           },
-          data: {
+          create: {
             ...file,
           },
         });
@@ -311,11 +387,19 @@ const update_queue_db = (db, files, dirs) =>
     }
   });
 
-const createDBWithLocalChanges = (files, dirs) =>
+const update_queue_db = (files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       await prisma_queue.$transaction(async (prisma) => {
-        await insert_file_directory(prisma, files, dirs);
+        const filesArray = Object.entries(files).flatMap(([_, filesObj]) =>
+          Object.entries(filesObj).flatMap(([_, fileObj]) => ({
+            ...fileObj,
+          }))
+        );
+        const dirsArray = Object.entries(dirs).flatMap(([_, dirObj]) => ({
+          ...dirObj,
+        }));
+        await update_db(prisma, filesArray, dirsArray);
       });
       resolve();
     } catch (error) {
@@ -339,7 +423,7 @@ const delete_dirItems_db = (db, dirs) =>
             path: dir.path,
           },
         });
-        await prisma.directory.deleteMany({
+        await prisma.directory.delete({
           where: {
             uuid: dir.uuid,
           },
@@ -470,7 +554,7 @@ export const get_orphan_file_directory = (prisma, paths, device) =>
     try {
       let pathsToInsert = [];
       for (const pth of paths) {
-        const { uuid, created_at } = await prisma.directory.findUnique({
+        const dir = await prisma.directory.findUnique({
           where: {
             device_folder_path: {
               device: device,
@@ -483,12 +567,13 @@ export const get_orphan_file_directory = (prisma, paths, device) =>
             created_at: true,
           },
         });
+
         const dirObj = {
-          uuid,
+          uuid: dir.uuid,
           device,
           folder: pth[0],
           path: pth[1],
-          created_at: created_at,
+          created_at: dir.created_at,
         };
         pathsToInsert.push(dirObj);
       }

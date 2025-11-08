@@ -29,12 +29,13 @@ model File {
 }
 
 model Directory {
-  uuid       String   @unique()
-  device     String
-  folder     String
-  path       String
-  created_at DateTime
-  files      File[]
+  uuid        String   @unique()
+  device      String
+  folder      String
+  path        String
+  created_at  DateTime
+  sync_status String
+  files       File[]
 
   @@unique([device, folder, path])
   @@index([path])
