@@ -130,7 +130,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/sandeep/Desktop/sync-client/DB/prisma-client-queue",
+      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client-queue",
       "fromEnvVar": null
     },
     "config": {
@@ -139,7 +139,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       },
       {
@@ -159,7 +159,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "/Users/sandeep/Desktop/sync-client/prisma/schema_queue.prisma",
+    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema_queue.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -220,8 +220,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
-path.join(process.cwd(), "DB/prisma-client-queue/libquery_engine-darwin-arm64.dylib.node")
+path.join(__dirname, "query_engine-windows.dll.node");
+path.join(process.cwd(), "DB/prisma-client-queue/query_engine-windows.dll.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-1.1.x.so.node");
@@ -230,6 +230,10 @@ path.join(process.cwd(), "DB/prisma-client-queue/libquery_engine-debian-openssl-
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
 path.join(process.cwd(), "DB/prisma-client-queue/libquery_engine-debian-openssl-3.0.x.so.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
+path.join(process.cwd(), "DB/prisma-client-queue/libquery_engine-darwin-arm64.dylib.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "DB/prisma-client-queue/schema.prisma")

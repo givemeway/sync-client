@@ -1,17 +1,24 @@
 import { recordFileChange } from "./controllers/fileQueue.js";
+import { prisma_queue } from "./Config/prismaDBConfig.js";
 import { watcherFn } from "./controllers/MonitorFileSystem.js";
-import { buildSyncFolderDB } from "./controllers/buildSyncFolderDB.js";
+import {
+  buildSyncFolderDB,
+  getPathTree,
+} from "./controllers/buildSyncFolderDB.js";
 import {
   get_metadata,
   _get_file_metadata,
-  _insert_directory_tree,
-  _insert_file,
+  _insert_file_queue_db,
   get_folder_device_path,
   _get_dirID,
-  _insert_file_folder_metadata_main_db
+  _insert_file_folder_main_db,
+  _insert_dirs_queue_db,
+  _delete_file_main_db,
+  _delete_dir_main_db,
 } from "./controllers/get_file_folder_metadata.js";
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
+console.log("Sync Path: ", SYNC_PATH);
 const log = console.log.bind(console);
 
 const watcher = watcherFn(SYNC_PATH);
@@ -32,56 +39,73 @@ const debounce = (cb, delay) => {
   };
 };
 
-const debouncedAddFile = debounce(async (fileQueueArr) => {
+const debouncedAddFile = debounce(async () => {
   console.log("CallBack for File Add");
   try {
     for (const obj of fileQueueArr) {
       for (const [path, fileObj] of Object.entries(obj)) {
         const file = await _get_file_metadata(path, fileObj);
-        const { folder, device, relPath } = get_folder_device_path(path, true);
-        const { uuid } = await _get_dirID(device, folder, relPath, "new");
-        const obj = await _insert_file({ ...file, dirID: uuid }, "new");
-        await _insert_file_folder_metadata_main_db(obj);
+        const { relPath } = get_folder_device_path(path, true);
+        const dbFile = await _insert_file_queue_db(file, relPath, "new");
+        await _insert_file_folder_main_db(dbFile, true);
       }
     }
     fileQueueArr = [];
   } catch (err) {
+    console.log("*************************************************");
     console.log(err);
+    console.log("*************************************************");
   }
 }, 500);
 
-const debounceAddDir = debounce(async (directoryQueueArr) => {
+const debounceAddDir = debounce(async () => {
   console.log("Callback for Dir add");
   try {
     for (const path of directoryQueueArr) {
-      await _insert_directory_tree(path, false, "new");
+      const { relPath, device, folder } = get_folder_device_path(path, false);
+      const treePaths = await getPathTree(relPath.split("/"));
+      await _insert_dirs_queue_db(prisma_queue, treePaths, "new");
+      await _insert_file_folder_main_db(path, false, device, folder, relPath);
     }
+    directoryQueueArr = [];
   } catch (err) {
+    console.log("*************************************************");
     console.log(err);
+    console.log("*************************************************");
   }
 }, 500);
 
-const debounceRemoveDir = debounce(async (directoryQueueArr) => {
+const debounceRemoveDir = debounce(async () => {
   console.log("CallBack for Dir Remove");
   try {
     for (const path of deleteDirQueue) {
-      await _insert_directory_tree(path, false, "delete");
+      const { relPath, device, folder } = get_folder_device_path(path, false);
+      const treePaths = await getPathTree(relPath.split("/"));
+      await _insert_dirs_queue_db(prisma_queue, treePaths, "delete");
+      await _delete_dir_main_db(relPath, device, folder);
     }
+    deleteDirQueue = [];
   } catch (err) {
+    console.log("*************************************************");
     console.log(err);
+    console.log("*************************************************");
   }
 }, 500);
 
-const debounceRemoveFile = debounce(async (fileQueueArr) => {
+const debounceRemoveFile = debounce(async () => {
   console.log("CallBack for File remove");
   try {
     for (const path of deleteFileQueue) {
       const file = await _get_file_metadata(path, null);
-
-      await _insert_file(file, "delete");
+      const { relPath, device, folder } = get_folder_device_path(path, true);
+      await _insert_file_queue_db(file, relPath, "delete");
+      await _delete_file_main_db(file);
     }
+    deleteFileQueue = [];
   } catch (err) {
+    console.log("*************************************************");
     console.log(err);
+    console.log("*************************************************");
   }
 }, 500);
 
@@ -91,11 +115,12 @@ watcher
       if (INITIAL_SCAN_COMPLETE) {
         console.log("Add File  -> ", path);
         fileQueueArr.push({ [path]: stats });
+        console.log(stats);
         debouncedAddFile(fileQueueArr);
       } else {
         updateFileQueue(path, fileQueue, stats);
       }
-    } catch (err) { }
+    } catch (err) {}
   })
   .on("change", async (path, stats) => {
     if (INITIAL_SCAN_COMPLETE) {

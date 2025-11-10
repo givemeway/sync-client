@@ -23,7 +23,6 @@ export const buildSyncFolderDB = (files, dirs) =>
       const [filesObj, dirsObj] = await readSyncDB(prisma);
       const updatedFiles = await get_modified_files(filesObj, files);
       // compare the scanned files/folders with the local DB and find which are new or modified
-
       const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
         prisma,
         filesObj,
@@ -64,6 +63,7 @@ const delete_db_files_folders = (dbCursor) =>
 const build_main_sync_db = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
+      console.log("Building Main Sync DB..................");
       const toBeDeletedFiles = Object.entries(files)
         .flatMap(([path, filesObj]) =>
           Object.entries(filesObj)
@@ -97,10 +97,10 @@ const build_main_sync_db = (db, files, dirs) =>
           path: obj.path,
           created_at: obj.created_at,
         }));
-      console.log("toBeDeletedFiles: ", toBeDeletedFiles);
-      console.log("tobeDeletedDirs : ", tobeDeletedDirs);
-      console.log("toBeInsertfiles : ", toBeInsertfiles);
-      console.log("toBeInsertedDirs: ", toBeInsertedDirs);
+      // console.log("toBeDeletedFiles: ", toBeDeletedFiles);
+      // console.log("tobeDeletedDirs : ", tobeDeletedDirs);
+      // console.log("toBeInsertfiles : ", toBeInsertfiles);
+      // console.log("toBeInsertedDirs: ", toBeInsertedDirs);
       await db.$transaction(async (prisma) => {
         await delete_fileItems_db(prisma, toBeDeletedFiles);
         await delete_dirItems_db(prisma, tobeDeletedDirs);
@@ -352,7 +352,9 @@ const compareChangesWithLocalDB = (
 const update_db = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
+      console.log(dirs);
       for (const dir of dirs) {
+        console.log(dir);
         await db.directory.upsert({
           where: {
             device_folder_path: {
@@ -381,6 +383,7 @@ const update_db = (db, files, dirs) =>
           },
         });
       }
+
       resolve();
     } catch (err) {
       console.error(err);
@@ -412,7 +415,7 @@ const update_queue_db = (files, dirs) =>
 const insertFiles = (files) =>
   new Promise(async (resolve, reject) => {
     try {
-    } catch (err) { }
+    } catch (err) {}
   });
 
 const delete_dirItems_db = (db, dirs) =>
