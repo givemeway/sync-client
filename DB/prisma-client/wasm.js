@@ -95,7 +95,8 @@ exports.Prisma.FileScalarFieldEnum = {
   last_modified: 'last_modified',
   hashvalue: 'hashvalue',
   size: 'size',
-  dirID: 'dirID'
+  dirID: 'dirID',
+  inode: 'inode'
 };
 
 exports.Prisma.DirectoryScalarFieldEnum = {
@@ -127,7 +128,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client",
+      "value": "/Users/sandeep/Desktop/sync-client/DB/prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -136,7 +137,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       },
       {
@@ -156,7 +157,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/sandeep/Desktop/sync-client/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -177,13 +178,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
-  "inlineSchemaHash": "d930930198a3d7b53d4d579e0856882c4bec62f1ecb44b0756f276ea36ccdba1",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  inode         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
+  "inlineSchemaHash": "228506ea269ee05918aebfe0548ec307161c52bb82e59a1fa646235769d31c70",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

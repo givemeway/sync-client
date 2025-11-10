@@ -606,6 +606,24 @@ export const _get_file_metadata = (path, stats) =>
     }
   });
 
+export const _get_file_change_state = (file) => new Promise(async (resolve, reject) => {
+  try {
+    const fileObj = await prisma.file.findUnique({
+      where: {
+
+      }
+    });
+    let fileObjCopy = { ...file }
+    if (fileObj && fileObj.inode === file.inode && fileObj.size === file.size && fileObj.last_modified === file.last_modified && fileObj.hashvalue === file.hashvalue && fileObj.filename !== file.filename) {
+      fileObjCopy["sync_status"] = "renamed"
+    } else if (fileObj && fileObj.filename === file.filename && fileObj.hashvalue !== file.hashvalue && fileObj.inode === file.inode) {
+      fileObjCopy["sync_status"] = "modified";
+    }
+  } catch (error) {
+    console.log(error)
+  }
+});
+
 export const get_file_metadata = (obj) =>
   new Promise(async (resolve, reject) => {
     const filesArray = Object.entries(obj);

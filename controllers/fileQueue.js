@@ -83,7 +83,7 @@ export const get_file_obj = (path, stats) =>
         resolve(obj);
       } else {
       }
-    } catch (err) {}
+    } catch (err) { }
   });
 
 export const updateFileQueue = (path, fileQueueObj, stats) =>
@@ -101,7 +101,9 @@ export const updateFileQueue = (path, fileQueueObj, stats) =>
           size: stats.size,
           path: relPath,
           absPath: path,
+          inode: stats.ino.toString()
         };
+        console.log("obj: ", obj)
         if (fileQueueObj[relPath]) {
           fileQueueObj[relPath] = {
             ...fileQueueObj[relPath],

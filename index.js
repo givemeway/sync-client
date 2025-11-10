@@ -1,4 +1,3 @@
-import { recordFileChange } from "./controllers/fileQueue.js";
 import { prisma_queue } from "./Config/prismaDBConfig.js";
 import { watcherFn } from "./controllers/MonitorFileSystem.js";
 import {
@@ -15,6 +14,7 @@ import {
   _insert_dirs_queue_db,
   _delete_file_main_db,
   _delete_dir_main_db,
+  get_file_metadata,
 } from "./controllers/get_file_folder_metadata.js";
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
@@ -29,6 +29,7 @@ let fileQueueArr = [];
 let directoryQueueArr = [];
 let deleteFileQueue = [];
 let deleteDirQueue = [];
+let modifiedFileQueue = [];
 const debounce = (cb, delay) => {
   let timeout;
   return (...args) => {
@@ -52,9 +53,7 @@ const debouncedAddFile = debounce(async () => {
     }
     fileQueueArr = [];
   } catch (err) {
-    console.log("*************************************************");
     console.log(err);
-    console.log("*************************************************");
   }
 }, 500);
 
@@ -69,9 +68,7 @@ const debounceAddDir = debounce(async () => {
     }
     directoryQueueArr = [];
   } catch (err) {
-    console.log("*************************************************");
     console.log(err);
-    console.log("*************************************************");
   }
 }, 500);
 
@@ -86,11 +83,22 @@ const debounceRemoveDir = debounce(async () => {
     }
     deleteDirQueue = [];
   } catch (err) {
-    console.log("*************************************************");
     console.log(err);
-    console.log("*************************************************");
   }
 }, 500);
+
+const debouncedModified = debounce(async () => {
+  try {
+    for (const obj of modifiedFileQueue) {
+      for (const [path, fileObj] of Object.entries(obj)) {
+        const file = await _get_file_metadata(path, fileObj);
+
+      }
+    }
+  } catch (error) {
+    console.log(error)
+  }
+});
 
 const debounceRemoveFile = debounce(async () => {
   console.log("CallBack for File remove");
@@ -103,9 +111,7 @@ const debounceRemoveFile = debounce(async () => {
     }
     deleteFileQueue = [];
   } catch (err) {
-    console.log("*************************************************");
     console.log(err);
-    console.log("*************************************************");
   }
 }, 500);
 
@@ -120,12 +126,14 @@ watcher
       } else {
         updateFileQueue(path, fileQueue, stats);
       }
-    } catch (err) {}
+    } catch (err) { }
   })
   .on("change", async (path, stats) => {
     if (INITIAL_SCAN_COMPLETE) {
       console.log("Change File -> ", path);
       updateFileQueue(path, fileQueue, stats);
+    } else {
+      modifiedFileQueue.push({ [path]: stats })
     }
   })
   .on("unlink", async (path, stats) => {

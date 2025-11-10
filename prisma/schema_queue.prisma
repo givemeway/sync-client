@@ -22,6 +22,7 @@ model File {
   size BigInt
   dirID String
   sync_status String
+  inode String
   directoryID Directory @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 

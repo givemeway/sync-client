@@ -84,6 +84,7 @@ const build_main_sync_db = (db, files, dirs) =>
               dirID: obj.dirID,
               hashvalue: obj.hashvalue,
               size: obj.size,
+              inode: obj.inode,
               last_modified: obj.last_modified,
             }))
         )
@@ -97,10 +98,10 @@ const build_main_sync_db = (db, files, dirs) =>
           path: obj.path,
           created_at: obj.created_at,
         }));
-      // console.log("toBeDeletedFiles: ", toBeDeletedFiles);
-      // console.log("tobeDeletedDirs : ", tobeDeletedDirs);
-      // console.log("toBeInsertfiles : ", toBeInsertfiles);
-      // console.log("toBeInsertedDirs: ", toBeInsertedDirs);
+      console.log("toBeDeletedFiles: ", toBeDeletedFiles);
+      console.log("tobeDeletedDirs : ", tobeDeletedDirs);
+      console.log("toBeInsertfiles : ", toBeInsertfiles);
+      console.log("toBeInsertedDirs: ", toBeInsertedDirs);
       await db.$transaction(async (prisma) => {
         await delete_fileItems_db(prisma, toBeDeletedFiles);
         await delete_dirItems_db(prisma, tobeDeletedDirs);
@@ -135,7 +136,7 @@ const readSyncDB = (prisma) =>
       for (const dir of dirs) {
         if (dirsObj[dir.path]) {
           dirsObj[dir.path] = {
-            ...dirsobj[dir.path],
+            ...dirsObj[dir.path],
             [dir.path]: { ...dir },
           };
         } else {
@@ -352,7 +353,6 @@ const compareChangesWithLocalDB = (
 const update_db = (db, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
-      console.log(dirs);
       for (const dir of dirs) {
         console.log(dir);
         await db.directory.upsert({
@@ -415,7 +415,7 @@ const update_queue_db = (files, dirs) =>
 const insertFiles = (files) =>
   new Promise(async (resolve, reject) => {
     try {
-    } catch (err) {}
+    } catch (err) { }
   });
 
 const delete_dirItems_db = (db, dirs) =>
