@@ -130,7 +130,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/sandeep/Desktop/sync-client/DB/prisma-client-queue",
+      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client-queue",
       "fromEnvVar": null
     },
     "config": {
@@ -139,7 +139,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       },
       {
@@ -159,7 +159,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "/Users/sandeep/Desktop/sync-client/prisma/schema_queue.prisma",
+    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema_queue.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

@@ -37,3 +37,29 @@ model Directory {
   files File[] 
   @@index([path])
 }
+
+model FileQueue {
+  path String
+  filename String
+  last_modified DateTime
+  hashvalue String
+  size BigInt
+  dirID String
+  sync_status String
+  inode String
+  directoryID DirectoryQueue @relation(fields: [dirID],references: [uuid])
+  @@unique([path,filename])
+  @@index([path,filename]) 
+}
+
+model DirectoryQueue {
+  uuid String @unique()
+  device String
+  folder String
+  path String
+  created_at DateTime
+  sync_status String
+  @@unique([device,folder,path])
+  files FileQueue[] 
+  @@index([path])
+}

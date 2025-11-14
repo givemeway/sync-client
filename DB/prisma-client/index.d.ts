@@ -23,6 +23,16 @@ export type File = $Result.DefaultSelection<Prisma.$FilePayload>
  * 
  */
 export type Directory = $Result.DefaultSelection<Prisma.$DirectoryPayload>
+/**
+ * Model FileQueue
+ * 
+ */
+export type FileQueue = $Result.DefaultSelection<Prisma.$FileQueuePayload>
+/**
+ * Model DirectoryQueue
+ * 
+ */
+export type DirectoryQueue = $Result.DefaultSelection<Prisma.$DirectoryQueuePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -161,6 +171,26 @@ export class PrismaClient<
     * ```
     */
   get directory(): Prisma.DirectoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.fileQueue`: Exposes CRUD operations for the **FileQueue** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FileQueues
+    * const fileQueues = await prisma.fileQueue.findMany()
+    * ```
+    */
+  get fileQueue(): Prisma.FileQueueDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.directoryQueue`: Exposes CRUD operations for the **DirectoryQueue** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DirectoryQueues
+    * const directoryQueues = await prisma.directoryQueue.findMany()
+    * ```
+    */
+  get directoryQueue(): Prisma.DirectoryQueueDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -603,7 +633,9 @@ export namespace Prisma {
 
   export const ModelName: {
     File: 'File',
-    Directory: 'Directory'
+    Directory: 'Directory',
+    FileQueue: 'FileQueue',
+    DirectoryQueue: 'DirectoryQueue'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -622,7 +654,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "file" | "directory"
+      modelProps: "file" | "directory" | "fileQueue" | "directoryQueue"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -774,6 +806,154 @@ export namespace Prisma {
           }
         }
       }
+      FileQueue: {
+        payload: Prisma.$FileQueuePayload<ExtArgs>
+        fields: Prisma.FileQueueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FileQueueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FileQueueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          findFirst: {
+            args: Prisma.FileQueueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FileQueueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          findMany: {
+            args: Prisma.FileQueueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>[]
+          }
+          create: {
+            args: Prisma.FileQueueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          createMany: {
+            args: Prisma.FileQueueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FileQueueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>[]
+          }
+          delete: {
+            args: Prisma.FileQueueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          update: {
+            args: Prisma.FileQueueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          deleteMany: {
+            args: Prisma.FileQueueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FileQueueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FileQueueUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>[]
+          }
+          upsert: {
+            args: Prisma.FileQueueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FileQueuePayload>
+          }
+          aggregate: {
+            args: Prisma.FileQueueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFileQueue>
+          }
+          groupBy: {
+            args: Prisma.FileQueueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FileQueueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FileQueueCountArgs<ExtArgs>
+            result: $Utils.Optional<FileQueueCountAggregateOutputType> | number
+          }
+        }
+      }
+      DirectoryQueue: {
+        payload: Prisma.$DirectoryQueuePayload<ExtArgs>
+        fields: Prisma.DirectoryQueueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DirectoryQueueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DirectoryQueueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          findFirst: {
+            args: Prisma.DirectoryQueueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DirectoryQueueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          findMany: {
+            args: Prisma.DirectoryQueueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>[]
+          }
+          create: {
+            args: Prisma.DirectoryQueueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          createMany: {
+            args: Prisma.DirectoryQueueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DirectoryQueueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>[]
+          }
+          delete: {
+            args: Prisma.DirectoryQueueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          update: {
+            args: Prisma.DirectoryQueueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          deleteMany: {
+            args: Prisma.DirectoryQueueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DirectoryQueueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DirectoryQueueUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>[]
+          }
+          upsert: {
+            args: Prisma.DirectoryQueueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DirectoryQueuePayload>
+          }
+          aggregate: {
+            args: Prisma.DirectoryQueueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDirectoryQueue>
+          }
+          groupBy: {
+            args: Prisma.DirectoryQueueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DirectoryQueueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DirectoryQueueCountArgs<ExtArgs>
+            result: $Utils.Optional<DirectoryQueueCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -872,6 +1052,8 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     file?: FileOmit
     directory?: DirectoryOmit
+    fileQueue?: FileQueueOmit
+    directoryQueue?: DirectoryQueueOmit
   }
 
   /* Types for Logging */
@@ -975,6 +1157,37 @@ export namespace Prisma {
    */
   export type DirectoryCountOutputTypeCountFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: FileWhereInput
+  }
+
+
+  /**
+   * Count Type DirectoryQueueCountOutputType
+   */
+
+  export type DirectoryQueueCountOutputType = {
+    files: number
+  }
+
+  export type DirectoryQueueCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    files?: boolean | DirectoryQueueCountOutputTypeCountFilesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DirectoryQueueCountOutputType without action
+   */
+  export type DirectoryQueueCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueueCountOutputType
+     */
+    select?: DirectoryQueueCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DirectoryQueueCountOutputType without action
+   */
+  export type DirectoryQueueCountOutputTypeCountFilesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FileQueueWhereInput
   }
 
 
@@ -3167,6 +3380,2216 @@ export namespace Prisma {
 
 
   /**
+   * Model FileQueue
+   */
+
+  export type AggregateFileQueue = {
+    _count: FileQueueCountAggregateOutputType | null
+    _avg: FileQueueAvgAggregateOutputType | null
+    _sum: FileQueueSumAggregateOutputType | null
+    _min: FileQueueMinAggregateOutputType | null
+    _max: FileQueueMaxAggregateOutputType | null
+  }
+
+  export type FileQueueAvgAggregateOutputType = {
+    size: number | null
+  }
+
+  export type FileQueueSumAggregateOutputType = {
+    size: bigint | null
+  }
+
+  export type FileQueueMinAggregateOutputType = {
+    path: string | null
+    filename: string | null
+    last_modified: Date | null
+    hashvalue: string | null
+    size: bigint | null
+    dirID: string | null
+    sync_status: string | null
+    inode: string | null
+  }
+
+  export type FileQueueMaxAggregateOutputType = {
+    path: string | null
+    filename: string | null
+    last_modified: Date | null
+    hashvalue: string | null
+    size: bigint | null
+    dirID: string | null
+    sync_status: string | null
+    inode: string | null
+  }
+
+  export type FileQueueCountAggregateOutputType = {
+    path: number
+    filename: number
+    last_modified: number
+    hashvalue: number
+    size: number
+    dirID: number
+    sync_status: number
+    inode: number
+    _all: number
+  }
+
+
+  export type FileQueueAvgAggregateInputType = {
+    size?: true
+  }
+
+  export type FileQueueSumAggregateInputType = {
+    size?: true
+  }
+
+  export type FileQueueMinAggregateInputType = {
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    size?: true
+    dirID?: true
+    sync_status?: true
+    inode?: true
+  }
+
+  export type FileQueueMaxAggregateInputType = {
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    size?: true
+    dirID?: true
+    sync_status?: true
+    inode?: true
+  }
+
+  export type FileQueueCountAggregateInputType = {
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    size?: true
+    dirID?: true
+    sync_status?: true
+    inode?: true
+    _all?: true
+  }
+
+  export type FileQueueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FileQueue to aggregate.
+     */
+    where?: FileQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FileQueues to fetch.
+     */
+    orderBy?: FileQueueOrderByWithRelationInput | FileQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FileQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FileQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FileQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FileQueues
+    **/
+    _count?: true | FileQueueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FileQueueAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FileQueueSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FileQueueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FileQueueMaxAggregateInputType
+  }
+
+  export type GetFileQueueAggregateType<T extends FileQueueAggregateArgs> = {
+        [P in keyof T & keyof AggregateFileQueue]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFileQueue[P]>
+      : GetScalarType<T[P], AggregateFileQueue[P]>
+  }
+
+
+
+
+  export type FileQueueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FileQueueWhereInput
+    orderBy?: FileQueueOrderByWithAggregationInput | FileQueueOrderByWithAggregationInput[]
+    by: FileQueueScalarFieldEnum[] | FileQueueScalarFieldEnum
+    having?: FileQueueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FileQueueCountAggregateInputType | true
+    _avg?: FileQueueAvgAggregateInputType
+    _sum?: FileQueueSumAggregateInputType
+    _min?: FileQueueMinAggregateInputType
+    _max?: FileQueueMaxAggregateInputType
+  }
+
+  export type FileQueueGroupByOutputType = {
+    path: string
+    filename: string
+    last_modified: Date
+    hashvalue: string
+    size: bigint
+    dirID: string
+    sync_status: string
+    inode: string
+    _count: FileQueueCountAggregateOutputType | null
+    _avg: FileQueueAvgAggregateOutputType | null
+    _sum: FileQueueSumAggregateOutputType | null
+    _min: FileQueueMinAggregateOutputType | null
+    _max: FileQueueMaxAggregateOutputType | null
+  }
+
+  type GetFileQueueGroupByPayload<T extends FileQueueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FileQueueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FileQueueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FileQueueGroupByOutputType[P]>
+            : GetScalarType<T[P], FileQueueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FileQueueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    size?: boolean
+    dirID?: boolean
+    sync_status?: boolean
+    inode?: boolean
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fileQueue"]>
+
+  export type FileQueueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    size?: boolean
+    dirID?: boolean
+    sync_status?: boolean
+    inode?: boolean
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fileQueue"]>
+
+  export type FileQueueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    size?: boolean
+    dirID?: boolean
+    sync_status?: boolean
+    inode?: boolean
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["fileQueue"]>
+
+  export type FileQueueSelectScalar = {
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    size?: boolean
+    dirID?: boolean
+    sync_status?: boolean
+    inode?: boolean
+  }
+
+  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode", ExtArgs["result"]["fileQueue"]>
+  export type FileQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }
+  export type FileQueueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }
+  export type FileQueueIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
+  }
+
+  export type $FileQueuePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "FileQueue"
+    objects: {
+      directoryID: Prisma.$DirectoryQueuePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      path: string
+      filename: string
+      last_modified: Date
+      hashvalue: string
+      size: bigint
+      dirID: string
+      sync_status: string
+      inode: string
+    }, ExtArgs["result"]["fileQueue"]>
+    composites: {}
+  }
+
+  type FileQueueGetPayload<S extends boolean | null | undefined | FileQueueDefaultArgs> = $Result.GetResult<Prisma.$FileQueuePayload, S>
+
+  type FileQueueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FileQueueFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: FileQueueCountAggregateInputType | true
+    }
+
+  export interface FileQueueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FileQueue'], meta: { name: 'FileQueue' } }
+    /**
+     * Find zero or one FileQueue that matches the filter.
+     * @param {FileQueueFindUniqueArgs} args - Arguments to find a FileQueue
+     * @example
+     * // Get one FileQueue
+     * const fileQueue = await prisma.fileQueue.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FileQueueFindUniqueArgs>(args: SelectSubset<T, FileQueueFindUniqueArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one FileQueue that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FileQueueFindUniqueOrThrowArgs} args - Arguments to find a FileQueue
+     * @example
+     * // Get one FileQueue
+     * const fileQueue = await prisma.fileQueue.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FileQueueFindUniqueOrThrowArgs>(args: SelectSubset<T, FileQueueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FileQueue that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueFindFirstArgs} args - Arguments to find a FileQueue
+     * @example
+     * // Get one FileQueue
+     * const fileQueue = await prisma.fileQueue.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FileQueueFindFirstArgs>(args?: SelectSubset<T, FileQueueFindFirstArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first FileQueue that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueFindFirstOrThrowArgs} args - Arguments to find a FileQueue
+     * @example
+     * // Get one FileQueue
+     * const fileQueue = await prisma.fileQueue.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FileQueueFindFirstOrThrowArgs>(args?: SelectSubset<T, FileQueueFindFirstOrThrowArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more FileQueues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FileQueues
+     * const fileQueues = await prisma.fileQueue.findMany()
+     * 
+     * // Get first 10 FileQueues
+     * const fileQueues = await prisma.fileQueue.findMany({ take: 10 })
+     * 
+     * // Only select the `path`
+     * const fileQueueWithPathOnly = await prisma.fileQueue.findMany({ select: { path: true } })
+     * 
+     */
+    findMany<T extends FileQueueFindManyArgs>(args?: SelectSubset<T, FileQueueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a FileQueue.
+     * @param {FileQueueCreateArgs} args - Arguments to create a FileQueue.
+     * @example
+     * // Create one FileQueue
+     * const FileQueue = await prisma.fileQueue.create({
+     *   data: {
+     *     // ... data to create a FileQueue
+     *   }
+     * })
+     * 
+     */
+    create<T extends FileQueueCreateArgs>(args: SelectSubset<T, FileQueueCreateArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many FileQueues.
+     * @param {FileQueueCreateManyArgs} args - Arguments to create many FileQueues.
+     * @example
+     * // Create many FileQueues
+     * const fileQueue = await prisma.fileQueue.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FileQueueCreateManyArgs>(args?: SelectSubset<T, FileQueueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many FileQueues and returns the data saved in the database.
+     * @param {FileQueueCreateManyAndReturnArgs} args - Arguments to create many FileQueues.
+     * @example
+     * // Create many FileQueues
+     * const fileQueue = await prisma.fileQueue.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many FileQueues and only return the `path`
+     * const fileQueueWithPathOnly = await prisma.fileQueue.createManyAndReturn({
+     *   select: { path: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FileQueueCreateManyAndReturnArgs>(args?: SelectSubset<T, FileQueueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a FileQueue.
+     * @param {FileQueueDeleteArgs} args - Arguments to delete one FileQueue.
+     * @example
+     * // Delete one FileQueue
+     * const FileQueue = await prisma.fileQueue.delete({
+     *   where: {
+     *     // ... filter to delete one FileQueue
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FileQueueDeleteArgs>(args: SelectSubset<T, FileQueueDeleteArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one FileQueue.
+     * @param {FileQueueUpdateArgs} args - Arguments to update one FileQueue.
+     * @example
+     * // Update one FileQueue
+     * const fileQueue = await prisma.fileQueue.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FileQueueUpdateArgs>(args: SelectSubset<T, FileQueueUpdateArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more FileQueues.
+     * @param {FileQueueDeleteManyArgs} args - Arguments to filter FileQueues to delete.
+     * @example
+     * // Delete a few FileQueues
+     * const { count } = await prisma.fileQueue.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FileQueueDeleteManyArgs>(args?: SelectSubset<T, FileQueueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FileQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FileQueues
+     * const fileQueue = await prisma.fileQueue.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FileQueueUpdateManyArgs>(args: SelectSubset<T, FileQueueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FileQueues and returns the data updated in the database.
+     * @param {FileQueueUpdateManyAndReturnArgs} args - Arguments to update many FileQueues.
+     * @example
+     * // Update many FileQueues
+     * const fileQueue = await prisma.fileQueue.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more FileQueues and only return the `path`
+     * const fileQueueWithPathOnly = await prisma.fileQueue.updateManyAndReturn({
+     *   select: { path: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FileQueueUpdateManyAndReturnArgs>(args: SelectSubset<T, FileQueueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one FileQueue.
+     * @param {FileQueueUpsertArgs} args - Arguments to update or create a FileQueue.
+     * @example
+     * // Update or create a FileQueue
+     * const fileQueue = await prisma.fileQueue.upsert({
+     *   create: {
+     *     // ... data to create a FileQueue
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FileQueue we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FileQueueUpsertArgs>(args: SelectSubset<T, FileQueueUpsertArgs<ExtArgs>>): Prisma__FileQueueClient<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of FileQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueCountArgs} args - Arguments to filter FileQueues to count.
+     * @example
+     * // Count the number of FileQueues
+     * const count = await prisma.fileQueue.count({
+     *   where: {
+     *     // ... the filter for the FileQueues we want to count
+     *   }
+     * })
+    **/
+    count<T extends FileQueueCountArgs>(
+      args?: Subset<T, FileQueueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FileQueueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FileQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FileQueueAggregateArgs>(args: Subset<T, FileQueueAggregateArgs>): Prisma.PrismaPromise<GetFileQueueAggregateType<T>>
+
+    /**
+     * Group by FileQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FileQueueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FileQueueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FileQueueGroupByArgs['orderBy'] }
+        : { orderBy?: FileQueueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FileQueueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFileQueueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the FileQueue model
+   */
+  readonly fields: FileQueueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FileQueue.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FileQueueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    directoryID<T extends DirectoryQueueDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DirectoryQueueDefaultArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the FileQueue model
+   */
+  interface FileQueueFieldRefs {
+    readonly path: FieldRef<"FileQueue", 'String'>
+    readonly filename: FieldRef<"FileQueue", 'String'>
+    readonly last_modified: FieldRef<"FileQueue", 'DateTime'>
+    readonly hashvalue: FieldRef<"FileQueue", 'String'>
+    readonly size: FieldRef<"FileQueue", 'BigInt'>
+    readonly dirID: FieldRef<"FileQueue", 'String'>
+    readonly sync_status: FieldRef<"FileQueue", 'String'>
+    readonly inode: FieldRef<"FileQueue", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * FileQueue findUnique
+   */
+  export type FileQueueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which FileQueue to fetch.
+     */
+    where: FileQueueWhereUniqueInput
+  }
+
+  /**
+   * FileQueue findUniqueOrThrow
+   */
+  export type FileQueueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which FileQueue to fetch.
+     */
+    where: FileQueueWhereUniqueInput
+  }
+
+  /**
+   * FileQueue findFirst
+   */
+  export type FileQueueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which FileQueue to fetch.
+     */
+    where?: FileQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FileQueues to fetch.
+     */
+    orderBy?: FileQueueOrderByWithRelationInput | FileQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FileQueues.
+     */
+    cursor?: FileQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FileQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FileQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FileQueues.
+     */
+    distinct?: FileQueueScalarFieldEnum | FileQueueScalarFieldEnum[]
+  }
+
+  /**
+   * FileQueue findFirstOrThrow
+   */
+  export type FileQueueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which FileQueue to fetch.
+     */
+    where?: FileQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FileQueues to fetch.
+     */
+    orderBy?: FileQueueOrderByWithRelationInput | FileQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FileQueues.
+     */
+    cursor?: FileQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FileQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FileQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FileQueues.
+     */
+    distinct?: FileQueueScalarFieldEnum | FileQueueScalarFieldEnum[]
+  }
+
+  /**
+   * FileQueue findMany
+   */
+  export type FileQueueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which FileQueues to fetch.
+     */
+    where?: FileQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FileQueues to fetch.
+     */
+    orderBy?: FileQueueOrderByWithRelationInput | FileQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FileQueues.
+     */
+    cursor?: FileQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FileQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FileQueues.
+     */
+    skip?: number
+    distinct?: FileQueueScalarFieldEnum | FileQueueScalarFieldEnum[]
+  }
+
+  /**
+   * FileQueue create
+   */
+  export type FileQueueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FileQueue.
+     */
+    data: XOR<FileQueueCreateInput, FileQueueUncheckedCreateInput>
+  }
+
+  /**
+   * FileQueue createMany
+   */
+  export type FileQueueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FileQueues.
+     */
+    data: FileQueueCreateManyInput | FileQueueCreateManyInput[]
+  }
+
+  /**
+   * FileQueue createManyAndReturn
+   */
+  export type FileQueueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * The data used to create many FileQueues.
+     */
+    data: FileQueueCreateManyInput | FileQueueCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FileQueue update
+   */
+  export type FileQueueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FileQueue.
+     */
+    data: XOR<FileQueueUpdateInput, FileQueueUncheckedUpdateInput>
+    /**
+     * Choose, which FileQueue to update.
+     */
+    where: FileQueueWhereUniqueInput
+  }
+
+  /**
+   * FileQueue updateMany
+   */
+  export type FileQueueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FileQueues.
+     */
+    data: XOR<FileQueueUpdateManyMutationInput, FileQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which FileQueues to update
+     */
+    where?: FileQueueWhereInput
+    /**
+     * Limit how many FileQueues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * FileQueue updateManyAndReturn
+   */
+  export type FileQueueUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * The data used to update FileQueues.
+     */
+    data: XOR<FileQueueUpdateManyMutationInput, FileQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which FileQueues to update
+     */
+    where?: FileQueueWhereInput
+    /**
+     * Limit how many FileQueues to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * FileQueue upsert
+   */
+  export type FileQueueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FileQueue to update in case it exists.
+     */
+    where: FileQueueWhereUniqueInput
+    /**
+     * In case the FileQueue found by the `where` argument doesn't exist, create a new FileQueue with this data.
+     */
+    create: XOR<FileQueueCreateInput, FileQueueUncheckedCreateInput>
+    /**
+     * In case the FileQueue was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FileQueueUpdateInput, FileQueueUncheckedUpdateInput>
+  }
+
+  /**
+   * FileQueue delete
+   */
+  export type FileQueueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    /**
+     * Filter which FileQueue to delete.
+     */
+    where: FileQueueWhereUniqueInput
+  }
+
+  /**
+   * FileQueue deleteMany
+   */
+  export type FileQueueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FileQueues to delete
+     */
+    where?: FileQueueWhereInput
+    /**
+     * Limit how many FileQueues to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * FileQueue without action
+   */
+  export type FileQueueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DirectoryQueue
+   */
+
+  export type AggregateDirectoryQueue = {
+    _count: DirectoryQueueCountAggregateOutputType | null
+    _min: DirectoryQueueMinAggregateOutputType | null
+    _max: DirectoryQueueMaxAggregateOutputType | null
+  }
+
+  export type DirectoryQueueMinAggregateOutputType = {
+    uuid: string | null
+    device: string | null
+    folder: string | null
+    path: string | null
+    created_at: Date | null
+    sync_status: string | null
+  }
+
+  export type DirectoryQueueMaxAggregateOutputType = {
+    uuid: string | null
+    device: string | null
+    folder: string | null
+    path: string | null
+    created_at: Date | null
+    sync_status: string | null
+  }
+
+  export type DirectoryQueueCountAggregateOutputType = {
+    uuid: number
+    device: number
+    folder: number
+    path: number
+    created_at: number
+    sync_status: number
+    _all: number
+  }
+
+
+  export type DirectoryQueueMinAggregateInputType = {
+    uuid?: true
+    device?: true
+    folder?: true
+    path?: true
+    created_at?: true
+    sync_status?: true
+  }
+
+  export type DirectoryQueueMaxAggregateInputType = {
+    uuid?: true
+    device?: true
+    folder?: true
+    path?: true
+    created_at?: true
+    sync_status?: true
+  }
+
+  export type DirectoryQueueCountAggregateInputType = {
+    uuid?: true
+    device?: true
+    folder?: true
+    path?: true
+    created_at?: true
+    sync_status?: true
+    _all?: true
+  }
+
+  export type DirectoryQueueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DirectoryQueue to aggregate.
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectoryQueues to fetch.
+     */
+    orderBy?: DirectoryQueueOrderByWithRelationInput | DirectoryQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DirectoryQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectoryQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectoryQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DirectoryQueues
+    **/
+    _count?: true | DirectoryQueueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DirectoryQueueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DirectoryQueueMaxAggregateInputType
+  }
+
+  export type GetDirectoryQueueAggregateType<T extends DirectoryQueueAggregateArgs> = {
+        [P in keyof T & keyof AggregateDirectoryQueue]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDirectoryQueue[P]>
+      : GetScalarType<T[P], AggregateDirectoryQueue[P]>
+  }
+
+
+
+
+  export type DirectoryQueueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DirectoryQueueWhereInput
+    orderBy?: DirectoryQueueOrderByWithAggregationInput | DirectoryQueueOrderByWithAggregationInput[]
+    by: DirectoryQueueScalarFieldEnum[] | DirectoryQueueScalarFieldEnum
+    having?: DirectoryQueueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DirectoryQueueCountAggregateInputType | true
+    _min?: DirectoryQueueMinAggregateInputType
+    _max?: DirectoryQueueMaxAggregateInputType
+  }
+
+  export type DirectoryQueueGroupByOutputType = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date
+    sync_status: string
+    _count: DirectoryQueueCountAggregateOutputType | null
+    _min: DirectoryQueueMinAggregateOutputType | null
+    _max: DirectoryQueueMaxAggregateOutputType | null
+  }
+
+  type GetDirectoryQueueGroupByPayload<T extends DirectoryQueueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DirectoryQueueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DirectoryQueueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DirectoryQueueGroupByOutputType[P]>
+            : GetScalarType<T[P], DirectoryQueueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DirectoryQueueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    device?: boolean
+    folder?: boolean
+    path?: boolean
+    created_at?: boolean
+    sync_status?: boolean
+    files?: boolean | DirectoryQueue$filesArgs<ExtArgs>
+    _count?: boolean | DirectoryQueueCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["directoryQueue"]>
+
+  export type DirectoryQueueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    device?: boolean
+    folder?: boolean
+    path?: boolean
+    created_at?: boolean
+    sync_status?: boolean
+  }, ExtArgs["result"]["directoryQueue"]>
+
+  export type DirectoryQueueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    device?: boolean
+    folder?: boolean
+    path?: boolean
+    created_at?: boolean
+    sync_status?: boolean
+  }, ExtArgs["result"]["directoryQueue"]>
+
+  export type DirectoryQueueSelectScalar = {
+    uuid?: boolean
+    device?: boolean
+    folder?: boolean
+    path?: boolean
+    created_at?: boolean
+    sync_status?: boolean
+  }
+
+  export type DirectoryQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "device" | "folder" | "path" | "created_at" | "sync_status", ExtArgs["result"]["directoryQueue"]>
+  export type DirectoryQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    files?: boolean | DirectoryQueue$filesArgs<ExtArgs>
+    _count?: boolean | DirectoryQueueCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DirectoryQueueIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type DirectoryQueueIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $DirectoryQueuePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DirectoryQueue"
+    objects: {
+      files: Prisma.$FileQueuePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      uuid: string
+      device: string
+      folder: string
+      path: string
+      created_at: Date
+      sync_status: string
+    }, ExtArgs["result"]["directoryQueue"]>
+    composites: {}
+  }
+
+  type DirectoryQueueGetPayload<S extends boolean | null | undefined | DirectoryQueueDefaultArgs> = $Result.GetResult<Prisma.$DirectoryQueuePayload, S>
+
+  type DirectoryQueueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DirectoryQueueFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: DirectoryQueueCountAggregateInputType | true
+    }
+
+  export interface DirectoryQueueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DirectoryQueue'], meta: { name: 'DirectoryQueue' } }
+    /**
+     * Find zero or one DirectoryQueue that matches the filter.
+     * @param {DirectoryQueueFindUniqueArgs} args - Arguments to find a DirectoryQueue
+     * @example
+     * // Get one DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DirectoryQueueFindUniqueArgs>(args: SelectSubset<T, DirectoryQueueFindUniqueArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DirectoryQueue that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DirectoryQueueFindUniqueOrThrowArgs} args - Arguments to find a DirectoryQueue
+     * @example
+     * // Get one DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DirectoryQueueFindUniqueOrThrowArgs>(args: SelectSubset<T, DirectoryQueueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DirectoryQueue that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueFindFirstArgs} args - Arguments to find a DirectoryQueue
+     * @example
+     * // Get one DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DirectoryQueueFindFirstArgs>(args?: SelectSubset<T, DirectoryQueueFindFirstArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DirectoryQueue that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueFindFirstOrThrowArgs} args - Arguments to find a DirectoryQueue
+     * @example
+     * // Get one DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DirectoryQueueFindFirstOrThrowArgs>(args?: SelectSubset<T, DirectoryQueueFindFirstOrThrowArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DirectoryQueues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DirectoryQueues
+     * const directoryQueues = await prisma.directoryQueue.findMany()
+     * 
+     * // Get first 10 DirectoryQueues
+     * const directoryQueues = await prisma.directoryQueue.findMany({ take: 10 })
+     * 
+     * // Only select the `uuid`
+     * const directoryQueueWithUuidOnly = await prisma.directoryQueue.findMany({ select: { uuid: true } })
+     * 
+     */
+    findMany<T extends DirectoryQueueFindManyArgs>(args?: SelectSubset<T, DirectoryQueueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DirectoryQueue.
+     * @param {DirectoryQueueCreateArgs} args - Arguments to create a DirectoryQueue.
+     * @example
+     * // Create one DirectoryQueue
+     * const DirectoryQueue = await prisma.directoryQueue.create({
+     *   data: {
+     *     // ... data to create a DirectoryQueue
+     *   }
+     * })
+     * 
+     */
+    create<T extends DirectoryQueueCreateArgs>(args: SelectSubset<T, DirectoryQueueCreateArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DirectoryQueues.
+     * @param {DirectoryQueueCreateManyArgs} args - Arguments to create many DirectoryQueues.
+     * @example
+     * // Create many DirectoryQueues
+     * const directoryQueue = await prisma.directoryQueue.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DirectoryQueueCreateManyArgs>(args?: SelectSubset<T, DirectoryQueueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DirectoryQueues and returns the data saved in the database.
+     * @param {DirectoryQueueCreateManyAndReturnArgs} args - Arguments to create many DirectoryQueues.
+     * @example
+     * // Create many DirectoryQueues
+     * const directoryQueue = await prisma.directoryQueue.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DirectoryQueues and only return the `uuid`
+     * const directoryQueueWithUuidOnly = await prisma.directoryQueue.createManyAndReturn({
+     *   select: { uuid: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DirectoryQueueCreateManyAndReturnArgs>(args?: SelectSubset<T, DirectoryQueueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DirectoryQueue.
+     * @param {DirectoryQueueDeleteArgs} args - Arguments to delete one DirectoryQueue.
+     * @example
+     * // Delete one DirectoryQueue
+     * const DirectoryQueue = await prisma.directoryQueue.delete({
+     *   where: {
+     *     // ... filter to delete one DirectoryQueue
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DirectoryQueueDeleteArgs>(args: SelectSubset<T, DirectoryQueueDeleteArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DirectoryQueue.
+     * @param {DirectoryQueueUpdateArgs} args - Arguments to update one DirectoryQueue.
+     * @example
+     * // Update one DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DirectoryQueueUpdateArgs>(args: SelectSubset<T, DirectoryQueueUpdateArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DirectoryQueues.
+     * @param {DirectoryQueueDeleteManyArgs} args - Arguments to filter DirectoryQueues to delete.
+     * @example
+     * // Delete a few DirectoryQueues
+     * const { count } = await prisma.directoryQueue.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DirectoryQueueDeleteManyArgs>(args?: SelectSubset<T, DirectoryQueueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DirectoryQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DirectoryQueues
+     * const directoryQueue = await prisma.directoryQueue.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DirectoryQueueUpdateManyArgs>(args: SelectSubset<T, DirectoryQueueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DirectoryQueues and returns the data updated in the database.
+     * @param {DirectoryQueueUpdateManyAndReturnArgs} args - Arguments to update many DirectoryQueues.
+     * @example
+     * // Update many DirectoryQueues
+     * const directoryQueue = await prisma.directoryQueue.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DirectoryQueues and only return the `uuid`
+     * const directoryQueueWithUuidOnly = await prisma.directoryQueue.updateManyAndReturn({
+     *   select: { uuid: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DirectoryQueueUpdateManyAndReturnArgs>(args: SelectSubset<T, DirectoryQueueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DirectoryQueue.
+     * @param {DirectoryQueueUpsertArgs} args - Arguments to update or create a DirectoryQueue.
+     * @example
+     * // Update or create a DirectoryQueue
+     * const directoryQueue = await prisma.directoryQueue.upsert({
+     *   create: {
+     *     // ... data to create a DirectoryQueue
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DirectoryQueue we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DirectoryQueueUpsertArgs>(args: SelectSubset<T, DirectoryQueueUpsertArgs<ExtArgs>>): Prisma__DirectoryQueueClient<$Result.GetResult<Prisma.$DirectoryQueuePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DirectoryQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueCountArgs} args - Arguments to filter DirectoryQueues to count.
+     * @example
+     * // Count the number of DirectoryQueues
+     * const count = await prisma.directoryQueue.count({
+     *   where: {
+     *     // ... the filter for the DirectoryQueues we want to count
+     *   }
+     * })
+    **/
+    count<T extends DirectoryQueueCountArgs>(
+      args?: Subset<T, DirectoryQueueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DirectoryQueueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DirectoryQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DirectoryQueueAggregateArgs>(args: Subset<T, DirectoryQueueAggregateArgs>): Prisma.PrismaPromise<GetDirectoryQueueAggregateType<T>>
+
+    /**
+     * Group by DirectoryQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DirectoryQueueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DirectoryQueueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DirectoryQueueGroupByArgs['orderBy'] }
+        : { orderBy?: DirectoryQueueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DirectoryQueueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDirectoryQueueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DirectoryQueue model
+   */
+  readonly fields: DirectoryQueueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DirectoryQueue.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DirectoryQueueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    files<T extends DirectoryQueue$filesArgs<ExtArgs> = {}>(args?: Subset<T, DirectoryQueue$filesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DirectoryQueue model
+   */
+  interface DirectoryQueueFieldRefs {
+    readonly uuid: FieldRef<"DirectoryQueue", 'String'>
+    readonly device: FieldRef<"DirectoryQueue", 'String'>
+    readonly folder: FieldRef<"DirectoryQueue", 'String'>
+    readonly path: FieldRef<"DirectoryQueue", 'String'>
+    readonly created_at: FieldRef<"DirectoryQueue", 'DateTime'>
+    readonly sync_status: FieldRef<"DirectoryQueue", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DirectoryQueue findUnique
+   */
+  export type DirectoryQueueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectoryQueue to fetch.
+     */
+    where: DirectoryQueueWhereUniqueInput
+  }
+
+  /**
+   * DirectoryQueue findUniqueOrThrow
+   */
+  export type DirectoryQueueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectoryQueue to fetch.
+     */
+    where: DirectoryQueueWhereUniqueInput
+  }
+
+  /**
+   * DirectoryQueue findFirst
+   */
+  export type DirectoryQueueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectoryQueue to fetch.
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectoryQueues to fetch.
+     */
+    orderBy?: DirectoryQueueOrderByWithRelationInput | DirectoryQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DirectoryQueues.
+     */
+    cursor?: DirectoryQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectoryQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectoryQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DirectoryQueues.
+     */
+    distinct?: DirectoryQueueScalarFieldEnum | DirectoryQueueScalarFieldEnum[]
+  }
+
+  /**
+   * DirectoryQueue findFirstOrThrow
+   */
+  export type DirectoryQueueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectoryQueue to fetch.
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectoryQueues to fetch.
+     */
+    orderBy?: DirectoryQueueOrderByWithRelationInput | DirectoryQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DirectoryQueues.
+     */
+    cursor?: DirectoryQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectoryQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectoryQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DirectoryQueues.
+     */
+    distinct?: DirectoryQueueScalarFieldEnum | DirectoryQueueScalarFieldEnum[]
+  }
+
+  /**
+   * DirectoryQueue findMany
+   */
+  export type DirectoryQueueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter, which DirectoryQueues to fetch.
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DirectoryQueues to fetch.
+     */
+    orderBy?: DirectoryQueueOrderByWithRelationInput | DirectoryQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DirectoryQueues.
+     */
+    cursor?: DirectoryQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DirectoryQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DirectoryQueues.
+     */
+    skip?: number
+    distinct?: DirectoryQueueScalarFieldEnum | DirectoryQueueScalarFieldEnum[]
+  }
+
+  /**
+   * DirectoryQueue create
+   */
+  export type DirectoryQueueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DirectoryQueue.
+     */
+    data: XOR<DirectoryQueueCreateInput, DirectoryQueueUncheckedCreateInput>
+  }
+
+  /**
+   * DirectoryQueue createMany
+   */
+  export type DirectoryQueueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DirectoryQueues.
+     */
+    data: DirectoryQueueCreateManyInput | DirectoryQueueCreateManyInput[]
+  }
+
+  /**
+   * DirectoryQueue createManyAndReturn
+   */
+  export type DirectoryQueueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * The data used to create many DirectoryQueues.
+     */
+    data: DirectoryQueueCreateManyInput | DirectoryQueueCreateManyInput[]
+  }
+
+  /**
+   * DirectoryQueue update
+   */
+  export type DirectoryQueueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DirectoryQueue.
+     */
+    data: XOR<DirectoryQueueUpdateInput, DirectoryQueueUncheckedUpdateInput>
+    /**
+     * Choose, which DirectoryQueue to update.
+     */
+    where: DirectoryQueueWhereUniqueInput
+  }
+
+  /**
+   * DirectoryQueue updateMany
+   */
+  export type DirectoryQueueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DirectoryQueues.
+     */
+    data: XOR<DirectoryQueueUpdateManyMutationInput, DirectoryQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which DirectoryQueues to update
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * Limit how many DirectoryQueues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DirectoryQueue updateManyAndReturn
+   */
+  export type DirectoryQueueUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * The data used to update DirectoryQueues.
+     */
+    data: XOR<DirectoryQueueUpdateManyMutationInput, DirectoryQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which DirectoryQueues to update
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * Limit how many DirectoryQueues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DirectoryQueue upsert
+   */
+  export type DirectoryQueueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DirectoryQueue to update in case it exists.
+     */
+    where: DirectoryQueueWhereUniqueInput
+    /**
+     * In case the DirectoryQueue found by the `where` argument doesn't exist, create a new DirectoryQueue with this data.
+     */
+    create: XOR<DirectoryQueueCreateInput, DirectoryQueueUncheckedCreateInput>
+    /**
+     * In case the DirectoryQueue was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DirectoryQueueUpdateInput, DirectoryQueueUncheckedUpdateInput>
+  }
+
+  /**
+   * DirectoryQueue delete
+   */
+  export type DirectoryQueueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+    /**
+     * Filter which DirectoryQueue to delete.
+     */
+    where: DirectoryQueueWhereUniqueInput
+  }
+
+  /**
+   * DirectoryQueue deleteMany
+   */
+  export type DirectoryQueueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DirectoryQueues to delete
+     */
+    where?: DirectoryQueueWhereInput
+    /**
+     * Limit how many DirectoryQueues to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DirectoryQueue.files
+   */
+  export type DirectoryQueue$filesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FileQueue
+     */
+    select?: FileQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the FileQueue
+     */
+    omit?: FileQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FileQueueInclude<ExtArgs> | null
+    where?: FileQueueWhereInput
+    orderBy?: FileQueueOrderByWithRelationInput | FileQueueOrderByWithRelationInput[]
+    cursor?: FileQueueWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FileQueueScalarFieldEnum | FileQueueScalarFieldEnum[]
+  }
+
+  /**
+   * DirectoryQueue without action
+   */
+  export type DirectoryQueueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DirectoryQueue
+     */
+    select?: DirectoryQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DirectoryQueue
+     */
+    omit?: DirectoryQueueOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DirectoryQueueInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -3199,6 +5622,32 @@ export namespace Prisma {
   };
 
   export type DirectoryScalarFieldEnum = (typeof DirectoryScalarFieldEnum)[keyof typeof DirectoryScalarFieldEnum]
+
+
+  export const FileQueueScalarFieldEnum: {
+    path: 'path',
+    filename: 'filename',
+    last_modified: 'last_modified',
+    hashvalue: 'hashvalue',
+    size: 'size',
+    dirID: 'dirID',
+    sync_status: 'sync_status',
+    inode: 'inode'
+  };
+
+  export type FileQueueScalarFieldEnum = (typeof FileQueueScalarFieldEnum)[keyof typeof FileQueueScalarFieldEnum]
+
+
+  export const DirectoryQueueScalarFieldEnum: {
+    uuid: 'uuid',
+    device: 'device',
+    folder: 'folder',
+    path: 'path',
+    created_at: 'created_at',
+    sync_status: 'sync_status'
+  };
+
+  export type DirectoryQueueScalarFieldEnum = (typeof DirectoryQueueScalarFieldEnum)[keyof typeof DirectoryQueueScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -3376,6 +5825,140 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"Directory"> | Date | string
   }
 
+  export type FileQueueWhereInput = {
+    AND?: FileQueueWhereInput | FileQueueWhereInput[]
+    OR?: FileQueueWhereInput[]
+    NOT?: FileQueueWhereInput | FileQueueWhereInput[]
+    path?: StringFilter<"FileQueue"> | string
+    filename?: StringFilter<"FileQueue"> | string
+    last_modified?: DateTimeFilter<"FileQueue"> | Date | string
+    hashvalue?: StringFilter<"FileQueue"> | string
+    size?: BigIntFilter<"FileQueue"> | bigint | number
+    dirID?: StringFilter<"FileQueue"> | string
+    sync_status?: StringFilter<"FileQueue"> | string
+    inode?: StringFilter<"FileQueue"> | string
+    directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
+  }
+
+  export type FileQueueOrderByWithRelationInput = {
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    size?: SortOrder
+    dirID?: SortOrder
+    sync_status?: SortOrder
+    inode?: SortOrder
+    directoryID?: DirectoryQueueOrderByWithRelationInput
+  }
+
+  export type FileQueueWhereUniqueInput = Prisma.AtLeast<{
+    path_filename?: FileQueuePathFilenameCompoundUniqueInput
+    AND?: FileQueueWhereInput | FileQueueWhereInput[]
+    OR?: FileQueueWhereInput[]
+    NOT?: FileQueueWhereInput | FileQueueWhereInput[]
+    path?: StringFilter<"FileQueue"> | string
+    filename?: StringFilter<"FileQueue"> | string
+    last_modified?: DateTimeFilter<"FileQueue"> | Date | string
+    hashvalue?: StringFilter<"FileQueue"> | string
+    size?: BigIntFilter<"FileQueue"> | bigint | number
+    dirID?: StringFilter<"FileQueue"> | string
+    sync_status?: StringFilter<"FileQueue"> | string
+    inode?: StringFilter<"FileQueue"> | string
+    directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
+  }, "path_filename">
+
+  export type FileQueueOrderByWithAggregationInput = {
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    size?: SortOrder
+    dirID?: SortOrder
+    sync_status?: SortOrder
+    inode?: SortOrder
+    _count?: FileQueueCountOrderByAggregateInput
+    _avg?: FileQueueAvgOrderByAggregateInput
+    _max?: FileQueueMaxOrderByAggregateInput
+    _min?: FileQueueMinOrderByAggregateInput
+    _sum?: FileQueueSumOrderByAggregateInput
+  }
+
+  export type FileQueueScalarWhereWithAggregatesInput = {
+    AND?: FileQueueScalarWhereWithAggregatesInput | FileQueueScalarWhereWithAggregatesInput[]
+    OR?: FileQueueScalarWhereWithAggregatesInput[]
+    NOT?: FileQueueScalarWhereWithAggregatesInput | FileQueueScalarWhereWithAggregatesInput[]
+    path?: StringWithAggregatesFilter<"FileQueue"> | string
+    filename?: StringWithAggregatesFilter<"FileQueue"> | string
+    last_modified?: DateTimeWithAggregatesFilter<"FileQueue"> | Date | string
+    hashvalue?: StringWithAggregatesFilter<"FileQueue"> | string
+    size?: BigIntWithAggregatesFilter<"FileQueue"> | bigint | number
+    dirID?: StringWithAggregatesFilter<"FileQueue"> | string
+    sync_status?: StringWithAggregatesFilter<"FileQueue"> | string
+    inode?: StringWithAggregatesFilter<"FileQueue"> | string
+  }
+
+  export type DirectoryQueueWhereInput = {
+    AND?: DirectoryQueueWhereInput | DirectoryQueueWhereInput[]
+    OR?: DirectoryQueueWhereInput[]
+    NOT?: DirectoryQueueWhereInput | DirectoryQueueWhereInput[]
+    uuid?: StringFilter<"DirectoryQueue"> | string
+    device?: StringFilter<"DirectoryQueue"> | string
+    folder?: StringFilter<"DirectoryQueue"> | string
+    path?: StringFilter<"DirectoryQueue"> | string
+    created_at?: DateTimeFilter<"DirectoryQueue"> | Date | string
+    sync_status?: StringFilter<"DirectoryQueue"> | string
+    files?: FileQueueListRelationFilter
+  }
+
+  export type DirectoryQueueOrderByWithRelationInput = {
+    uuid?: SortOrder
+    device?: SortOrder
+    folder?: SortOrder
+    path?: SortOrder
+    created_at?: SortOrder
+    sync_status?: SortOrder
+    files?: FileQueueOrderByRelationAggregateInput
+  }
+
+  export type DirectoryQueueWhereUniqueInput = Prisma.AtLeast<{
+    uuid?: string
+    device_folder_path?: DirectoryQueueDeviceFolderPathCompoundUniqueInput
+    AND?: DirectoryQueueWhereInput | DirectoryQueueWhereInput[]
+    OR?: DirectoryQueueWhereInput[]
+    NOT?: DirectoryQueueWhereInput | DirectoryQueueWhereInput[]
+    device?: StringFilter<"DirectoryQueue"> | string
+    folder?: StringFilter<"DirectoryQueue"> | string
+    path?: StringFilter<"DirectoryQueue"> | string
+    created_at?: DateTimeFilter<"DirectoryQueue"> | Date | string
+    sync_status?: StringFilter<"DirectoryQueue"> | string
+    files?: FileQueueListRelationFilter
+  }, "uuid" | "device_folder_path">
+
+  export type DirectoryQueueOrderByWithAggregationInput = {
+    uuid?: SortOrder
+    device?: SortOrder
+    folder?: SortOrder
+    path?: SortOrder
+    created_at?: SortOrder
+    sync_status?: SortOrder
+    _count?: DirectoryQueueCountOrderByAggregateInput
+    _max?: DirectoryQueueMaxOrderByAggregateInput
+    _min?: DirectoryQueueMinOrderByAggregateInput
+  }
+
+  export type DirectoryQueueScalarWhereWithAggregatesInput = {
+    AND?: DirectoryQueueScalarWhereWithAggregatesInput | DirectoryQueueScalarWhereWithAggregatesInput[]
+    OR?: DirectoryQueueScalarWhereWithAggregatesInput[]
+    NOT?: DirectoryQueueScalarWhereWithAggregatesInput | DirectoryQueueScalarWhereWithAggregatesInput[]
+    uuid?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+    device?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+    folder?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+    path?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+    created_at?: DateTimeWithAggregatesFilter<"DirectoryQueue"> | Date | string
+    sync_status?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+  }
+
   export type FileCreateInput = {
     path: string
     filename: string
@@ -3503,6 +6086,149 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FileQueueCreateInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    sync_status: string
+    inode: string
+    directoryID: DirectoryQueueCreateNestedOneWithoutFilesInput
+  }
+
+  export type FileQueueUncheckedCreateInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    dirID: string
+    sync_status: string
+    inode: string
+  }
+
+  export type FileQueueUpdateInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+    directoryID?: DirectoryQueueUpdateOneRequiredWithoutFilesNestedInput
+  }
+
+  export type FileQueueUncheckedUpdateInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    dirID?: StringFieldUpdateOperationsInput | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueCreateManyInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    dirID: string
+    sync_status: string
+    inode: string
+  }
+
+  export type FileQueueUpdateManyMutationInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueUncheckedUpdateManyInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    dirID?: StringFieldUpdateOperationsInput | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DirectoryQueueCreateInput = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date | string
+    sync_status: string
+    files?: FileQueueCreateNestedManyWithoutDirectoryIDInput
+  }
+
+  export type DirectoryQueueUncheckedCreateInput = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date | string
+    sync_status: string
+    files?: FileQueueUncheckedCreateNestedManyWithoutDirectoryIDInput
+  }
+
+  export type DirectoryQueueUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+    files?: FileQueueUpdateManyWithoutDirectoryIDNestedInput
+  }
+
+  export type DirectoryQueueUncheckedUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+    files?: FileQueueUncheckedUpdateManyWithoutDirectoryIDNestedInput
+  }
+
+  export type DirectoryQueueCreateManyInput = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date | string
+    sync_status: string
+  }
+
+  export type DirectoryQueueUpdateManyMutationInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DirectoryQueueUncheckedUpdateManyInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -3676,6 +6402,100 @@ export namespace Prisma {
     created_at?: SortOrder
   }
 
+  export type DirectoryQueueScalarRelationFilter = {
+    is?: DirectoryQueueWhereInput
+    isNot?: DirectoryQueueWhereInput
+  }
+
+  export type FileQueuePathFilenameCompoundUniqueInput = {
+    path: string
+    filename: string
+  }
+
+  export type FileQueueCountOrderByAggregateInput = {
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    size?: SortOrder
+    dirID?: SortOrder
+    sync_status?: SortOrder
+    inode?: SortOrder
+  }
+
+  export type FileQueueAvgOrderByAggregateInput = {
+    size?: SortOrder
+  }
+
+  export type FileQueueMaxOrderByAggregateInput = {
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    size?: SortOrder
+    dirID?: SortOrder
+    sync_status?: SortOrder
+    inode?: SortOrder
+  }
+
+  export type FileQueueMinOrderByAggregateInput = {
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    size?: SortOrder
+    dirID?: SortOrder
+    sync_status?: SortOrder
+    inode?: SortOrder
+  }
+
+  export type FileQueueSumOrderByAggregateInput = {
+    size?: SortOrder
+  }
+
+  export type FileQueueListRelationFilter = {
+    every?: FileQueueWhereInput
+    some?: FileQueueWhereInput
+    none?: FileQueueWhereInput
+  }
+
+  export type FileQueueOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DirectoryQueueDeviceFolderPathCompoundUniqueInput = {
+    device: string
+    folder: string
+    path: string
+  }
+
+  export type DirectoryQueueCountOrderByAggregateInput = {
+    uuid?: SortOrder
+    device?: SortOrder
+    folder?: SortOrder
+    path?: SortOrder
+    created_at?: SortOrder
+    sync_status?: SortOrder
+  }
+
+  export type DirectoryQueueMaxOrderByAggregateInput = {
+    uuid?: SortOrder
+    device?: SortOrder
+    folder?: SortOrder
+    path?: SortOrder
+    created_at?: SortOrder
+    sync_status?: SortOrder
+  }
+
+  export type DirectoryQueueMinOrderByAggregateInput = {
+    uuid?: SortOrder
+    device?: SortOrder
+    folder?: SortOrder
+    path?: SortOrder
+    created_at?: SortOrder
+    sync_status?: SortOrder
+  }
+
   export type DirectoryCreateNestedOneWithoutFilesInput = {
     create?: XOR<DirectoryCreateWithoutFilesInput, DirectoryUncheckedCreateWithoutFilesInput>
     connectOrCreate?: DirectoryCreateOrConnectWithoutFilesInput
@@ -3746,6 +6566,62 @@ export namespace Prisma {
     update?: FileUpdateWithWhereUniqueWithoutDirectoryIDInput | FileUpdateWithWhereUniqueWithoutDirectoryIDInput[]
     updateMany?: FileUpdateManyWithWhereWithoutDirectoryIDInput | FileUpdateManyWithWhereWithoutDirectoryIDInput[]
     deleteMany?: FileScalarWhereInput | FileScalarWhereInput[]
+  }
+
+  export type DirectoryQueueCreateNestedOneWithoutFilesInput = {
+    create?: XOR<DirectoryQueueCreateWithoutFilesInput, DirectoryQueueUncheckedCreateWithoutFilesInput>
+    connectOrCreate?: DirectoryQueueCreateOrConnectWithoutFilesInput
+    connect?: DirectoryQueueWhereUniqueInput
+  }
+
+  export type DirectoryQueueUpdateOneRequiredWithoutFilesNestedInput = {
+    create?: XOR<DirectoryQueueCreateWithoutFilesInput, DirectoryQueueUncheckedCreateWithoutFilesInput>
+    connectOrCreate?: DirectoryQueueCreateOrConnectWithoutFilesInput
+    upsert?: DirectoryQueueUpsertWithoutFilesInput
+    connect?: DirectoryQueueWhereUniqueInput
+    update?: XOR<XOR<DirectoryQueueUpdateToOneWithWhereWithoutFilesInput, DirectoryQueueUpdateWithoutFilesInput>, DirectoryQueueUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type FileQueueCreateNestedManyWithoutDirectoryIDInput = {
+    create?: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput> | FileQueueCreateWithoutDirectoryIDInput[] | FileQueueUncheckedCreateWithoutDirectoryIDInput[]
+    connectOrCreate?: FileQueueCreateOrConnectWithoutDirectoryIDInput | FileQueueCreateOrConnectWithoutDirectoryIDInput[]
+    createMany?: FileQueueCreateManyDirectoryIDInputEnvelope
+    connect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+  }
+
+  export type FileQueueUncheckedCreateNestedManyWithoutDirectoryIDInput = {
+    create?: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput> | FileQueueCreateWithoutDirectoryIDInput[] | FileQueueUncheckedCreateWithoutDirectoryIDInput[]
+    connectOrCreate?: FileQueueCreateOrConnectWithoutDirectoryIDInput | FileQueueCreateOrConnectWithoutDirectoryIDInput[]
+    createMany?: FileQueueCreateManyDirectoryIDInputEnvelope
+    connect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+  }
+
+  export type FileQueueUpdateManyWithoutDirectoryIDNestedInput = {
+    create?: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput> | FileQueueCreateWithoutDirectoryIDInput[] | FileQueueUncheckedCreateWithoutDirectoryIDInput[]
+    connectOrCreate?: FileQueueCreateOrConnectWithoutDirectoryIDInput | FileQueueCreateOrConnectWithoutDirectoryIDInput[]
+    upsert?: FileQueueUpsertWithWhereUniqueWithoutDirectoryIDInput | FileQueueUpsertWithWhereUniqueWithoutDirectoryIDInput[]
+    createMany?: FileQueueCreateManyDirectoryIDInputEnvelope
+    set?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    disconnect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    delete?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    connect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    update?: FileQueueUpdateWithWhereUniqueWithoutDirectoryIDInput | FileQueueUpdateWithWhereUniqueWithoutDirectoryIDInput[]
+    updateMany?: FileQueueUpdateManyWithWhereWithoutDirectoryIDInput | FileQueueUpdateManyWithWhereWithoutDirectoryIDInput[]
+    deleteMany?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
+  }
+
+  export type FileQueueUncheckedUpdateManyWithoutDirectoryIDNestedInput = {
+    create?: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput> | FileQueueCreateWithoutDirectoryIDInput[] | FileQueueUncheckedCreateWithoutDirectoryIDInput[]
+    connectOrCreate?: FileQueueCreateOrConnectWithoutDirectoryIDInput | FileQueueCreateOrConnectWithoutDirectoryIDInput[]
+    upsert?: FileQueueUpsertWithWhereUniqueWithoutDirectoryIDInput | FileQueueUpsertWithWhereUniqueWithoutDirectoryIDInput[]
+    createMany?: FileQueueCreateManyDirectoryIDInputEnvelope
+    set?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    disconnect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    delete?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    connect?: FileQueueWhereUniqueInput | FileQueueWhereUniqueInput[]
+    update?: FileQueueUpdateWithWhereUniqueWithoutDirectoryIDInput | FileQueueUpdateWithWhereUniqueWithoutDirectoryIDInput[]
+    updateMany?: FileQueueUpdateManyWithWhereWithoutDirectoryIDInput | FileQueueUpdateManyWithWhereWithoutDirectoryIDInput[]
+    deleteMany?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -3957,6 +6833,117 @@ export namespace Prisma {
     inode?: StringFilter<"File"> | string
   }
 
+  export type DirectoryQueueCreateWithoutFilesInput = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date | string
+    sync_status: string
+  }
+
+  export type DirectoryQueueUncheckedCreateWithoutFilesInput = {
+    uuid: string
+    device: string
+    folder: string
+    path: string
+    created_at: Date | string
+    sync_status: string
+  }
+
+  export type DirectoryQueueCreateOrConnectWithoutFilesInput = {
+    where: DirectoryQueueWhereUniqueInput
+    create: XOR<DirectoryQueueCreateWithoutFilesInput, DirectoryQueueUncheckedCreateWithoutFilesInput>
+  }
+
+  export type DirectoryQueueUpsertWithoutFilesInput = {
+    update: XOR<DirectoryQueueUpdateWithoutFilesInput, DirectoryQueueUncheckedUpdateWithoutFilesInput>
+    create: XOR<DirectoryQueueCreateWithoutFilesInput, DirectoryQueueUncheckedCreateWithoutFilesInput>
+    where?: DirectoryQueueWhereInput
+  }
+
+  export type DirectoryQueueUpdateToOneWithWhereWithoutFilesInput = {
+    where?: DirectoryQueueWhereInput
+    data: XOR<DirectoryQueueUpdateWithoutFilesInput, DirectoryQueueUncheckedUpdateWithoutFilesInput>
+  }
+
+  export type DirectoryQueueUpdateWithoutFilesInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type DirectoryQueueUncheckedUpdateWithoutFilesInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    device?: StringFieldUpdateOperationsInput | string
+    folder?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    sync_status?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueCreateWithoutDirectoryIDInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    sync_status: string
+    inode: string
+  }
+
+  export type FileQueueUncheckedCreateWithoutDirectoryIDInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    sync_status: string
+    inode: string
+  }
+
+  export type FileQueueCreateOrConnectWithoutDirectoryIDInput = {
+    where: FileQueueWhereUniqueInput
+    create: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput>
+  }
+
+  export type FileQueueCreateManyDirectoryIDInputEnvelope = {
+    data: FileQueueCreateManyDirectoryIDInput | FileQueueCreateManyDirectoryIDInput[]
+  }
+
+  export type FileQueueUpsertWithWhereUniqueWithoutDirectoryIDInput = {
+    where: FileQueueWhereUniqueInput
+    update: XOR<FileQueueUpdateWithoutDirectoryIDInput, FileQueueUncheckedUpdateWithoutDirectoryIDInput>
+    create: XOR<FileQueueCreateWithoutDirectoryIDInput, FileQueueUncheckedCreateWithoutDirectoryIDInput>
+  }
+
+  export type FileQueueUpdateWithWhereUniqueWithoutDirectoryIDInput = {
+    where: FileQueueWhereUniqueInput
+    data: XOR<FileQueueUpdateWithoutDirectoryIDInput, FileQueueUncheckedUpdateWithoutDirectoryIDInput>
+  }
+
+  export type FileQueueUpdateManyWithWhereWithoutDirectoryIDInput = {
+    where: FileQueueScalarWhereInput
+    data: XOR<FileQueueUpdateManyMutationInput, FileQueueUncheckedUpdateManyWithoutDirectoryIDInput>
+  }
+
+  export type FileQueueScalarWhereInput = {
+    AND?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
+    OR?: FileQueueScalarWhereInput[]
+    NOT?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
+    path?: StringFilter<"FileQueue"> | string
+    filename?: StringFilter<"FileQueue"> | string
+    last_modified?: DateTimeFilter<"FileQueue"> | Date | string
+    hashvalue?: StringFilter<"FileQueue"> | string
+    size?: BigIntFilter<"FileQueue"> | bigint | number
+    dirID?: StringFilter<"FileQueue"> | string
+    sync_status?: StringFilter<"FileQueue"> | string
+    inode?: StringFilter<"FileQueue"> | string
+  }
+
   export type FileCreateManyDirectoryIDInput = {
     path: string
     filename: string
@@ -3990,6 +6977,46 @@ export namespace Prisma {
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueCreateManyDirectoryIDInput = {
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    size: bigint | number
+    sync_status: string
+    inode: string
+  }
+
+  export type FileQueueUpdateWithoutDirectoryIDInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueUncheckedUpdateWithoutDirectoryIDInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    sync_status?: StringFieldUpdateOperationsInput | string
+    inode?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FileQueueUncheckedUpdateManyWithoutDirectoryIDInput = {
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
   }
 

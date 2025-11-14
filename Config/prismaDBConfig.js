@@ -3,7 +3,10 @@ import {
   Prisma as PrismaQueue,
   PrismaClient as PrismaClientQueue,
 } from "../DB/prisma-client-queue/index.js";
-const prisma = new PrismaClient({ log: ["info", "warn", "error"] });
+const prisma = new PrismaClient({
+  log: ["info", "warn", "error"],
+  transactionOptions: { timeout: 100000, maxWait: 150000 },
+});
 const prisma_queue = new PrismaClientQueue({
   log: ["info", "warn", "error"],
 });

@@ -135,6 +135,26 @@ exports.Prisma.DirectoryScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.FileQueueScalarFieldEnum = {
+  path: 'path',
+  filename: 'filename',
+  last_modified: 'last_modified',
+  hashvalue: 'hashvalue',
+  size: 'size',
+  dirID: 'dirID',
+  sync_status: 'sync_status',
+  inode: 'inode'
+};
+
+exports.Prisma.DirectoryQueueScalarFieldEnum = {
+  uuid: 'uuid',
+  device: 'device',
+  folder: 'folder',
+  path: 'path',
+  created_at: 'created_at',
+  sync_status: 'sync_status'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -143,7 +163,9 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.ModelName = {
   File: 'File',
-  Directory: 'Directory'
+  Directory: 'Directory',
+  FileQueue: 'FileQueue',
+  DirectoryQueue: 'DirectoryQueue'
 };
 
 /**

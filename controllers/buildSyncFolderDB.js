@@ -1,44 +1,31 @@
-import { prisma, prisma_queue } from "../Config/prismaDBConfig.js";
+import { prisma } from "../Config/prismaDBConfig.js";
 import { get_directory_status } from "./get_file_folder_metadata.js";
-
-export const update_main_queue_db = (files, dirs) =>
-  new Promise(async (resolve, reject) => {
-    try {
-      await prisma.$transaction(async (prisma) => {
-        await update_db(prisma, files, dirs);
-      });
-      await prisma_queue.$transaction(async (prisma) => {
-        await update_db(prisma, files, dirs);
-      });
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  });
 
 export const buildSyncFolderDB = (files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       // read the local DB
-      const [filesObj, dirsObj] = await readSyncDB(prisma);
-      const updatedFiles = await get_modified_files(filesObj, files);
-      // compare the scanned files/folders with the local DB and find which are new or modified
-      const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
-        prisma,
-        filesObj,
-        dirsObj,
-        files,
-        dirs,
-        updatedFiles
-      );
-      // create a new DB with the identified files / folders
-      // Build the sync DB that will be used to sync to cloud
-      await update_queue_db(changedFiles, changedDirs);
-      // After these files/folders are synced to cloud update the main DB
-      await build_main_sync_db(prisma, changedFiles, changedDirs);
-      // empty the temp DB that holds the files/folders to be uploaded;
-      // await delete_db_files_folders(prisma_queue);
-      // Monitor the FileSystem and any changes detected update in new DB
+      await prisma.$transaction(async (prisma) => {
+        const [filesObj, dirsObj] = await readSyncDB(prisma);
+        const updatedFiles = await get_modified_files(filesObj, files);
+        // compare the scanned files/folders with the local DB and find which are new or modified
+        const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
+          prisma,
+          filesObj,
+          dirsObj,
+          files,
+          dirs,
+          updatedFiles
+        );
+        // create a new DB with the identified files / folders
+        // Build the sync DB that will be used to sync to cloud
+        await update_queue(prisma, changedFiles, changedDirs);
+        // After these files/folders are synced to cloud update the main DB
+        await build_main_sync_db(prisma, changedFiles, changedDirs);
+        // empty the temp DB that holds the files/folders to be uploaded;
+        // await delete_db_files_folders(prisma_queue);
+        // Monitor the FileSystem and any changes detected update in new DB
+      });
       resolve();
     } catch (err) {
       console.log(err);
@@ -46,28 +33,14 @@ export const buildSyncFolderDB = (files, dirs) =>
     }
   });
 
-const delete_db_files_folders = (dbCursor) =>
-  new Promise(async (resolve, reject) => {
-    try {
-      await dbCursor.$transaction([
-        dbCursor.file.deleteMany({}),
-        dbCursor.directory.deleteMany({}),
-      ]);
-      resolve();
-    } catch (err) {
-      console.log(err);
-      reject(err);
-    }
-  });
-
-const build_main_sync_db = (db, files, dirs) =>
+const build_main_sync_db = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       console.log("Building Main Sync DB..................");
       const toBeDeletedFiles = Object.entries(files)
-        .flatMap(([path, filesObj]) =>
+        .flatMap(([_, filesObj]) =>
           Object.entries(filesObj)
-            .filter(([filename, fileObj]) => fileObj.sync_status === "delete")
+            .filter(([_, fileObj]) => fileObj.sync_status === "delete")
             .map((a) => ({ ...a[1] }))
         )
         .flat();
@@ -94,19 +67,17 @@ const build_main_sync_db = (db, files, dirs) =>
         .map(([_, obj]) => ({
           uuid: obj.uuid,
           device: obj.device,
-          folder: obj.device,
+          folder: obj.folder,
           path: obj.path,
           created_at: obj.created_at,
         }));
-      console.log("toBeDeletedFiles: ", toBeDeletedFiles);
-      console.log("tobeDeletedDirs : ", tobeDeletedDirs);
-      console.log("toBeInsertfiles : ", toBeInsertfiles);
-      console.log("toBeInsertedDirs: ", toBeInsertedDirs);
-      await db.$transaction(async (prisma) => {
-        await delete_fileItems_db(prisma, toBeDeletedFiles);
-        await delete_dirItems_db(prisma, tobeDeletedDirs);
-        await update_db(prisma, toBeInsertfiles, toBeInsertedDirs);
-      });
+      // console.log("toBeDeletedFiles: ", toBeDeletedFiles);
+      // console.log("tobeDeletedDirs : ", tobeDeletedDirs);
+      // console.log("toBeInsertfiles : ", toBeInsertfiles);
+      // console.log("toBeInsertedDirs: ", toBeInsertedDirs);
+      await delete_fileItems_db(prisma, toBeDeletedFiles);
+      await delete_dirItems_db(prisma, tobeDeletedDirs);
+      await update_main_table(prisma, toBeInsertfiles, toBeInsertedDirs);
       resolve();
     } catch (err) {
       console.error(err);
@@ -117,10 +88,8 @@ const build_main_sync_db = (db, files, dirs) =>
 const readSyncDB = (prisma) =>
   new Promise(async (resolve, reject) => {
     try {
-      const [files, dirs] = await prisma.$transaction([
-        prisma.file.findMany({}),
-        prisma.directory.findMany({}),
-      ]);
+      const files = await prisma.file.findMany({});
+      const dirs = await prisma.directory.findMany({});
       let filesObj = {};
       let dirsObj = {};
       for (const file of files) {
@@ -181,7 +150,7 @@ const get_modified_files = (dbFiles, files) =>
     }
   });
 
-const get_files_dirID = (db, files, dirs) =>
+const get_files_dirID = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       let filesCopy = { ...files };
@@ -346,16 +315,16 @@ const compareChangesWithLocalDB = (
       resolve([changedFiles, changedDirs]);
     } catch (err) {
       console.log(err);
-      resolve(err);
+      reject(err);
     }
   });
 
-const update_db = (db, files, dirs) =>
+const update_main_table = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       for (const dir of dirs) {
-        console.log(dir);
-        await db.directory.upsert({
+        // console.log(dir);
+        await prisma.directory.upsert({
           where: {
             device_folder_path: {
               device: dir.device,
@@ -368,7 +337,7 @@ const update_db = (db, files, dirs) =>
         });
       }
       for (const file of files) {
-        await db.file.upsert({
+        await prisma.file.upsert({
           where: {
             path_filename: {
               filename: file.filename,
@@ -391,20 +360,48 @@ const update_db = (db, files, dirs) =>
     }
   });
 
-const update_queue_db = (files, dirs) =>
+const update_queue = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
-      await prisma_queue.$transaction(async (prisma) => {
-        const filesArray = Object.entries(files).flatMap(([_, filesObj]) =>
-          Object.entries(filesObj).flatMap(([_, fileObj]) => ({
-            ...fileObj,
-          }))
-        );
-        const dirsArray = Object.entries(dirs).flatMap(([_, dirObj]) => ({
-          ...dirObj,
-        }));
-        await update_db(prisma, filesArray, dirsArray);
-      });
+      const filesArray = Object.entries(files).flatMap(([_, filesObj]) =>
+        Object.entries(filesObj).flatMap(([_, fileObj]) => ({
+          ...fileObj,
+        }))
+      );
+      const dirsArray = Object.entries(dirs).flatMap(([_, dirObj]) => ({
+        ...dirObj,
+      }));
+      // await update_queue_table(prisma, filesArray, dirsArray);
+      for (const dir of dirsArray) {
+        await prisma.directoryQueue.upsert({
+          where: {
+            device_folder_path: {
+              device: dir.device,
+              folder: dir.folder,
+              path: dir.path,
+            },
+          },
+          update: { ...dir },
+          create: { ...dir },
+        });
+      }
+      for (const file of filesArray) {
+        await prisma.fileQueue.upsert({
+          where: {
+            path_filename: {
+              filename: file.filename,
+              path: file.path,
+            },
+          },
+          update: {
+            ...file,
+          },
+          create: {
+            ...file,
+          },
+        });
+      }
+
       resolve();
     } catch (error) {
       console.log(error);
@@ -412,13 +409,7 @@ const update_queue_db = (files, dirs) =>
     }
   });
 
-const insertFiles = (files) =>
-  new Promise(async (resolve, reject) => {
-    try {
-    } catch (err) { }
-  });
-
-const delete_dirItems_db = (db, dirs) =>
+const delete_dirItems_db = (prisma, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       for (const dir of dirs) {
@@ -441,11 +432,11 @@ const delete_dirItems_db = (db, dirs) =>
     }
   });
 
-const delete_fileItems_db = (db, files) =>
+const delete_fileItems_db = (prisma, files) =>
   new Promise(async (resolve, reject) => {
     try {
       for (const file of files) {
-        await db.file.delete({
+        await prisma.file.delete({
           where: {
             path_filename: {
               path: file.path,

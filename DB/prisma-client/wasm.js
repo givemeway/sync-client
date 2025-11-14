@@ -107,6 +107,26 @@ exports.Prisma.DirectoryScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.FileQueueScalarFieldEnum = {
+  path: 'path',
+  filename: 'filename',
+  last_modified: 'last_modified',
+  hashvalue: 'hashvalue',
+  size: 'size',
+  dirID: 'dirID',
+  sync_status: 'sync_status',
+  inode: 'inode'
+};
+
+exports.Prisma.DirectoryQueueScalarFieldEnum = {
+  uuid: 'uuid',
+  device: 'device',
+  folder: 'folder',
+  path: 'path',
+  created_at: 'created_at',
+  sync_status: 'sync_status'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -115,7 +135,9 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.ModelName = {
   File: 'File',
-  Directory: 'Directory'
+  Directory: 'Directory',
+  FileQueue: 'FileQueue',
+  DirectoryQueue: 'DirectoryQueue'
 };
 /**
  * Create the Client
@@ -128,7 +150,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/sandeep/Desktop/sync-client/DB/prisma-client",
+      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -137,7 +159,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       },
       {
@@ -157,7 +179,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "/Users/sandeep/Desktop/sync-client/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -178,13 +200,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  inode         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
-  "inlineSchemaHash": "228506ea269ee05918aebfe0548ec307161c52bb82e59a1fa646235769d31c70",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  inode         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n\nmodel FileQueue {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  sync_status   String\n  inode         String\n  directoryID   DirectoryQueue @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel DirectoryQueue {\n  uuid        String      @unique()\n  device      String\n  folder      String\n  path        String\n  created_at  DateTime\n  sync_status String\n  files       FileQueue[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
+  "inlineSchemaHash": "ded5e81f1ad69652d5346f18e25c2ab8a13139fa2677c416f08337c7539c6a20",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"Directory\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"Directory\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"File\",\"relationName\":\"DirectoryToFile\"}],\"dbName\":null},\"FileQueue\":{\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"filename\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"size\",\"kind\":\"scalar\",\"type\":\"BigInt\"},{\"name\":\"dirID\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sync_status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"inode\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"directoryID\",\"kind\":\"object\",\"type\":\"DirectoryQueue\",\"relationName\":\"DirectoryQueueToFileQueue\"}],\"dbName\":null},\"DirectoryQueue\":{\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"device\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"folder\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"sync_status\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"files\",\"kind\":\"object\",\"type\":\"FileQueue\",\"relationName\":\"DirectoryQueueToFileQueue\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

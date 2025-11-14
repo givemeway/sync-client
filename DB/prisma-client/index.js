@@ -108,6 +108,26 @@ exports.Prisma.DirectoryScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.FileQueueScalarFieldEnum = {
+  path: 'path',
+  filename: 'filename',
+  last_modified: 'last_modified',
+  hashvalue: 'hashvalue',
+  size: 'size',
+  dirID: 'dirID',
+  sync_status: 'sync_status',
+  inode: 'inode'
+};
+
+exports.Prisma.DirectoryQueueScalarFieldEnum = {
+  uuid: 'uuid',
+  device: 'device',
+  folder: 'folder',
+  path: 'path',
+  created_at: 'created_at',
+  sync_status: 'sync_status'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -116,7 +136,9 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.ModelName = {
   File: 'File',
-  Directory: 'Directory'
+  Directory: 'Directory',
+  FileQueue: 'FileQueue',
+  DirectoryQueue: 'DirectoryQueue'
 };
 /**
  * Create the Client
@@ -129,7 +151,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/sandeep/Desktop/sync-client/DB/prisma-client",
+      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -138,7 +160,7 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       },
       {
@@ -158,7 +180,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "/Users/sandeep/Desktop/sync-client/prisma/schema.prisma",
+    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -179,8 +201,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  inode         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
-  "inlineSchemaHash": "228506ea269ee05918aebfe0548ec307161c52bb82e59a1fa646235769d31c70",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// https://www.prisma.io/docs/orm/prisma-client/queries/transactions\ngenerator client {\n  provider        = \"prisma-client-js\"\n  output          = \"../DB/prisma-client\"\n  previewFeatures = [\"fullTextSearch\", \"relationJoins\"]\n  binaryTargets   = [\"native\", \"debian-openssl-1.1.x\", \"debian-openssl-3.0.x\", \"darwin-arm64\"]\n}\n\ndatasource db {\n  provider = \"sqlite\"\n  url      = \"file:./dev.db\"\n}\n\nmodel File {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  inode         String\n  directoryID   Directory @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel Directory {\n  uuid       String   @unique()\n  device     String\n  folder     String\n  path       String\n  created_at DateTime\n  files      File[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n\nmodel FileQueue {\n  path          String\n  filename      String\n  last_modified DateTime\n  hashvalue     String\n  size          BigInt\n  dirID         String\n  sync_status   String\n  inode         String\n  directoryID   DirectoryQueue @relation(fields: [dirID], references: [uuid])\n\n  @@unique([path, filename])\n  @@index([path, filename])\n}\n\nmodel DirectoryQueue {\n  uuid        String      @unique()\n  device      String\n  folder      String\n  path        String\n  created_at  DateTime\n  sync_status String\n  files       FileQueue[]\n\n  @@unique([device, folder, path])\n  @@index([path])\n}\n",
+  "inlineSchemaHash": "ded5e81f1ad69652d5346f18e25c2ab8a13139fa2677c416f08337c7539c6a20",
   "copyEngine": true
 }
 
@@ -201,7 +223,7 @@ if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   config.isBundled = true
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"filename\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"size\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"BigInt\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"dirID\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inode\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"directoryID\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Directory\",\"nativeType\":null,\"relationName\":\"DirectoryToFile\",\"relationFromFields\":[\"dirID\"],\"relationToFields\":[\"uuid\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"path\",\"filename\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"path\",\"filename\"]}],\"isGenerated\":false},\"Directory\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"device\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"folder\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"created_at\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"files\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"File\",\"nativeType\":null,\"relationName\":\"DirectoryToFile\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"device\",\"folder\",\"path\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"device\",\"folder\",\"path\"]}],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"File\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"filename\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"size\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"BigInt\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"dirID\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inode\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"directoryID\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"Directory\",\"nativeType\":null,\"relationName\":\"DirectoryToFile\",\"relationFromFields\":[\"dirID\"],\"relationToFields\":[\"uuid\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"path\",\"filename\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"path\",\"filename\"]}],\"isGenerated\":false},\"Directory\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"device\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"folder\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"created_at\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"files\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"File\",\"nativeType\":null,\"relationName\":\"DirectoryToFile\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"device\",\"folder\",\"path\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"device\",\"folder\",\"path\"]}],\"isGenerated\":false},\"FileQueue\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"filename\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"last_modified\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"hashvalue\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"size\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"BigInt\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"dirID\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":true,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"sync_status\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"inode\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"directoryID\",\"kind\":\"object\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DirectoryQueue\",\"nativeType\":null,\"relationName\":\"DirectoryQueueToFileQueue\",\"relationFromFields\":[\"dirID\"],\"relationToFields\":[\"uuid\"],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"path\",\"filename\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"path\",\"filename\"]}],\"isGenerated\":false},\"DirectoryQueue\":{\"dbName\":null,\"schema\":null,\"fields\":[{\"name\":\"uuid\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":true,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"device\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"folder\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"path\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"created_at\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"DateTime\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"sync_status\",\"kind\":\"scalar\",\"isList\":false,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"String\",\"nativeType\":null,\"isGenerated\":false,\"isUpdatedAt\":false},{\"name\":\"files\",\"kind\":\"object\",\"isList\":true,\"isRequired\":true,\"isUnique\":false,\"isId\":false,\"isReadOnly\":false,\"hasDefaultValue\":false,\"type\":\"FileQueue\",\"nativeType\":null,\"relationName\":\"DirectoryQueueToFileQueue\",\"relationFromFields\":[],\"relationToFields\":[],\"isGenerated\":false,\"isUpdatedAt\":false}],\"primaryKey\":null,\"uniqueFields\":[[\"device\",\"folder\",\"path\"]],\"uniqueIndexes\":[{\"name\":null,\"fields\":[\"device\",\"folder\",\"path\"]}],\"isGenerated\":false}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = undefined
 config.compilerWasm = undefined
@@ -219,8 +241,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
-path.join(process.cwd(), "DB/prisma-client/libquery_engine-darwin-arm64.dylib.node")
+path.join(__dirname, "query_engine-windows.dll.node");
+path.join(process.cwd(), "DB/prisma-client/query_engine-windows.dll.node")
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-1.1.x.so.node");
@@ -229,6 +251,10 @@ path.join(process.cwd(), "DB/prisma-client/libquery_engine-debian-openssl-1.1.x.
 // file annotations for bundling tools to include these files
 path.join(__dirname, "libquery_engine-debian-openssl-3.0.x.so.node");
 path.join(process.cwd(), "DB/prisma-client/libquery_engine-debian-openssl-3.0.x.so.node")
+
+// file annotations for bundling tools to include these files
+path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
+path.join(process.cwd(), "DB/prisma-client/libquery_engine-darwin-arm64.dylib.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "DB/prisma-client/schema.prisma")

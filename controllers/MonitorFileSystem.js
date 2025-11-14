@@ -8,8 +8,9 @@ const { signal } = ac;
 export const watcherFn = (SYNC_PATH) => {
   return chokidar.watch(SYNC_PATH, {
     persistent: true,
-    usePolling: false,
+    usePolling: true,
     alwaysStat: true,
+    atomic: true,
   });
 };
 
