@@ -22,8 +22,8 @@ const log = console.log.bind(console);
 
 const watcher = watcherFn(SYNC_PATH);
 let INITIAL_SCAN_COMPLETE = false;
-export let fileQueue = {};
-export let directoryQueue = {};
+let fileQueue = {};
+let directoryQueue = {};
 let fileQueueArr = [];
 let directoryQueueArr = [];
 let deleteFileQueue = [];
@@ -133,14 +133,14 @@ watcher
       } else {
         updateFileQueue(path, fileQueue, stats);
       }
-    } catch (err) {}
+    } catch (err) { }
   })
   .on("change", async (path, stats) => {
     console.log("Change File -> ", path);
     try {
       modifiedFileQueue.push({ [path]: stats });
       debouncedModified();
-    } catch (err) {}
+    } catch (err) { }
   })
   .on("unlink", async (path, stats) => {
     try {

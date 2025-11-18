@@ -6,9 +6,12 @@ export const buildSyncFolderDB = (files, dirs) =>
     try {
       // read the local DB
       await prisma.$transaction(async (prisma) => {
+        console.log("Reading Local DB...");
         const [filesObj, dirsObj] = await readSyncDB(prisma);
+        console.log("Reading Local DB Complete!!");
         const updatedFiles = await get_modified_files(filesObj, files);
         // compare the scanned files/folders with the local DB and find which are new or modified
+        console.log("Comparing the files...");
         const [changedFiles, changedDirs] = await compareChangesWithLocalDB(
           prisma,
           filesObj,
@@ -17,6 +20,7 @@ export const buildSyncFolderDB = (files, dirs) =>
           dirs,
           updatedFiles
         );
+        console.log("Comparing Files complete!!");
         // create a new DB with the identified files / folders
         // Build the sync DB that will be used to sync to cloud
         await update_queue(prisma, changedFiles, changedDirs);
@@ -36,7 +40,7 @@ export const buildSyncFolderDB = (files, dirs) =>
 const build_main_sync_db = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
-      console.log("Building Main Sync DB..................");
+      console.log("Building Main Sync DB...");
       const toBeDeletedFiles = Object.entries(files)
         .flatMap(([_, filesObj]) =>
           Object.entries(filesObj)
@@ -78,6 +82,7 @@ const build_main_sync_db = (prisma, files, dirs) =>
       await delete_fileItems_db(prisma, toBeDeletedFiles);
       await delete_dirItems_db(prisma, tobeDeletedDirs);
       await update_main_table(prisma, toBeInsertfiles, toBeInsertedDirs);
+      console.log("Building Main Sync DB complete!!");
       resolve();
     } catch (err) {
       console.error(err);
@@ -363,6 +368,7 @@ const update_main_table = (prisma, files, dirs) =>
 const update_queue = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
+      console.log("Building Queue   DB...");
       const filesArray = Object.entries(files).flatMap(([_, filesObj]) =>
         Object.entries(filesObj).flatMap(([_, fileObj]) => ({
           ...fileObj,
@@ -401,7 +407,7 @@ const update_queue = (prisma, files, dirs) =>
           },
         });
       }
-
+      console.log("Building Queue DB complete!!");
       resolve();
     } catch (error) {
       console.log(error);

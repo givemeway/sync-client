@@ -42,6 +42,7 @@ const get_folder_metadata = (dirObj) =>
     const dirArr = Object.entries(dirObj);
     let dirs = {};
     for (const [dir, obj] of dirArr) {
+      console.log("Reading Dir -> ", dir);
       let dirObj = { ...obj };
       try {
         const created_at = (await stat(dirObj.absPath)).mtime;
@@ -632,6 +633,7 @@ export const get_file_metadata = (obj) =>
     const filesArray = Object.entries(obj);
     const filesObj = {};
     for (const [path, files] of filesArray) {
+      console.log("Reading -> ", path);
       for (let [filename, file] of Object.entries(files)) {
         let fileObj = { ...file };
         const relPath = join(path, file.filename);
