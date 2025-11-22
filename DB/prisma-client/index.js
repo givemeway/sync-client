@@ -155,7 +155,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\DB\\prisma-client",
+      "value": "C:\\Users\\sandk\\Desktop\\sync-client\\DB\\prisma-client",
       "fromEnvVar": null
     },
     "config": {
@@ -184,7 +184,7 @@ const config = {
       "fullTextSearch",
       "relationJoins"
     ],
-    "sourceFilePath": "C:\\Users\\Sandeep Kumar\\Desktop\\sync-client\\prisma\\schema.prisma",
+    "sourceFilePath": "C:\\Users\\sandk\\Desktop\\sync-client\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

@@ -1,5 +1,6 @@
 import axios from "axios";
-const SYNC_SERVER_PATH = "http://localhost:3001/app/sync/getSyncItems?username=";
+import dotenv from "dotenv";
+dotenv.config();
 const username = "sand.kumar.gr@gmail.com";
 
 //query the server to get all file metadata
@@ -97,7 +98,7 @@ export const _to_files_Dir_obj = (cloudItems) => {
 
 export const get_cloud_files_folders_metadata = () => new Promise(async (resolve, reject) => {
   try {
-    const response = await axios.get(SYNC_SERVER_PATH + username);
+    const response = await axios.get(process.env.SYNC_METADATA_API + username);
     resolve(response.data);
   } catch (err) {
     console.error(err);

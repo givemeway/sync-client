@@ -9,7 +9,8 @@ import os from "os";
 const SEP = os.platform() === "win32" ? "\\" : "/";
 const MAC_PATH = "/users/sandeep/desktop/sync-folder";
 const WIN_PATH = "C:\\Users\\Sandeep Kumar\\Desktop\\sync_folder";
-export const SYNC_PATH = os.platform() === "win32" ? WIN_PATH : MAC_PATH;
+const WIN_PATH_DESKTOP = "C:\\Users\\sandk\\Desktop\\sync-folder";
+export const SYNC_PATH = os.platform() === "win32" ? WIN_PATH_DESKTOP : MAC_PATH;
 
 export const _get_metadata = (filesObj, dirObj) =>
   new Promise(async (resolve, reject) => {
@@ -144,7 +145,6 @@ export const get_file_metadata = (obj) =>
       console.log("Reading -> ", path);
       for (let [filename, file] of Object.entries(files)) {
         let fileObj = { ...file };
-        const relPath = join(path, file.filename);
         try {
           fileObj["hashvalue"] = await getFileHash(file.absPath);
           //delete fileObj["absPath"];

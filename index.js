@@ -18,6 +18,7 @@ import {
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
 import { _to_files_Dir_obj, _get_to_be_synced_items, get_cloud_files_folders_metadata } from "./controllers/sync.js"
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
+import { uploadFile } from "./controllers/uploadChanges.js";
 console.log("Sync Path: ", SYNC_PATH);
 const log = console.log.bind(console);
 
@@ -220,6 +221,13 @@ const pollingServer = async () => {
     console.log("| Files to Upload | MetaData | ", items.files);
     console.log("| Dirs  to Upload | MetaData | ", _rearrange_dir_obj(items.dirs));
     console.log("****************************************")
+    for (const [path, filesObj] of Object.entries(items.files)) {
+      for (const [filename, fileObj] of Object.entries(filesObj)) {
+        await uploadFile(fileObj)
+        break;
+      }
+    }
+    //await uploadFile()
   } catch (err) {
     console.log(err);
   }
