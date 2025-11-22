@@ -1,6 +1,6 @@
 import { prisma } from "./Config/prismaDBConfig.js";
 import { watcherFn } from "./controllers/MonitorFileSystem.js";
-import { buildSyncFolderDB } from "./controllers/buildSyncFolderDB.js";
+import { buildSyncFolderDB, readSyncDB } from "./controllers/buildSyncFolderDB.js";
 import {
   _get_metadata,
   _get_file_metadata,
@@ -16,6 +16,7 @@ import {
   _update_file_main_db,
 } from "./controllers/get_file_folder_metadata.js";
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
+import { _to_files_Dir_obj, _get_to_be_synced_items, get_cloud_files_folders_metadata } from "./controllers/sync.js"
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
 console.log("Sync Path: ", SYNC_PATH);
 const log = console.log.bind(console);
@@ -190,3 +191,37 @@ watcher
 //   // internal
 //   log("Raw event info:", event, path, details);
 // });
+const _rearrange_dir_obj = (dirsObj) => {
+  return Object.fromEntries(
+    Object.entries(dirsObj).map(([p, f]) => [p, f[p]])
+  );
+
+}
+const pollingServer = async () => {
+  try {
+    console.log("Polling server");
+    const cloudItems = await get_cloud_files_folders_metadata();
+    const [files, dirs, queuedFiles, queuedDirs] = await readSyncDB(prisma);
+    const { filesObj, dirsObj } = _to_files_Dir_obj(cloudItems.items);
+
+    const [a, b, c, d] = _get_to_be_synced_items(files, dirs, filesObj, dirsObj, queuedFiles, queuedDirs)
+
+    console.log("****************************************")
+    console.log("FilesToSyncUp: ", a)
+    console.log("****************************************")
+    console.log("DirsToSyncUP: ", b)
+    console.log("****************************************");
+    console.log("FilesToSyncDown: ", c)
+    console.log("****************************************")
+    console.log("DirstoSyncDown: ", d)
+    console.log("****************************************")
+    const items = await _get_metadata(a, _rearrange_dir_obj(b));
+    console.log("****************************************")
+    console.log("| Files to Upload | MetaData | ", items.files);
+    console.log("| Dirs  to Upload | MetaData | ", _rearrange_dir_obj(items.dirs));
+    console.log("****************************************")
+  } catch (err) {
+    console.log(err);
+  }
+}
+setInterval(pollingServer, 10000)

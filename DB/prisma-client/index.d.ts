@@ -1223,6 +1223,7 @@ export namespace Prisma {
     size: bigint | null
     dirID: string | null
     inode: string | null
+    absPath: string | null
   }
 
   export type FileMaxAggregateOutputType = {
@@ -1233,6 +1234,7 @@ export namespace Prisma {
     size: bigint | null
     dirID: string | null
     inode: string | null
+    absPath: string | null
   }
 
   export type FileCountAggregateOutputType = {
@@ -1243,6 +1245,7 @@ export namespace Prisma {
     size: number
     dirID: number
     inode: number
+    absPath: number
     _all: number
   }
 
@@ -1263,6 +1266,7 @@ export namespace Prisma {
     size?: true
     dirID?: true
     inode?: true
+    absPath?: true
   }
 
   export type FileMaxAggregateInputType = {
@@ -1273,6 +1277,7 @@ export namespace Prisma {
     size?: true
     dirID?: true
     inode?: true
+    absPath?: true
   }
 
   export type FileCountAggregateInputType = {
@@ -1283,6 +1288,7 @@ export namespace Prisma {
     size?: true
     dirID?: true
     inode?: true
+    absPath?: true
     _all?: true
   }
 
@@ -1380,6 +1386,7 @@ export namespace Prisma {
     size: bigint
     dirID: string
     inode: string
+    absPath: string
     _count: FileCountAggregateOutputType | null
     _avg: FileAvgAggregateOutputType | null
     _sum: FileSumAggregateOutputType | null
@@ -1409,6 +1416,7 @@ export namespace Prisma {
     size?: boolean
     dirID?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1420,6 +1428,7 @@ export namespace Prisma {
     size?: boolean
     dirID?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1431,6 +1440,7 @@ export namespace Prisma {
     size?: boolean
     dirID?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1442,9 +1452,10 @@ export namespace Prisma {
     size?: boolean
     dirID?: boolean
     inode?: boolean
+    absPath?: boolean
   }
 
-  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode", ExtArgs["result"]["file"]>
+  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath", ExtArgs["result"]["file"]>
   export type FileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }
@@ -1468,6 +1479,7 @@ export namespace Prisma {
       size: bigint
       dirID: string
       inode: string
+      absPath: string
     }, ExtArgs["result"]["file"]>
     composites: {}
   }
@@ -1899,6 +1911,7 @@ export namespace Prisma {
     readonly size: FieldRef<"File", 'BigInt'>
     readonly dirID: FieldRef<"File", 'String'>
     readonly inode: FieldRef<"File", 'String'>
+    readonly absPath: FieldRef<"File", 'String'>
   }
     
 
@@ -2327,6 +2340,7 @@ export namespace Prisma {
     folder: string | null
     path: string | null
     created_at: Date | null
+    absPath: string | null
   }
 
   export type DirectoryMaxAggregateOutputType = {
@@ -2335,6 +2349,7 @@ export namespace Prisma {
     folder: string | null
     path: string | null
     created_at: Date | null
+    absPath: string | null
   }
 
   export type DirectoryCountAggregateOutputType = {
@@ -2343,6 +2358,7 @@ export namespace Prisma {
     folder: number
     path: number
     created_at: number
+    absPath: number
     _all: number
   }
 
@@ -2353,6 +2369,7 @@ export namespace Prisma {
     folder?: true
     path?: true
     created_at?: true
+    absPath?: true
   }
 
   export type DirectoryMaxAggregateInputType = {
@@ -2361,6 +2378,7 @@ export namespace Prisma {
     folder?: true
     path?: true
     created_at?: true
+    absPath?: true
   }
 
   export type DirectoryCountAggregateInputType = {
@@ -2369,6 +2387,7 @@ export namespace Prisma {
     folder?: true
     path?: true
     created_at?: true
+    absPath?: true
     _all?: true
   }
 
@@ -2450,6 +2469,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date
+    absPath: string
     _count: DirectoryCountAggregateOutputType | null
     _min: DirectoryMinAggregateOutputType | null
     _max: DirectoryMaxAggregateOutputType | null
@@ -2475,6 +2495,7 @@ export namespace Prisma {
     folder?: boolean
     path?: boolean
     created_at?: boolean
+    absPath?: boolean
     files?: boolean | Directory$filesArgs<ExtArgs>
     _count?: boolean | DirectoryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["directory"]>
@@ -2485,6 +2506,7 @@ export namespace Prisma {
     folder?: boolean
     path?: boolean
     created_at?: boolean
+    absPath?: boolean
   }, ExtArgs["result"]["directory"]>
 
   export type DirectorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2493,6 +2515,7 @@ export namespace Prisma {
     folder?: boolean
     path?: boolean
     created_at?: boolean
+    absPath?: boolean
   }, ExtArgs["result"]["directory"]>
 
   export type DirectorySelectScalar = {
@@ -2501,9 +2524,10 @@ export namespace Prisma {
     folder?: boolean
     path?: boolean
     created_at?: boolean
+    absPath?: boolean
   }
 
-  export type DirectoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "device" | "folder" | "path" | "created_at", ExtArgs["result"]["directory"]>
+  export type DirectoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "device" | "folder" | "path" | "created_at" | "absPath", ExtArgs["result"]["directory"]>
   export type DirectoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     files?: boolean | Directory$filesArgs<ExtArgs>
     _count?: boolean | DirectoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -2522,6 +2546,7 @@ export namespace Prisma {
       folder: string
       path: string
       created_at: Date
+      absPath: string
     }, ExtArgs["result"]["directory"]>
     composites: {}
   }
@@ -2951,6 +2976,7 @@ export namespace Prisma {
     readonly folder: FieldRef<"Directory", 'String'>
     readonly path: FieldRef<"Directory", 'String'>
     readonly created_at: FieldRef<"Directory", 'DateTime'>
+    readonly absPath: FieldRef<"Directory", 'String'>
   }
     
 
@@ -3408,6 +3434,7 @@ export namespace Prisma {
     dirID: string | null
     sync_status: string | null
     inode: string | null
+    absPath: string | null
   }
 
   export type FileQueueMaxAggregateOutputType = {
@@ -3419,6 +3446,7 @@ export namespace Prisma {
     dirID: string | null
     sync_status: string | null
     inode: string | null
+    absPath: string | null
   }
 
   export type FileQueueCountAggregateOutputType = {
@@ -3430,6 +3458,7 @@ export namespace Prisma {
     dirID: number
     sync_status: number
     inode: number
+    absPath: number
     _all: number
   }
 
@@ -3451,6 +3480,7 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    absPath?: true
   }
 
   export type FileQueueMaxAggregateInputType = {
@@ -3462,6 +3492,7 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    absPath?: true
   }
 
   export type FileQueueCountAggregateInputType = {
@@ -3473,6 +3504,7 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    absPath?: true
     _all?: true
   }
 
@@ -3571,6 +3603,7 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    absPath: string
     _count: FileQueueCountAggregateOutputType | null
     _avg: FileQueueAvgAggregateOutputType | null
     _sum: FileQueueSumAggregateOutputType | null
@@ -3601,6 +3634,7 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3613,6 +3647,7 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3625,6 +3660,7 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    absPath?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3637,9 +3673,10 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    absPath?: boolean
   }
 
-  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode", ExtArgs["result"]["fileQueue"]>
+  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "absPath", ExtArgs["result"]["fileQueue"]>
   export type FileQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }
@@ -3664,6 +3701,7 @@ export namespace Prisma {
       dirID: string
       sync_status: string
       inode: string
+      absPath: string
     }, ExtArgs["result"]["fileQueue"]>
     composites: {}
   }
@@ -4096,6 +4134,7 @@ export namespace Prisma {
     readonly dirID: FieldRef<"FileQueue", 'String'>
     readonly sync_status: FieldRef<"FileQueue", 'String'>
     readonly inode: FieldRef<"FileQueue", 'String'>
+    readonly absPath: FieldRef<"FileQueue", 'String'>
   }
     
 
@@ -4525,6 +4564,7 @@ export namespace Prisma {
     path: string | null
     created_at: Date | null
     sync_status: string | null
+    absPath: string | null
   }
 
   export type DirectoryQueueMaxAggregateOutputType = {
@@ -4534,6 +4574,7 @@ export namespace Prisma {
     path: string | null
     created_at: Date | null
     sync_status: string | null
+    absPath: string | null
   }
 
   export type DirectoryQueueCountAggregateOutputType = {
@@ -4543,6 +4584,7 @@ export namespace Prisma {
     path: number
     created_at: number
     sync_status: number
+    absPath: number
     _all: number
   }
 
@@ -4554,6 +4596,7 @@ export namespace Prisma {
     path?: true
     created_at?: true
     sync_status?: true
+    absPath?: true
   }
 
   export type DirectoryQueueMaxAggregateInputType = {
@@ -4563,6 +4606,7 @@ export namespace Prisma {
     path?: true
     created_at?: true
     sync_status?: true
+    absPath?: true
   }
 
   export type DirectoryQueueCountAggregateInputType = {
@@ -4572,6 +4616,7 @@ export namespace Prisma {
     path?: true
     created_at?: true
     sync_status?: true
+    absPath?: true
     _all?: true
   }
 
@@ -4654,6 +4699,7 @@ export namespace Prisma {
     path: string
     created_at: Date
     sync_status: string
+    absPath: string
     _count: DirectoryQueueCountAggregateOutputType | null
     _min: DirectoryQueueMinAggregateOutputType | null
     _max: DirectoryQueueMaxAggregateOutputType | null
@@ -4680,6 +4726,7 @@ export namespace Prisma {
     path?: boolean
     created_at?: boolean
     sync_status?: boolean
+    absPath?: boolean
     files?: boolean | DirectoryQueue$filesArgs<ExtArgs>
     _count?: boolean | DirectoryQueueCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["directoryQueue"]>
@@ -4691,6 +4738,7 @@ export namespace Prisma {
     path?: boolean
     created_at?: boolean
     sync_status?: boolean
+    absPath?: boolean
   }, ExtArgs["result"]["directoryQueue"]>
 
   export type DirectoryQueueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -4700,6 +4748,7 @@ export namespace Prisma {
     path?: boolean
     created_at?: boolean
     sync_status?: boolean
+    absPath?: boolean
   }, ExtArgs["result"]["directoryQueue"]>
 
   export type DirectoryQueueSelectScalar = {
@@ -4709,9 +4758,10 @@ export namespace Prisma {
     path?: boolean
     created_at?: boolean
     sync_status?: boolean
+    absPath?: boolean
   }
 
-  export type DirectoryQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "device" | "folder" | "path" | "created_at" | "sync_status", ExtArgs["result"]["directoryQueue"]>
+  export type DirectoryQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "device" | "folder" | "path" | "created_at" | "sync_status" | "absPath", ExtArgs["result"]["directoryQueue"]>
   export type DirectoryQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     files?: boolean | DirectoryQueue$filesArgs<ExtArgs>
     _count?: boolean | DirectoryQueueCountOutputTypeDefaultArgs<ExtArgs>
@@ -4731,6 +4781,7 @@ export namespace Prisma {
       path: string
       created_at: Date
       sync_status: string
+      absPath: string
     }, ExtArgs["result"]["directoryQueue"]>
     composites: {}
   }
@@ -5161,6 +5212,7 @@ export namespace Prisma {
     readonly path: FieldRef<"DirectoryQueue", 'String'>
     readonly created_at: FieldRef<"DirectoryQueue", 'DateTime'>
     readonly sync_status: FieldRef<"DirectoryQueue", 'String'>
+    readonly absPath: FieldRef<"DirectoryQueue", 'String'>
   }
     
 
@@ -5607,7 +5659,8 @@ export namespace Prisma {
     hashvalue: 'hashvalue',
     size: 'size',
     dirID: 'dirID',
-    inode: 'inode'
+    inode: 'inode',
+    absPath: 'absPath'
   };
 
   export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
@@ -5618,7 +5671,8 @@ export namespace Prisma {
     device: 'device',
     folder: 'folder',
     path: 'path',
-    created_at: 'created_at'
+    created_at: 'created_at',
+    absPath: 'absPath'
   };
 
   export type DirectoryScalarFieldEnum = (typeof DirectoryScalarFieldEnum)[keyof typeof DirectoryScalarFieldEnum]
@@ -5632,7 +5686,8 @@ export namespace Prisma {
     size: 'size',
     dirID: 'dirID',
     sync_status: 'sync_status',
-    inode: 'inode'
+    inode: 'inode',
+    absPath: 'absPath'
   };
 
   export type FileQueueScalarFieldEnum = (typeof FileQueueScalarFieldEnum)[keyof typeof FileQueueScalarFieldEnum]
@@ -5644,7 +5699,8 @@ export namespace Prisma {
     folder: 'folder',
     path: 'path',
     created_at: 'created_at',
-    sync_status: 'sync_status'
+    sync_status: 'sync_status',
+    absPath: 'absPath'
   };
 
   export type DirectoryQueueScalarFieldEnum = (typeof DirectoryQueueScalarFieldEnum)[keyof typeof DirectoryQueueScalarFieldEnum]
@@ -5712,6 +5768,7 @@ export namespace Prisma {
     size?: BigIntFilter<"File"> | bigint | number
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
+    absPath?: StringFilter<"File"> | string
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }
 
@@ -5723,6 +5780,7 @@ export namespace Prisma {
     size?: SortOrder
     dirID?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
     directoryID?: DirectoryOrderByWithRelationInput
   }
 
@@ -5738,6 +5796,7 @@ export namespace Prisma {
     size?: BigIntFilter<"File"> | bigint | number
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
+    absPath?: StringFilter<"File"> | string
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }, "path_filename">
 
@@ -5749,6 +5808,7 @@ export namespace Prisma {
     size?: SortOrder
     dirID?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
     _count?: FileCountOrderByAggregateInput
     _avg?: FileAvgOrderByAggregateInput
     _max?: FileMaxOrderByAggregateInput
@@ -5767,6 +5827,7 @@ export namespace Prisma {
     size?: BigIntWithAggregatesFilter<"File"> | bigint | number
     dirID?: StringWithAggregatesFilter<"File"> | string
     inode?: StringWithAggregatesFilter<"File"> | string
+    absPath?: StringWithAggregatesFilter<"File"> | string
   }
 
   export type DirectoryWhereInput = {
@@ -5778,6 +5839,7 @@ export namespace Prisma {
     folder?: StringFilter<"Directory"> | string
     path?: StringFilter<"Directory"> | string
     created_at?: DateTimeFilter<"Directory"> | Date | string
+    absPath?: StringFilter<"Directory"> | string
     files?: FileListRelationFilter
   }
 
@@ -5787,6 +5849,7 @@ export namespace Prisma {
     folder?: SortOrder
     path?: SortOrder
     created_at?: SortOrder
+    absPath?: SortOrder
     files?: FileOrderByRelationAggregateInput
   }
 
@@ -5800,6 +5863,7 @@ export namespace Prisma {
     folder?: StringFilter<"Directory"> | string
     path?: StringFilter<"Directory"> | string
     created_at?: DateTimeFilter<"Directory"> | Date | string
+    absPath?: StringFilter<"Directory"> | string
     files?: FileListRelationFilter
   }, "uuid" | "device_folder_path">
 
@@ -5809,6 +5873,7 @@ export namespace Prisma {
     folder?: SortOrder
     path?: SortOrder
     created_at?: SortOrder
+    absPath?: SortOrder
     _count?: DirectoryCountOrderByAggregateInput
     _max?: DirectoryMaxOrderByAggregateInput
     _min?: DirectoryMinOrderByAggregateInput
@@ -5823,6 +5888,7 @@ export namespace Prisma {
     folder?: StringWithAggregatesFilter<"Directory"> | string
     path?: StringWithAggregatesFilter<"Directory"> | string
     created_at?: DateTimeWithAggregatesFilter<"Directory"> | Date | string
+    absPath?: StringWithAggregatesFilter<"Directory"> | string
   }
 
   export type FileQueueWhereInput = {
@@ -5837,6 +5903,7 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    absPath?: StringFilter<"FileQueue"> | string
     directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
   }
 
@@ -5849,6 +5916,7 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
     directoryID?: DirectoryQueueOrderByWithRelationInput
   }
 
@@ -5865,6 +5933,7 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    absPath?: StringFilter<"FileQueue"> | string
     directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
   }, "path_filename">
 
@@ -5877,6 +5946,7 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
     _count?: FileQueueCountOrderByAggregateInput
     _avg?: FileQueueAvgOrderByAggregateInput
     _max?: FileQueueMaxOrderByAggregateInput
@@ -5896,6 +5966,7 @@ export namespace Prisma {
     dirID?: StringWithAggregatesFilter<"FileQueue"> | string
     sync_status?: StringWithAggregatesFilter<"FileQueue"> | string
     inode?: StringWithAggregatesFilter<"FileQueue"> | string
+    absPath?: StringWithAggregatesFilter<"FileQueue"> | string
   }
 
   export type DirectoryQueueWhereInput = {
@@ -5908,6 +5979,7 @@ export namespace Prisma {
     path?: StringFilter<"DirectoryQueue"> | string
     created_at?: DateTimeFilter<"DirectoryQueue"> | Date | string
     sync_status?: StringFilter<"DirectoryQueue"> | string
+    absPath?: StringFilter<"DirectoryQueue"> | string
     files?: FileQueueListRelationFilter
   }
 
@@ -5918,6 +5990,7 @@ export namespace Prisma {
     path?: SortOrder
     created_at?: SortOrder
     sync_status?: SortOrder
+    absPath?: SortOrder
     files?: FileQueueOrderByRelationAggregateInput
   }
 
@@ -5932,6 +6005,7 @@ export namespace Prisma {
     path?: StringFilter<"DirectoryQueue"> | string
     created_at?: DateTimeFilter<"DirectoryQueue"> | Date | string
     sync_status?: StringFilter<"DirectoryQueue"> | string
+    absPath?: StringFilter<"DirectoryQueue"> | string
     files?: FileQueueListRelationFilter
   }, "uuid" | "device_folder_path">
 
@@ -5942,6 +6016,7 @@ export namespace Prisma {
     path?: SortOrder
     created_at?: SortOrder
     sync_status?: SortOrder
+    absPath?: SortOrder
     _count?: DirectoryQueueCountOrderByAggregateInput
     _max?: DirectoryQueueMaxOrderByAggregateInput
     _min?: DirectoryQueueMinOrderByAggregateInput
@@ -5957,6 +6032,7 @@ export namespace Prisma {
     path?: StringWithAggregatesFilter<"DirectoryQueue"> | string
     created_at?: DateTimeWithAggregatesFilter<"DirectoryQueue"> | Date | string
     sync_status?: StringWithAggregatesFilter<"DirectoryQueue"> | string
+    absPath?: StringWithAggregatesFilter<"DirectoryQueue"> | string
   }
 
   export type FileCreateInput = {
@@ -5966,6 +6042,7 @@ export namespace Prisma {
     hashvalue: string
     size: bigint | number
     inode: string
+    absPath: string
     directoryID: DirectoryCreateNestedOneWithoutFilesInput
   }
 
@@ -5977,6 +6054,7 @@ export namespace Prisma {
     size: bigint | number
     dirID: string
     inode: string
+    absPath: string
   }
 
   export type FileUpdateInput = {
@@ -5986,6 +6064,7 @@ export namespace Prisma {
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
     directoryID?: DirectoryUpdateOneRequiredWithoutFilesNestedInput
   }
 
@@ -5997,6 +6076,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     dirID?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileCreateManyInput = {
@@ -6007,6 +6087,7 @@ export namespace Prisma {
     size: bigint | number
     dirID: string
     inode: string
+    absPath: string
   }
 
   export type FileUpdateManyMutationInput = {
@@ -6016,6 +6097,7 @@ export namespace Prisma {
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateManyInput = {
@@ -6026,6 +6108,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     dirID?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryCreateInput = {
@@ -6034,6 +6117,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date | string
+    absPath: string
     files?: FileCreateNestedManyWithoutDirectoryIDInput
   }
 
@@ -6043,6 +6127,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date | string
+    absPath: string
     files?: FileUncheckedCreateNestedManyWithoutDirectoryIDInput
   }
 
@@ -6052,6 +6137,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
     files?: FileUpdateManyWithoutDirectoryIDNestedInput
   }
 
@@ -6061,6 +6147,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
     files?: FileUncheckedUpdateManyWithoutDirectoryIDNestedInput
   }
 
@@ -6070,6 +6157,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date | string
+    absPath: string
   }
 
   export type DirectoryUpdateManyMutationInput = {
@@ -6078,6 +6166,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryUncheckedUpdateManyInput = {
@@ -6086,6 +6175,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateInput = {
@@ -6096,6 +6186,7 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    absPath: string
     directoryID: DirectoryQueueCreateNestedOneWithoutFilesInput
   }
 
@@ -6108,6 +6199,7 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    absPath: string
   }
 
   export type FileQueueUpdateInput = {
@@ -6118,6 +6210,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
     directoryID?: DirectoryQueueUpdateOneRequiredWithoutFilesNestedInput
   }
 
@@ -6130,6 +6223,7 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateManyInput = {
@@ -6141,6 +6235,7 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    absPath: string
   }
 
   export type FileQueueUpdateManyMutationInput = {
@@ -6151,6 +6246,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateManyInput = {
@@ -6162,6 +6258,7 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryQueueCreateInput = {
@@ -6171,6 +6268,7 @@ export namespace Prisma {
     path: string
     created_at: Date | string
     sync_status: string
+    absPath: string
     files?: FileQueueCreateNestedManyWithoutDirectoryIDInput
   }
 
@@ -6181,6 +6279,7 @@ export namespace Prisma {
     path: string
     created_at: Date | string
     sync_status: string
+    absPath: string
     files?: FileQueueUncheckedCreateNestedManyWithoutDirectoryIDInput
   }
 
@@ -6191,6 +6290,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
     files?: FileQueueUpdateManyWithoutDirectoryIDNestedInput
   }
 
@@ -6201,6 +6301,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
     files?: FileQueueUncheckedUpdateManyWithoutDirectoryIDNestedInput
   }
 
@@ -6211,6 +6312,7 @@ export namespace Prisma {
     path: string
     created_at: Date | string
     sync_status: string
+    absPath: string
   }
 
   export type DirectoryQueueUpdateManyMutationInput = {
@@ -6220,6 +6322,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryQueueUncheckedUpdateManyInput = {
@@ -6229,6 +6332,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6285,6 +6389,7 @@ export namespace Prisma {
     size?: SortOrder
     dirID?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileAvgOrderByAggregateInput = {
@@ -6299,6 +6404,7 @@ export namespace Prisma {
     size?: SortOrder
     dirID?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileMinOrderByAggregateInput = {
@@ -6309,6 +6415,7 @@ export namespace Prisma {
     size?: SortOrder
     dirID?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileSumOrderByAggregateInput = {
@@ -6384,6 +6491,7 @@ export namespace Prisma {
     folder?: SortOrder
     path?: SortOrder
     created_at?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryMaxOrderByAggregateInput = {
@@ -6392,6 +6500,7 @@ export namespace Prisma {
     folder?: SortOrder
     path?: SortOrder
     created_at?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryMinOrderByAggregateInput = {
@@ -6400,6 +6509,7 @@ export namespace Prisma {
     folder?: SortOrder
     path?: SortOrder
     created_at?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryQueueScalarRelationFilter = {
@@ -6421,6 +6531,7 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileQueueAvgOrderByAggregateInput = {
@@ -6436,6 +6547,7 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileQueueMinOrderByAggregateInput = {
@@ -6447,6 +6559,7 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    absPath?: SortOrder
   }
 
   export type FileQueueSumOrderByAggregateInput = {
@@ -6476,6 +6589,7 @@ export namespace Prisma {
     path?: SortOrder
     created_at?: SortOrder
     sync_status?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryQueueMaxOrderByAggregateInput = {
@@ -6485,6 +6599,7 @@ export namespace Prisma {
     path?: SortOrder
     created_at?: SortOrder
     sync_status?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryQueueMinOrderByAggregateInput = {
@@ -6494,6 +6609,7 @@ export namespace Prisma {
     path?: SortOrder
     created_at?: SortOrder
     sync_status?: SortOrder
+    absPath?: SortOrder
   }
 
   export type DirectoryCreateNestedOneWithoutFilesInput = {
@@ -6735,6 +6851,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date | string
+    absPath: string
   }
 
   export type DirectoryUncheckedCreateWithoutFilesInput = {
@@ -6743,6 +6860,7 @@ export namespace Prisma {
     folder: string
     path: string
     created_at: Date | string
+    absPath: string
   }
 
   export type DirectoryCreateOrConnectWithoutFilesInput = {
@@ -6767,6 +6885,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryUncheckedUpdateWithoutFilesInput = {
@@ -6775,6 +6894,7 @@ export namespace Prisma {
     folder?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileCreateWithoutDirectoryIDInput = {
@@ -6784,6 +6904,7 @@ export namespace Prisma {
     hashvalue: string
     size: bigint | number
     inode: string
+    absPath: string
   }
 
   export type FileUncheckedCreateWithoutDirectoryIDInput = {
@@ -6793,6 +6914,7 @@ export namespace Prisma {
     hashvalue: string
     size: bigint | number
     inode: string
+    absPath: string
   }
 
   export type FileCreateOrConnectWithoutDirectoryIDInput = {
@@ -6831,6 +6953,7 @@ export namespace Prisma {
     size?: BigIntFilter<"File"> | bigint | number
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
+    absPath?: StringFilter<"File"> | string
   }
 
   export type DirectoryQueueCreateWithoutFilesInput = {
@@ -6840,6 +6963,7 @@ export namespace Prisma {
     path: string
     created_at: Date | string
     sync_status: string
+    absPath: string
   }
 
   export type DirectoryQueueUncheckedCreateWithoutFilesInput = {
@@ -6849,6 +6973,7 @@ export namespace Prisma {
     path: string
     created_at: Date | string
     sync_status: string
+    absPath: string
   }
 
   export type DirectoryQueueCreateOrConnectWithoutFilesInput = {
@@ -6874,6 +6999,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryQueueUncheckedUpdateWithoutFilesInput = {
@@ -6883,6 +7009,7 @@ export namespace Prisma {
     path?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     sync_status?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateWithoutDirectoryIDInput = {
@@ -6893,6 +7020,7 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    absPath: string
   }
 
   export type FileQueueUncheckedCreateWithoutDirectoryIDInput = {
@@ -6903,6 +7031,7 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    absPath: string
   }
 
   export type FileQueueCreateOrConnectWithoutDirectoryIDInput = {
@@ -6942,6 +7071,7 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    absPath?: StringFilter<"FileQueue"> | string
   }
 
   export type FileCreateManyDirectoryIDInput = {
@@ -6951,6 +7081,7 @@ export namespace Prisma {
     hashvalue: string
     size: bigint | number
     inode: string
+    absPath: string
   }
 
   export type FileUpdateWithoutDirectoryIDInput = {
@@ -6960,6 +7091,7 @@ export namespace Prisma {
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateWithoutDirectoryIDInput = {
@@ -6969,6 +7101,7 @@ export namespace Prisma {
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateManyWithoutDirectoryIDInput = {
@@ -6978,6 +7111,7 @@ export namespace Prisma {
     hashvalue?: StringFieldUpdateOperationsInput | string
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateManyDirectoryIDInput = {
@@ -6988,6 +7122,7 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    absPath: string
   }
 
   export type FileQueueUpdateWithoutDirectoryIDInput = {
@@ -6998,6 +7133,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateWithoutDirectoryIDInput = {
@@ -7008,6 +7144,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateManyWithoutDirectoryIDInput = {
@@ -7018,6 +7155,7 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
   }
 
 

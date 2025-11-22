@@ -63,6 +63,7 @@ const build_main_sync_db = (prisma, files, dirs) =>
               size: obj.size,
               inode: obj.inode,
               last_modified: obj.last_modified,
+              absPath: obj.absPath
             }))
         )
         .flat();
@@ -74,6 +75,7 @@ const build_main_sync_db = (prisma, files, dirs) =>
           folder: obj.folder,
           path: obj.path,
           created_at: obj.created_at,
+          absPath: obj.absPath
         }));
       // console.log("toBeDeletedFiles: ", toBeDeletedFiles);
       // console.log("tobeDeletedDirs : ", tobeDeletedDirs);
@@ -90,13 +92,17 @@ const build_main_sync_db = (prisma, files, dirs) =>
     }
   });
 
-const readSyncDB = (prisma) =>
+export const readSyncDB = (prisma) =>
   new Promise(async (resolve, reject) => {
     try {
       const files = await prisma.file.findMany({});
       const dirs = await prisma.directory.findMany({});
+      const queuedFiles = await prisma.fileQueue.findMany({});
+      const queuedDirs = await prisma.directoryQueue.findMany({});
       let filesObj = {};
       let dirsObj = {};
+      let queuedFilesObj = {}
+      let queuedDirsObj = {}
       for (const file of files) {
         if (filesObj[file.path]) {
           filesObj[file.path] = {
@@ -117,7 +123,21 @@ const readSyncDB = (prisma) =>
           dirsObj[dir.path] = { [dir.path]: { ...dir } };
         }
       }
-      resolve([filesObj, dirsObj, files.length, dirs.length]);
+      for (const file of queuedFiles) {
+        if (queuedFilesObj[file.path]) {
+          queuedFilesObj[file.path] = { ...queuedFilesObj[file.path], [file.filename]: { ...file } }
+        } else {
+          queuedFilesObj[file.path] = { [file.filename]: { ...file } }
+        }
+      }
+      for (const dir of queuedDirs) {
+        if (queuedDirsObj[dir.path]) {
+          queuedDirsObj[dir.path] = { ...queuedDirsObj[dir.path], [dir.path]: { ...dir } }
+        } else {
+          queuedDirsObj[dir.path] = { [dir.path]: { ...dir } }
+        }
+      }
+      resolve([filesObj, dirsObj, queuedFilesObj, queuedDirsObj]);
     } catch (err) {
       console.log(err);
       reject(err);
@@ -195,7 +215,7 @@ const get_files_dirID = (prisma, files, dirs) =>
     }
   });
 
-const compareChangesWithLocalDB = (
+export const compareChangesWithLocalDB = (
   prisma,
   dbFiles,
   dbDirs,
@@ -295,7 +315,6 @@ const compareChangesWithLocalDB = (
       changedDirs = Object.fromEntries(
         Object.entries(changedDirs).map(([p, f]) => [p, f[p]])
       );
-
       let orphanPathArr = [];
       for (const path of Object.keys(changedFiles)) {
         if (!changedDirs[path]) {
@@ -568,15 +587,17 @@ export const get_orphan_file_directory = (prisma, paths, device) =>
             created_at: true,
           },
         });
+        if (dir) {
+          const dirObj = {
+            uuid: dir.uuid,
+            device,
+            folder: pth[0],
+            path: pth[1],
+            created_at: dir.created_at,
+          };
+          pathsToInsert.push(dirObj);
+        }
 
-        const dirObj = {
-          uuid: dir.uuid,
-          device,
-          folder: pth[0],
-          path: pth[1],
-          created_at: dir.created_at,
-        };
-        pathsToInsert.push(dirObj);
       }
       resolve(pathsToInsert);
     } catch (err) {

@@ -22,6 +22,7 @@ model File {
   size BigInt
   dirID String
   inode String
+  absPath String
   directoryID Directory @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 
@@ -33,6 +34,7 @@ model Directory {
   folder String
   path String
   created_at DateTime
+  absPath String
   @@unique([device,folder,path])
   files File[] 
   @@index([path])
@@ -47,6 +49,7 @@ model FileQueue {
   dirID String
   sync_status String
   inode String
+  absPath String
   directoryID DirectoryQueue @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 
@@ -59,6 +62,7 @@ model DirectoryQueue {
   path String
   created_at DateTime
   sync_status String
+  absPath String
   @@unique([device,folder,path])
   files FileQueue[] 
   @@index([path])
