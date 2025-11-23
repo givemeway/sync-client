@@ -1,8 +1,9 @@
 import axios from "axios";
-import mimetype from "mime-types";
+import mime from "mime-types";
 import { createReadStream } from "node:fs"
 import FormData from "form-data";
 import dotenv from "dotenv";
+import sharp from "sharp";
 import { _remove_file_queue_db } from "./get_file_folder_metadata.js";
 import { prisma } from "../Config/prismaDBConfig.js";
 dotenv.config();
@@ -27,10 +28,9 @@ export const uploadFiles = (files) => new Promise(async (resolve, reject) => {
     try {
       const response = await uploadFile(file);
       successUpload.push(response)
-      const queueRemoved = await _remove_file_queue_db(prisma, file, true);
-      console.log("queueRemoved : ", queueRemoved);
+      await _remove_file_queue_db(prisma, file, true);
     } catch (err) {
-      failedUpload.push({ [file.filename]: false })
+      failedUpload.push({ [file.filename]: false, err: err })
 
     }
   }
@@ -41,10 +41,12 @@ export const uploadFiles = (files) => new Promise(async (resolve, reject) => {
 export const uploadFile = (file) => new Promise(async (resolve, reject) => {
   try {
     const { directory, device } = get_dir_device_path(file.path)
+    let type = mime.lookup(file.filename).toString();
+    console.log("Type: ", type.length);
     let filestat = {
       mtime: file.last_modified,
       size: parseInt(file.size),
-      type: mimetype.lookup(file.filename),
+      type: type,
       checksum: file.hashvalue,
       isModified: file.sync_status === "modified" ? true : false,
       device: device,
@@ -55,6 +57,14 @@ export const uploadFile = (file) => new Promise(async (resolve, reject) => {
       height: file?.height,
       width: file?.width
     };
+    if (type.split("/")[0] === "image") {
+      const image = sharp(file.absPath)
+      const { height, width } = await image.metadata()
+      filestat.height = parseInt(height);
+      filestat.width = parseInt(width);
+    } else {
+      filestat.type = file.filename.split(".").at(-1);
+    }
     const form = new FormData()
     const fileStream = createReadStream(file.absPath)
     form.append("file", fileStream)

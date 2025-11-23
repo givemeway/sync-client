@@ -295,8 +295,9 @@ export const _remove_dir_queue_db = (db, path) =>
 export const _add_dir_main_db = (db, dir) =>
   new Promise(async (resolve, reject) => {
     try {
-      const dirObj = { ...dir };
+      let dirObj = { ...dir };
       delete dirObj["sync_status"];
+      dirObj.absPath = join(SYNC_PATH, dirObj.path)
       const upsertDir = await db.directory.upsert({
         where: {
           device_folder_path: {
@@ -393,6 +394,7 @@ export const _add_dir_queue_db = (db, path) =>
         else {
           const absPath = join(SYNC_PATH, relPath);
           dirObj.created_at = (await stat(absPath)).mtime;
+          dirObj.absPath = absPath;
         }
       }
       const upsertDir = await db.directoryQueue.upsert({
