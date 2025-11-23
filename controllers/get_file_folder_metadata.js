@@ -42,7 +42,6 @@ const get_folder_metadata = (dirObj) =>
     const dirArr = Object.entries(dirObj);
     let dirs = {};
     for (const [dir, obj] of dirArr) {
-      console.log("Reading Dir -> ", dir);
       let dirObj = { ...obj };
       try {
         const created_at = (await stat(dirObj.absPath)).mtime;
@@ -203,20 +202,34 @@ export const _remove_dir_main_db = (db, path) =>
     }
   });
 
-export const _remove_file_queue_db = (db, file) =>
+export const _remove_file_queue_db = (db, file, isRemove = false) =>
   new Promise(async (resolve, reject) => {
     try {
-      await db.fileQueue.upsert({
-        where: {
-          path_filename: {
-            path: file.path,
-            filename: file.filename,
+      if (!isRemove) {
+        await db.fileQueue.upsert({
+          where: {
+            path_filename: {
+              path: file.path,
+              filename: file.filename,
+            },
           },
-        },
-        update: { ...file, sync_status: "delete" },
-        create: { ...file, sync_status: "delete" },
-      });
-      resolve();
+          update: { ...file, sync_status: "delete" },
+          create: { ...file, sync_status: "delete" },
+
+        });
+        resolve()
+      }
+      else {
+        const deletedFile = await prisma.fileQueue.delete({
+          where: {
+            path_filename: {
+              path: file.path,
+              filename: file.filename
+            }
+          }
+        })
+        resolve(deletedFile);
+      }
     } catch (err) {
       console.log(err);
       reject(err);

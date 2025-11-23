@@ -1,6 +1,10 @@
 import axios from "axios";
 import mimetype from "mime-types";
+import { createReadStream } from "node:fs"
+import FormData from "form-data";
 import dotenv from "dotenv";
+import { _remove_file_queue_db } from "./get_file_folder_metadata.js";
+import { prisma } from "../Config/prismaDBConfig.js";
 dotenv.config();
 
 const get_dir_device_path = (path) => {
@@ -16,6 +20,24 @@ const get_dir_device_path = (path) => {
   }
 }
 
+export const uploadFiles = (files) => new Promise(async (resolve, reject) => {
+  const successUpload = []
+  const failedUpload = []
+  for (const file of files) {
+    try {
+      const response = await uploadFile(file);
+      successUpload.push(response)
+      const queueRemoved = await _remove_file_queue_db(prisma, file, true);
+      console.log("queueRemoved : ", queueRemoved);
+    } catch (err) {
+      failedUpload.push({ [file.filename]: false })
+
+    }
+  }
+  resolve([successUpload, failedUpload])
+
+})
+
 export const uploadFile = (file) => new Promise(async (resolve, reject) => {
   try {
     const { directory, device } = get_dir_device_path(file.path)
@@ -24,7 +46,7 @@ export const uploadFile = (file) => new Promise(async (resolve, reject) => {
       size: parseInt(file.size),
       type: mimetype.lookup(file.filename),
       checksum: file.hashvalue,
-      isModified: false,
+      isModified: file.sync_status === "modified" ? true : false,
       device: device,
       version: 1,
       username: "sand.kumar.gr@gmail.com",
@@ -33,16 +55,14 @@ export const uploadFile = (file) => new Promise(async (resolve, reject) => {
       height: file?.height,
       width: file?.width
     };
-    console.log(filestat)
-    const config = {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-    await axios.post(process.env.FILE_SYNC_UP_API, { filestat }, config);
-
+    const form = new FormData()
+    const fileStream = createReadStream(file.absPath)
+    form.append("file", fileStream)
+    form.append("filestat", JSON.stringify(filestat));
+    const headers = { ...form.getHeaders(), filestat: JSON.stringify(filestat) }
+    const response = await axios.post(process.env.FILE_SYNC_UP_API, form, { headers: { ...headers }, maxContentLength: Infinity, maxBodyLength: Infinity });
+    resolve(response.data);
   } catch (err) {
-    console.log(err)
     reject(err)
   }
 });

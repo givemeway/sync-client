@@ -1,6 +1,7 @@
 import { prisma } from "../Config/prismaDBConfig.js";
 import { get_directory_status } from "./get_file_folder_metadata.js";
-
+import { join } from "node:path"
+import { SYNC_PATH } from "./get_file_folder_metadata.js";
 export const buildSyncFolderDB = (files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
@@ -75,7 +76,7 @@ const build_main_sync_db = (prisma, files, dirs) =>
           folder: obj.folder,
           path: obj.path,
           created_at: obj.created_at,
-          absPath: obj.absPath
+          absPath: join(SYNC_PATH, obj.path)
         }));
       // console.log("toBeDeletedFiles: ", toBeDeletedFiles);
       // console.log("tobeDeletedDirs : ", tobeDeletedDirs);
@@ -388,14 +389,16 @@ const update_queue = (prisma, files, dirs) =>
   new Promise(async (resolve, reject) => {
     try {
       console.log("Building Queue   DB...");
+      console.log(files);
       const filesArray = Object.entries(files).flatMap(([_, filesObj]) =>
         Object.entries(filesObj).flatMap(([_, fileObj]) => ({
           ...fileObj,
         }))
       );
       const dirsArray = Object.entries(dirs).flatMap(([_, dirObj]) => ({
-        ...dirObj,
+        ...dirObj, absPath: join(SYNC_PATH, dirObj.path),
       }));
+      console.log(dirsArray);
       // await update_queue_table(prisma, filesArray, dirsArray);
       for (const dir of dirsArray) {
         await prisma.directoryQueue.upsert({

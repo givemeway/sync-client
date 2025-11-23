@@ -18,10 +18,10 @@ import {
 import { updateFileQueue, updateDirQueue } from "./controllers/fileQueue.js";
 import { _to_files_Dir_obj, _get_to_be_synced_items, get_cloud_files_folders_metadata } from "./controllers/sync.js"
 import { SYNC_PATH } from "./controllers/get_file_folder_metadata.js";
-import { uploadFile } from "./controllers/uploadChanges.js";
+import { uploadFiles } from "./controllers/uploadChanges.js";
 console.log("Sync Path: ", SYNC_PATH);
 const log = console.log.bind(console);
-
+let isUploading = false;
 const watcher = watcherFn(SYNC_PATH);
 let INITIAL_SCAN_COMPLETE = false;
 let fileQueue = {};
@@ -198,9 +198,22 @@ const _rearrange_dir_obj = (dirsObj) => {
   );
 
 }
+
+const _get_files_to_sync_up = (filesObj) => {
+  return Object.entries(filesObj)
+    .flatMap(([_, filesObj]) =>
+      Object.entries(filesObj)
+        .filter(([_, fileObj]) => fileObj.sync_status !== "delete")
+        .map((a) => ({ ...a[1] }))
+    )
+    .flat();
+
+}
+
 const pollingServer = async () => {
   try {
     console.log("Polling server");
+    isUploading = true;
     const cloudItems = await get_cloud_files_folders_metadata();
     const [files, dirs, queuedFiles, queuedDirs] = await readSyncDB(prisma);
     const { filesObj, dirsObj } = _to_files_Dir_obj(cloudItems.items);
@@ -221,15 +234,23 @@ const pollingServer = async () => {
     console.log("| Files to Upload | MetaData | ", items.files);
     console.log("| Dirs  to Upload | MetaData | ", _rearrange_dir_obj(items.dirs));
     console.log("****************************************")
-    for (const [path, filesObj] of Object.entries(items.files)) {
-      for (const [filename, fileObj] of Object.entries(filesObj)) {
-        await uploadFile(fileObj)
-        break;
-      }
-    }
-    //await uploadFile()
+    const filesToUpload = _get_files_to_sync_up(items.files);
+    console.log("****************************************")
+    console.log("filesToUpload : ", filesToUpload);
+    console.log("****************************************")
+    const [success, failure] = await uploadFiles(filesToUpload);
+    console.log("****************************************")
+    console.log("Successfully Uploaded: ", success);
+    console.log("Failed Upload: ", failure);
+    console.log("****************************************")
+    isUploading = false
   } catch (err) {
     console.log(err);
   }
 }
-setInterval(pollingServer, 10000)
+setInterval(() => {
+  if (!isUploading) {
+    pollingServer()
+  }
+
+}, 10000)
