@@ -89,12 +89,7 @@ export class SyncClient extends EventEmitter {
       for (const { path, stats } of currentQueue) {
         const hash = await this.hashPool!.run(path);
         // Normalize both paths to forward slashes before substring
-        const normalizedPath = path.replace(/\\/g, '/');
-        const normalizedSyncPath = this.config.syncPath.replace(/\\/g, '/');
-        let relPath = normalizedPath.substring(normalizedSyncPath.length).split("/").slice(0, -1).join("/");
-        if (!relPath.startsWith('/')) relPath = '/' + relPath;
-        relPath = relPath === "" ? "/" : relPath;
-
+        const relPath = this.normalizeToRelPath(path, true);
         const fileMeta: FileMetadata = {
           path: relPath,
           filename: path.split(/[/\\]/).pop() || '',
@@ -136,12 +131,7 @@ export class SyncClient extends EventEmitter {
     try {
       for (const path of currentQueue) {
         // Normalize both paths to forward slashes before substring
-        const normalizedPath = path.replace(/\\/g, '/');
-        const normalizedSyncPath = this.config.syncPath.replace(/\\/g, '/');
-        let relPath = normalizedPath.substring(normalizedSyncPath.length).split("/").slice(0, -1).join("/");
-        if (!relPath.startsWith('/')) relPath = '/' + relPath;
-        relPath = relPath === "" ? "/" : relPath;
-
+        const relPath = this.normalizeToRelPath(path, true)
         const fileMeta: FileMetadata = {
           path: relPath,
           filename: path.split(/[/\\]/).pop() || '',
@@ -167,7 +157,7 @@ export class SyncClient extends EventEmitter {
 
     try {
       const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
-      console.log("Rename Candidates: ", renameCandidates);
+      console.log("Rename Candidates : ", renameCandidates)
       for (const path of currentQueue) {
         await this.dbManager.removeDirWithTransaction(path);
         this.emit('dir:removed', { path });
@@ -175,36 +165,6 @@ export class SyncClient extends EventEmitter {
     } catch (err) {
       console.error("Error in processDirRemoveQueue:", err);
     }
-  }
-
-  private identifyDirRenameCandidates(dirRemoveQueue: string[]): string[] {
-    // split the path with / to find the depth of the path
-    // one with the least depth is the parent node that is a potential renamed candidate
-    const pathDepth = dirRemoveQueue
-      .map(p => ({ path: p, depth: p.split(/[/\\]/g).length }))
-      .sort((a, b) => a.depth - b.depth);
-    const candidates: string[] = [];
-    for (const { path } of pathDepth) {
-      // Check if this path is a child of any existing candidate
-      const isChild = candidates.some(candidate => {
-        // Normalize for comparison
-        const pNorm = path.replace(/\\/g, '/');
-        const cNorm = candidate.replace(/\\/g, '/');
-
-        // Exact match (duplicate) or Child
-        if (pNorm === cNorm) return true;
-
-        // Check if pNorm starts with cNorm + '/'
-        // Handle case where cNorm ends with / (e.g. root)
-        const prefix = cNorm.endsWith('/') ? cNorm : cNorm + '/';
-        console.log("Prefix: ", prefix);
-        return pNorm.startsWith(prefix);
-      });
-      if (!isChild) {
-        candidates.push(path);
-      }
-    }
-    return candidates;
   }
 
   private async processFileChangeQueue() {
@@ -216,11 +176,7 @@ export class SyncClient extends EventEmitter {
       for (const { path, stats } of currentQueue) {
         const hash = await this.hashPool!.run(path);
         // Normalize both paths to forward slashes before substring
-        const normalizedPath = path.replace(/\\/g, '/');
-        const normalizedSyncPath = this.config.syncPath.replace(/\\/g, '/');
-        let relPath = normalizedPath.substring(normalizedSyncPath.length).split("/").slice(0, -1).join("/")
-        if (!relPath.startsWith('/')) relPath = '/' + relPath;
-        relPath = relPath === "" ? "/" : relPath;
+        const relPath = this.normalizeToRelPath(path, true)
         const fileMeta: FileMetadata = {
           path: relPath,
           filename: path.split(/[/\\]/).pop() || '',
@@ -239,6 +195,15 @@ export class SyncClient extends EventEmitter {
     }
   }
 
+  private normalizeToRelPath(abspath: string, isFile: boolean = false): string {
+    const normalizedPath = abspath.replace(/\\/g, '/');
+    const normalizedSyncPath = this.config.syncPath.replace(/\\/g, '/');
+    const relPathSubString = normalizedPath.substring(normalizedSyncPath.length);
+    let relPath = isFile ? relPathSubString.split("/").slice(0, -1).join("/") : relPathSubString;
+    if (!relPath.startsWith('/')) relPath = '/' + relPath;
+    return relPath === "" ? "/" : relPath;
+  }
+
   private validateConfig(): void {
     if (!this.config.syncPath) {
       throw new Error('syncPath is required');
@@ -252,6 +217,35 @@ export class SyncClient extends EventEmitter {
       console.warn('⚠️  Warning: userEmail is not set. Syncing to cloud will not work.');
     }
   }
+  private identifyDirRenameCandidates(dirRemoveQueue: string[]): string[] {
+    // split the path with / to find the depth of the path
+    // one with the least depth is the parent node that is a potential renamed candidate
+    const pathDepth = dirRemoveQueue
+      .map(p => ({ path: p, depth: p.split(/[/\\]/g).length }))
+      .sort((a, b) => a.depth - b.depth);
+    const candidates: string[] = [];
+    for (const { path } of pathDepth) {
+      // Check if this path is a child of any existing candidate
+      const isChild = candidates.some(candidate => {
+        // Normalize for comparison
+        const pNorm = path.replace(/[/\\]/g, "/");
+        const cNorm = candidate.replace(/[/\\]/g, "/");
+        // Exact match (duplicate) or Child
+        if (pNorm === cNorm) return true;
+
+        // Check if pNorm starts with cNorm + '/'
+        // Handle case where cNorm ends with / (e.g. root)
+        const prefix = cNorm.endsWith('/') ? cNorm : cNorm + '/';
+        return pNorm.startsWith(prefix);
+      });
+      if (!isChild) {
+        candidates.push(path);
+      }
+    }
+
+    return candidates.map(path => this.normalizeToRelPath(path));
+  }
+
 
   /**
    * Start the sync client
