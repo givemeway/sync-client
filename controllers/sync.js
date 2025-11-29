@@ -1,7 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
-const username = "sand.kumar.gr@gmail.com";
 
 //query the server to get all file metadata
 //query the local Main DB.
@@ -13,7 +12,7 @@ const username = "sand.kumar.gr@gmail.com";
 //sync the changes to the cloud
 //keep polling the server regularly to check for changes in the cloud and to sync the local changes to cloud
 
-const _delete_duplicates = (localItems, cloudItems, queuedItems) => {
+const deleteDuplicates = (localItems, cloudItems, queuedItems) => {
   let syncUp = { ...localItems, ...queuedItems };
   let syncDown = { ...cloudItems }
 
@@ -25,24 +24,13 @@ const _delete_duplicates = (localItems, cloudItems, queuedItems) => {
           delete syncDown[path][name]
         }
       }
-      //if (syncUp[path][name] && queuedItems[path] && queuedItems[path][name]) {
-      //  syncUp[path][name] = { ...queuedItems[path][name] }
-      //}
     }
   }
 
-  //for (const [path, objs] of Object.entries(queuedItems)) {
-  //for (const [name, _] of Object.entries(objs)) {
-  //if (cloudItems[path] && cloudItems[path][name] && queuedItems[path][name]["sync_status"] === "delete") {
-  //delete syncDown[path][name]
-  //}
-  //}
-  //}
-
-  return [remove_empty_key(syncUp), remove_empty_key(syncDown)]
+  return [removeEmptyKey(syncUp), removeEmptyKey(syncDown)]
 }
 
-const _find_conflict_items = (localItems, queuedItems) => {
+const findConflictItems = (localItems, queuedItems) => {
   let sync = { ...localItems }
   for (const [path, objs] of Object.entries(localItems)) {
     for (const [name, _] of Object.entries(objs)) {
@@ -56,7 +44,7 @@ const _find_conflict_items = (localItems, queuedItems) => {
   return sync
 }
 
-const remove_empty_key = (obj) => {
+const removeEmptyKey = (obj) => {
   const objCopy = { ...obj }
   for (const [k, v] of Object.entries(objCopy)) {
     if (Object.entries(v).length === 0) {
@@ -66,15 +54,15 @@ const remove_empty_key = (obj) => {
   return objCopy
 }
 
-export const _get_to_be_synced_items = (localFiles, localDirs, cloudFiles, cloudDirs, queuedFiles, queuedDirs) => {
-  let [localFilesSyncUp, cloudFilesSyncDown] = _delete_duplicates(localFiles, cloudFiles, queuedFiles);
-  let [localDirsSyncUp, cloudDirsSyncDown] = _delete_duplicates(localDirs, cloudDirs, queuedDirs);
-  cloudFilesSyncDown = _find_conflict_items(cloudFilesSyncDown, queuedFiles);
-  cloudDirsSyncDown = _find_conflict_items(cloudDirsSyncDown, queuedDirs);
+export const getToBeSyncedItems = (localFiles, localDirs, cloudFiles, cloudDirs, queuedFiles, queuedDirs) => {
+  let [localFilesSyncUp, cloudFilesSyncDown] = deleteDuplicates(localFiles, cloudFiles, queuedFiles);
+  let [localDirsSyncUp, cloudDirsSyncDown] = deleteDuplicates(localDirs, cloudDirs, queuedDirs);
+  cloudFilesSyncDown = findConflictItems(cloudFilesSyncDown, queuedFiles);
+  cloudDirsSyncDown = findConflictItems(cloudDirsSyncDown, queuedDirs);
   return [localFilesSyncUp, localDirsSyncUp, cloudFilesSyncDown, cloudDirsSyncDown]
 }
 
-export const _to_files_Dir_obj = (cloudItems) => {
+export const toFilesDirObj = (cloudItems) => {
   const filesObj = {}
   const dirsObj = {}
   for (const item of cloudItems) {
@@ -96,11 +84,12 @@ export const _to_files_Dir_obj = (cloudItems) => {
   return { filesObj, dirsObj }
 }
 
-export const get_cloud_files_folders_metadata = () => new Promise(async (resolve, reject) => {
+export const getCloudFilesFoldersMetadata = () => new Promise(async (resolve, reject) => {
   try {
-    const response = await axios.get(process.env.SYNC_METADATA_API + username);
+    const response = await axios.get(process.env.SYNC_METADATA_API + process.env.USER_EMAIL);
     resolve(response.data);
   } catch (err) {
     console.error(err);
   }
 });
+

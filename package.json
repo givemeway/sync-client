@@ -1,14 +1,32 @@
 {
-  "name": "sync-client",
+  "name": "@yourname/sync-client",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/main.js",
+    "start:dev": "tsx src/main.ts",
+    "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A TypeScript-based file synchronization client with multi-threaded scanning",
+  "keywords": [
+    "sync",
+    "file-sync",
+    "typescript",
+    "file-watcher"
+  ],
   "dependencies": {
     "@prisma/client": "^6.18.0",
     "axios": "^1.13.2",
@@ -20,6 +38,10 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "prisma": "^6.18.0"
+    "@types/mime-types": "^3.0.1",
+    "@types/node": "^24.10.1",
+    "prisma": "^6.18.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }

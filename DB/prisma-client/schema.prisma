@@ -36,6 +36,7 @@ model Directory {
   path       String
   created_at DateTime
   absPath    String
+  inode      String?
   files      File[]
 
   @@unique([device, folder, path])
@@ -52,6 +53,8 @@ model FileQueue {
   sync_status   String
   inode         String
   absPath       String
+  old_path      String?
+  old_filename  String?
   directoryID   DirectoryQueue @relation(fields: [dirID], references: [uuid])
 
   @@unique([path, filename])
@@ -66,6 +69,8 @@ model DirectoryQueue {
   created_at  DateTime
   sync_status String
   absPath     String
+  old_path    String?
+  inode       String?
   files       FileQueue[]
 
   @@unique([device, folder, path])

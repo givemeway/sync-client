@@ -1,5 +1,5 @@
 import { prisma } from "../Config/prismaDBConfig.js";
-import { get_directory_status } from "./get_file_folder_metadata.js";
+import { getDirectoryStatus } from "./get_file_folder_metadata.js";
 import { join } from "node:path"
 import { SYNC_PATH } from "./get_file_folder_metadata.js";
 export const buildSyncFolderDB = (files, dirs) =>
@@ -335,7 +335,7 @@ export const compareChangesWithLocalDB = (
           changedDirs[dirObj.path] = dirObj;
         }
       }
-      changedDirs = await get_directory_status(changedDirs);
+      changedDirs = await getDirectoryStatus(changedDirs);
       changedFiles = await get_files_dirID(prisma, changedFiles, changedDirs);
       resolve([changedFiles, changedDirs]);
     } catch (err) {
