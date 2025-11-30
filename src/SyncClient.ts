@@ -158,7 +158,7 @@ export class SyncClient extends EventEmitter {
     try {
       const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
       console.log("Rename Candidates : ", renameCandidates)
-      for (const path of currentQueue) {
+      for (const path of renameCandidates) {
         await this.dbManager.removeDirWithTransaction(path);
         this.emit('dir:removed', { path });
       }

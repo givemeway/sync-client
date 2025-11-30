@@ -1,13 +1,10 @@
 // src/core/FileSystemWatcher.ts - Monitors file system changes with rename detection
-
 import { EventEmitter } from 'events';
 import chokidar, { FSWatcher } from 'chokidar';
 import { dirname, join } from 'path';
 import type {
   WatcherOptions,
-  RenameCandidate,
   FileMetadata,
-  DirectoryMetadata
 } from '../types/index.js';
 import type { DatabaseManager } from './DatabaseManager.js';
 import type { FilesystemScanner } from '../utils/FilesystemScanner.js';
@@ -125,11 +122,43 @@ export class FileSystemWatcher extends EventEmitter {
 
 
   private async bufferDirRemoval(path: string): Promise<void> {
-    if (!this.dbManager || !this.fsScanner) {
-      this.emit("dir:remove", path);
-    }
     try {
-      this.bufferDirQueue.push(path);
+      if (!this.dbManager || !this.fsScanner) {
+        this.emit("dir:remove", path);
+        // after renaming - /users/sandeep/desktop/sync_folder/sandeep --> /users/sandeep/desktop/sync_folder/sandeepkumar
+        // find all the folders in the parent path i.e /users/sandeep/desktop/sync_folder
+        // After pulling details it should look like this
+        // sandeep (deleted in FS)
+        // sandeepkumar (renamed in FS)
+        // 1. Get the Parent directory of the deleted folder. 
+        // 2. Fetch all the folders in the Parent directory with identical INODE 
+        //     a) Fetch the list from FS & filter by idential inode
+        //            sandeepkumar - this would be fetched
+        //     b) fetch the list from DB DirectoryQueue & filter by idential inode;
+        //            sandeep & sandeepkumar - these two would be fetched \
+        // 3. Find the difference between 2 a) and 2 b) list.
+        //     a) Missing Directory - sandeep 
+        //     b) Directory to Add - sandeepkumar
+        // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder 
+        const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
+        const normalizedABSPath = path.replace(/[/\\]/g, "/");
+        let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
+        relPath = relPath === "" ? "/" : relPath;
+        let deletedDir = await this.dbManager?.getDirFromMain(path);
+        if (!deletedDir) {
+          deletedDir = await this.dbManager?.getDirFromQueue(path);
+        }
+        if (!deletedDir || !deletedDir.inode) return;
+
+        let subFolders = await this.dbManager?.getDirSubFoldersFromMain(relPath, deletedDir?.inode);
+
+        if (subFolders?.length === 0) {
+          subFolders = await this.dbManager?.getDirSubFoldersFromQueue(relPath, deletedDir?.inode);
+        }
+        if (subFolders?.length === 0) return;
+        const fsDirs = await this.fsScanner?.scanSubdirectories(path)
+
+      }
     } catch (err) {
       this.emit("dir:remove", path);
     }

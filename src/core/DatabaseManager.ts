@@ -902,6 +902,24 @@ export class DatabaseManager {
   /**
    * Get file metadata from main database by path and filename
    */
+  async getDirSubFoldersFromMain(relPath: string, inode: string): Promise<Directory[] | null> {
+    try {
+      return await this.prisma.directory.findMany({
+        where: { path: relPath, inode }
+      })
+    } catch (err) {
+      return null
+    }
+  }
+
+  async getDirSubFoldersFromQueue(relPath: string, inode: string): Promise<DirectoryQueue[] | null> {
+    try {
+      return await this.prisma.directoryQueue.findMany({ where: { path: relPath, inode } })
+    } catch (err) {
+      return null
+    }
+  }
+
   async getFileFromMain(path: string, filename: string): Promise<FileMetadata | null> {
     try {
       // path comes from FileSystemWatcher, which is OS relative path

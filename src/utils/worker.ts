@@ -21,15 +21,15 @@ function getFileHash(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const stream = createReadStream(filePath);
     const hash = createHash('sha256');
-    
+
     stream.on('data', (data) => {
       hash.update(data);
     });
-    
+
     stream.on('error', (err) => {
       reject(err);
     });
-    
+
     stream.on('end', () => {
       resolve(hash.digest('hex'));
     });

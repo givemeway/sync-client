@@ -6,7 +6,7 @@ import type { SyncClientConfig } from './types/index.js';
 dotenv.config();
 // Load configuration from environment variables
 const config: SyncClientConfig = {
-  syncPath: "C:\\Users\\Sandeep Kumar\\Desktop\\sync_folder",
+  syncPath: process.env.SYNC_PATH || 'C:\\Users\\Sandeep Kumar\\Desktop\\sync_folder',
   apiBaseUrl: process.env.API_BASE_URL || '',
   userEmail: process.env.USER_EMAIL || '',
   poolSize: parseInt(process.env.POOL_SIZE || '4')
