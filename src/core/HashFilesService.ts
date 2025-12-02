@@ -60,7 +60,6 @@ export class HashFilesService {
           f.hash = "";
         }
       }));
-      await hashPool.close();
     }
   }
 }

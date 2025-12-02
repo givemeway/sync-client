@@ -51,8 +51,8 @@ export class FilesystemScanner {
       const entries = await readdir(dirPath, { withFileTypes: true });
       const files: ScannedFile[] = [];
       const relDirPath = this.toRelativePath(dirPath);
-
       for (const entry of entries) {
+
         if (!entry.isFile()) continue;
 
         const absPath = join(dirPath, entry.name);
@@ -84,8 +84,8 @@ export class FilesystemScanner {
           // Skip files that can't be read
           continue;
         }
-      }
 
+      }
       return files;
     } catch (err) {
       console.error(`Error scanning directory ${dirPath}:`, err);
@@ -114,7 +114,7 @@ export class FilesystemScanner {
           const inode = stats.ino.toString();
           if (filterInode === inode) {
             dirs.push({
-              path: relDirPath,
+              path: relDirPath === "/" ? "/" + entry.name : relDirPath + "/" + entry.name,
               name: entry.name,
               inode: inode,
               mtime: stats.mtime,

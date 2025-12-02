@@ -85,7 +85,6 @@ export class SyncClient extends EventEmitter {
     if (!this.dbManager) return;
     const currentQueue = [...this.fileAddQueue];
     this.fileAddQueue = [];
-
     try {
       for (const { path, stats } of currentQueue) {
         const hash = await this.hashPool!.run(path);
@@ -158,7 +157,6 @@ export class SyncClient extends EventEmitter {
 
     try {
       const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
-      console.log("Rename Candidates : ", renameCandidates)
       for (const path of renameCandidates) {
         await this.dbManager.removeDirWithTransaction(path);
         this.emit('dir:removed', { path });
@@ -380,7 +378,6 @@ export class SyncClient extends EventEmitter {
 
     this.watcher.on('file:rename', async (oldPath: string, newPath: string, stats: any) => {
       if (!isReady) return;
-
       this.stats.changes++;
       const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
       progress.updateAction(`🔄 File renamed: ${oldPath.split(/[/\\]/).pop()} → ${newPath.split(/[/\\]/).pop()}`, statusLine);
@@ -435,10 +432,11 @@ export class SyncClient extends EventEmitter {
       if (isReady) progress.updateAction('📁 Directory renamed: ' + oldFolder.folder, statusLine);
       try {
         if (this.dbManager) {
-          await this.dbManager.renameDirWithTransaction(oldFolder, newFolder);
+          await this.dbManager.renameDirWithTransaction(oldFolder.path, newFolder.path);
         }
       } catch (err) {
-
+        console.error("Error in dir:rename ", err)
+        throw err
       }
 
     })

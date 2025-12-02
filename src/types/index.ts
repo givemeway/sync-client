@@ -33,7 +33,7 @@ export interface FileMetadata {
   inode: string;
   last_modified: Date;
   absPath: string;
-  sync_status: 'new' | 'modified' | 'delete' | 'rename';
+  sync_status: 'new' | 'modified' | 'delete' | 'rename' | 'DIR_RENAMED';
   old_path?: string;
   old_filename?: string;
   dirID?: string;
