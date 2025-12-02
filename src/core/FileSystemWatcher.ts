@@ -2,9 +2,12 @@
 import { EventEmitter } from 'events';
 import chokidar, { FSWatcher } from 'chokidar';
 import { dirname, join } from 'path';
+import { Directory, DirectoryQueue } from "../../DB/prisma-client/index.js"
 import type {
   WatcherOptions,
   FileMetadata,
+  ScannedDirectory,
+  DirectoryMetadata,
 } from '../types/index.js';
 import type { DatabaseManager } from './DatabaseManager.js';
 import type { FilesystemScanner } from '../utils/FilesystemScanner.js';
@@ -117,51 +120,124 @@ export class FileSystemWatcher extends EventEmitter {
    */
   private async handleDirRemove(path: string): Promise<void> {
     //console.log('Delete Dir ->', path);
-    this.emit('dir:remove', path);
+    this.bufferDirRemoval(path);
+    //    this.emit('dir:remove', path);
   }
 
 
   private async bufferDirRemoval(path: string): Promise<void> {
     try {
       if (!this.dbManager || !this.fsScanner) {
+        console.log("Inside this function")
         this.emit("dir:remove", path);
-        // after renaming - /users/sandeep/desktop/sync_folder/sandeep --> /users/sandeep/desktop/sync_folder/sandeepkumar
-        // find all the folders in the parent path i.e /users/sandeep/desktop/sync_folder
-        // After pulling details it should look like this
-        // sandeep (deleted in FS)
-        // sandeepkumar (renamed in FS)
-        // 1. Get the Parent directory of the deleted folder. 
-        // 2. Fetch all the folders in the Parent directory with identical INODE 
-        //     a) Fetch the list from FS & filter by idential inode
-        //            sandeepkumar - this would be fetched
-        //     b) fetch the list from DB DirectoryQueue & filter by idential inode;
-        //            sandeep & sandeepkumar - these two would be fetched \
-        // 3. Find the difference between 2 a) and 2 b) list.
-        //     a) Missing Directory - sandeep 
-        //     b) Directory to Add - sandeepkumar
-        // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder 
-        const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
-        const normalizedABSPath = path.replace(/[/\\]/g, "/");
-        let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
-        relPath = relPath === "" ? "/" : relPath;
-        let deletedDir = await this.dbManager?.getDirFromMain(path);
-        if (!deletedDir) {
-          deletedDir = await this.dbManager?.getDirFromQueue(path);
+        return;
+      }
+      // after renaming - /users/sandeep/desktop/sync_folder/sandeep --> /users/sandeep/desktop/sync_folder/sandeepkumar
+      // find all the folders in the parent path i.e /users/sandeep/desktop/sync_folder
+      // After pulling details it should look like this
+      // sandeep (deleted in FS)
+      // sandeepkumar (renamed in FS)
+      // 1. Get the Parent directory of the deleted folder. 
+      // 2. Fetch all the folders in the Parent directory with identical INODE 
+      //     a) Fetch the list from FS & filter by idential inode
+      //            sandeepkumar - this would be fetched
+      //     b) fetch the list from DB DirectoryQueue & filter by idential inode;
+      //            sandeep & sandeepkumar - these two would be fetched \
+      // 3. Find the difference between 2 a) and 2 b) list.
+      //     a) Missing Directory - sandeep 
+      //     b) Directory to Add - sandeepkumar
+      // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder 
+      const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
+      const normalizedABSPath = path.replace(/[/\\]/g, "/");
+      let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
+      relPath = relPath === "" ? "/" : relPath;
+      let deletedDir = await this.dbManager?.getDirFromMain(relPath);
+      console.log("deletedDir ", deletedDir);
+      if (!deletedDir) {
+        deletedDir = await this.dbManager?.getDirFromQueue(relPath);
+      }
+      if (!deletedDir || !deletedDir.inode) {
+        this.emit("dir:remove", path);
+        return;
+      }
+
+      let dbFoldersMain = await this.dbManager?.getDirSubFoldersFromMain(relPath, deletedDir?.inode);
+      let dbFoldersQueue = await this.dbManager?.getDirSubFoldersFromQueue(relPath, deletedDir?.inode);
+      const parentDir = path.replace(/[/\\]/g, "/").split(/[/\\]/g).slice(0, -1).join("/");
+      console.log("Parent Dir : ", parentDir)
+      const fsDirs = await this.fsScanner?.scanSubdirectories(parentDir, deletedDir?.inode);
+      //
+      // path: string;
+      // name: string;
+      // inode: string;
+      // mtime: Date;
+      // absPath: string;
+      //
+      let dbFoldersMap = new Map<string, DirectoryMetadata>();
+      let fsFoldersMap = new Map<string, ScannedDirectory>();
+      if (dbFoldersMain) {
+        for (const f of dbFoldersMain) {
+          const dirMetaData: DirectoryMetadata = {
+            uuid: f.uuid,
+            absPath: f.absPath,
+            created_at: f.created_at,
+            device: f.device,
+            old_path: "",
+            sync_status: "rename",
+            path: f.path,
+            folder: f.folder,
+            inode: f.inode || "",
+          }
+          dbFoldersMap.set(f.path, dirMetaData);
         }
-        if (!deletedDir || !deletedDir.inode) return;
-
-        let subFolders = await this.dbManager?.getDirSubFoldersFromMain(relPath, deletedDir?.inode);
-
-        if (subFolders?.length === 0) {
-          subFolders = await this.dbManager?.getDirSubFoldersFromQueue(relPath, deletedDir?.inode);
+      }
+      if (dbFoldersQueue) {
+        for (const f of dbFoldersQueue) {
+          const dirMetaData: DirectoryMetadata = {
+            uuid: f.uuid,
+            absPath: f.absPath,
+            created_at: f.created_at,
+            device: f.device,
+            old_path: "",
+            sync_status: "rename",
+            path: f.path,
+            folder: f.folder,
+            inode: f.inode || ""
+          }
+          dbFoldersMap.set(f.path, dirMetaData)
         }
-        if (subFolders?.length === 0) return;
-        const fsDirs = await this.fsScanner?.scanSubdirectories(path)
-
+      }
+      if (fsDirs) {
+        for (const f of fsDirs) {
+          const path = f.path === "/" ? "/" + f.name : f.path + "/" + f.name
+          fsFoldersMap.set(path, f);
+        }
+      }
+      const dbFolders = Array.from(dbFoldersMap.values());
+      const fsFolders = Array.from(fsFoldersMap.values());
+      const dbPaths = new Set(dbFolders.map(f => f.path));
+      const fsPaths = new Set(fsFolders.map(f => f.path === "/" ? "/" + f.name : f.path + "/" + f.name));
+      const missingFolders = dbFolders.filter(f => !fsPaths.has(f.path));
+      const addedFolders = fsFolders.filter(f => !dbPaths.has(f.path === "/" ? "/" + f.name : f.path + "/" + f.name));
+      if (missingFolders.length === 1 && addedFolders.length === 1) {
+        const oldDir = missingFolders[0];
+        const newDir = addedFolders[0];
+        const newFolder: DirectoryMetadata = {
+          uuid: oldDir.uuid, folder: newDir.name,
+          device: oldDir.device,
+          inode: newDir.inode,
+          created_at: newDir.mtime,
+          absPath: newDir.absPath,
+          path: newDir.path,
+          sync_status: "rename"
+        }
+        console.log(`✨ Folder Rename detected: ${oldDir.folder} → ${newFolder.folder}`);
+        this.emit("dir:rename", oldDir, newFolder)
       }
     } catch (err) {
       this.emit("dir:remove", path);
     }
+
 
   }
 
@@ -221,7 +297,7 @@ export class FileSystemWatcher extends EventEmitter {
       // Files in DB but not in filesystem (deleted/renamed)
       const missingFiles = dbFiles.filter(f => !fsPaths.has(f.path !== "/" ? f.path + "/" + f.filename : "/" + f.filename));
       // Files in filesystem but not in DB (new/renamed)
-      const addedFiles = fsFiles.filter(f => dbPaths.has(f.path !== "/" ? f.path + '/' + f.filename : '/' + f.filename));
+      const addedFiles = fsFiles.filter(f => !dbPaths.has(f.path !== "/" ? f.path + '/' + f.filename : '/' + f.filename));
       // 5. If exactly 1 missing and 1 added → RENAME!
       if (missingFiles.length === 1 && addedFiles.length === 1) {
         const oldFile = missingFiles[0];

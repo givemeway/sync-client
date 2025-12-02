@@ -16,6 +16,7 @@ import type {
   SyncStatus,
   SyncEvent,
   FileMetadata,
+  DirectoryMetadata,
   ScannedFile,
   ScannedDirectory
 } from './types/index.js';
@@ -427,6 +428,20 @@ export class SyncClient extends EventEmitter {
 
       this.emit('rename:detected', { oldPath, newPath });
     });
+
+    this.watcher.on("dir:rename", async (oldFolder: DirectoryMetadata, newFolder: DirectoryMetadata) => {
+      if (isReady) this.stats.changes++;
+      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
+      if (isReady) progress.updateAction('📁 Directory renamed: ' + oldFolder.folder, statusLine);
+      try {
+        if (this.dbManager) {
+          await this.dbManager.renameDirWithTransaction(oldFolder, newFolder);
+        }
+      } catch (err) {
+
+      }
+
+    })
 
     this.watcher.on('dir:add', async (path: string, stats: Stats) => {
       this.stats.dirs++;

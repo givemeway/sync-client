@@ -98,7 +98,7 @@ export class FilesystemScanner {
    * @param dirPath - Absolute path to directory
    * @returns Array of scanned subdirectories with metadata
    */
-  async scanSubdirectories(dirPath: string): Promise<ScannedDirectory[]> {
+  async scanSubdirectories(dirPath: string, filterInode?: string): Promise<ScannedDirectory[] | []> {
     try {
       const entries = await readdir(dirPath, { withFileTypes: true });
       const dirs: ScannedDirectory[] = [];
@@ -112,14 +112,16 @@ export class FilesystemScanner {
         try {
           const stats = await stat(absPath);
           const inode = stats.ino.toString();
+          if (filterInode === inode) {
+            dirs.push({
+              path: relDirPath,
+              name: entry.name,
+              inode: inode,
+              mtime: stats.mtime,
+              absPath: absPath
+            });
+          }
 
-          dirs.push({
-            path: relDirPath,
-            name: entry.name,
-            inode: inode,
-            mtime: stats.mtime,
-            absPath: absPath
-          });
         } catch (err) {
           console.error(`Error scanning directory ${absPath}:`, err);
           continue;
