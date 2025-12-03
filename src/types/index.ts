@@ -77,6 +77,9 @@ export interface WatcherOptions {
   persistent?: boolean;
   ignoreInitial?: boolean;
   usePolling?: boolean;
+  alwaysStat?: boolean;
+  atomic?: boolean;
+
 }
 
 export interface SyncResult {

@@ -436,10 +436,8 @@ export class SyncClient extends EventEmitter {
         }
       } catch (err) {
         console.error("Error in dir:rename ", err)
-        throw err
       }
-
-    })
+    });
 
     this.watcher.on('dir:add', async (path: string, stats: Stats) => {
       this.stats.dirs++;

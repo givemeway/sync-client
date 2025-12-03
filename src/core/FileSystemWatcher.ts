@@ -45,6 +45,8 @@ export class FileSystemWatcher extends EventEmitter {
     this.fsScanner = fsScanner;
     this.options = {
       //    ignored: /(^|[\/\\])\../, // ignore dotfiles
+      alwaysStat: true,
+      atomic: true,
       persistent: true,
       ignoreInitial: false,
       usePolling: true,  // Use polling for better compatibility

@@ -22,24 +22,28 @@ export class DatabaseManager {
   }
 
   private getFolderDevicePath(path: string, isFile: boolean) {
-    let relPath = path;
-    if (path.startsWith(this.syncPath)) {
-      relPath = path.substring(this.syncPath.length);
-    }
-
-    const parts = relPath.split(/[/\\]/).filter(p => p.length > 0);
-
-    if (parts.length === 0) {
-      return { folder: '/', device: '/', relPath: '/' };
-    }
-
-    const device = parts[0];
-    const folder = isFile ? (parts.length > 1 ? parts[parts.length - 2] : '/') : parts[parts.length - 1];
-
-    const relPathParts = isFile ? parts.slice(0, -1) : parts;
-    const relPathStr = relPathParts.length > 0 ? '/' + relPathParts.join('/') : '/';
-
-    return { folder: folder || '/', device: device || '/', relPath: relPathStr };
+    const substringArr = path.replace(/[/\\]/g, "/").substring(this.syncPath.replace(/[/\\]/g, "/").length).split("/");
+    const pathPart = isFile ? substringArr.slice(0, -1).join("/") : substringArr.join("/");
+    const relPath = pathPart === "" ? "/" : pathPart;
+    const device = isFile ? substringArr.slice(0, -1).at(1) : substringArr.at(1);
+    const folder = isFile ? substringArr.slice(0, -1).at(-1) : substringArr.at(-1)
+    return { folder: folder || "/", device: device || "/", relPath };
+    /*
+        let relPath = path;
+        if (path.startsWith(this.syncPath)) {
+          relPath = path.substring(this.syncPath.length);
+        }
+        let parts = relPath.split(/[/\\]/).filter(p => p.length > 0);
+        if (parts.length === 0) {
+          return { folder: '/', device: '/', relPath: '/' };
+        }
+        const device = parts[0];
+        const folder = isFile ? (parts.length > 1 ? parts[parts.length - 2] : '/') : parts[parts.length - 1];
+    
+        const relPathParts = isFile ? parts.slice(0, -1) : parts;
+        const relPathStr = relPathParts.length > 0 ? '/' + relPathParts.join('/') : '/';
+    
+        return { folder: folder || '/', device: device || '/', relPath: relPathStr }; */
   }
 
   private async getPathTree(pathParts: string[]) {
@@ -1249,7 +1253,6 @@ export class DatabaseManager {
       // --- Deletions ---
       // Delete files first to avoid FK constraints
       for (const f of filesToDelete) {
-
         // Delete directories (reverse order of depth to avoid FK issues?)
         // Actually Prisma handles cascading deletes if configured, but let's be safe.
         // We'll just mark them as deleted in Queue. Main DB deletion might fail if not empty.
@@ -1275,6 +1278,7 @@ export class DatabaseManager {
             });
           }
         }
+
         if (dirID) {
           // Add to Queue as delete
           await tx.fileQueue.upsert({
@@ -1345,13 +1349,12 @@ export class DatabaseManager {
         const parentPath = f.path.startsWith('/') ? f.path : '/' + f.path;
         const { device, folder } = this.getFolderDevicePath(join(this.syncPath, ...parentPath.split('/')), false);
 
-
         let parentDir = await tx.directory.findUnique({
           where: { device_folder_path: { device, folder, path: parentPath } }
         });
         if (!parentDir) {
           console.error(`Parent directory not found for file ${f.filename} at ${parentPath}`);
-          const { mtime, ino } = await stat(f.path)
+          const { mtime, ino } = await stat(f.absPath)
           const uuid = uuidv4();
           parentDir = await tx.directory.upsert({
             where: { device_folder_path: { device, folder, path: f.path } },
@@ -1412,7 +1415,7 @@ export class DatabaseManager {
 
         if (!parentDir) {
           console.error(`Parent directory not found for file ${f.filename} at ${parentPath}`);
-          const { mtime, ino } = await stat(f.path)
+          const { mtime, ino } = await stat(f.absPath)
           const uuid = uuidv4();
           parentDir = await tx.directory.upsert({
             where: { device_folder_path: { device, folder, path: f.path } },
