@@ -15,6 +15,7 @@ datasource db {
 }
 
 model File {
+  uuid String @unique()
   path String
   filename String
   last_modified DateTime
@@ -42,6 +43,7 @@ model Directory {
 }
 
 model FileQueue {
+  uuid String @unique()
   path String
   filename String
   last_modified DateTime

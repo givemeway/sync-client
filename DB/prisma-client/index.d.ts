@@ -1216,6 +1216,7 @@ export namespace Prisma {
   }
 
   export type FileMinAggregateOutputType = {
+    uuid: string | null
     path: string | null
     filename: string | null
     last_modified: Date | null
@@ -1227,6 +1228,7 @@ export namespace Prisma {
   }
 
   export type FileMaxAggregateOutputType = {
+    uuid: string | null
     path: string | null
     filename: string | null
     last_modified: Date | null
@@ -1238,6 +1240,7 @@ export namespace Prisma {
   }
 
   export type FileCountAggregateOutputType = {
+    uuid: number
     path: number
     filename: number
     last_modified: number
@@ -1259,6 +1262,7 @@ export namespace Prisma {
   }
 
   export type FileMinAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -1270,6 +1274,7 @@ export namespace Prisma {
   }
 
   export type FileMaxAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -1281,6 +1286,7 @@ export namespace Prisma {
   }
 
   export type FileCountAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -1379,6 +1385,7 @@ export namespace Prisma {
   }
 
   export type FileGroupByOutputType = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date
@@ -1409,6 +1416,7 @@ export namespace Prisma {
 
 
   export type FileSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -1421,6 +1429,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["file"]>
 
   export type FileSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -1433,6 +1442,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["file"]>
 
   export type FileSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -1445,6 +1455,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["file"]>
 
   export type FileSelectScalar = {
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -1455,7 +1466,7 @@ export namespace Prisma {
     absPath?: boolean
   }
 
-  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath", ExtArgs["result"]["file"]>
+  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath", ExtArgs["result"]["file"]>
   export type FileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }
@@ -1472,6 +1483,7 @@ export namespace Prisma {
       directoryID: Prisma.$DirectoryPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
+      uuid: string
       path: string
       filename: string
       last_modified: Date
@@ -1563,8 +1575,8 @@ export namespace Prisma {
      * // Get first 10 Files
      * const files = await prisma.file.findMany({ take: 10 })
      * 
-     * // Only select the `path`
-     * const fileWithPathOnly = await prisma.file.findMany({ select: { path: true } })
+     * // Only select the `uuid`
+     * const fileWithUuidOnly = await prisma.file.findMany({ select: { uuid: true } })
      * 
      */
     findMany<T extends FileFindManyArgs>(args?: SelectSubset<T, FileFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1608,9 +1620,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Files and only return the `path`
-     * const fileWithPathOnly = await prisma.file.createManyAndReturn({
-     *   select: { path: true },
+     * // Create many Files and only return the `uuid`
+     * const fileWithUuidOnly = await prisma.file.createManyAndReturn({
+     *   select: { uuid: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -1699,9 +1711,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Files and only return the `path`
-     * const fileWithPathOnly = await prisma.file.updateManyAndReturn({
-     *   select: { path: true },
+     * // Update zero or more Files and only return the `uuid`
+     * const fileWithUuidOnly = await prisma.file.updateManyAndReturn({
+     *   select: { uuid: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -1904,6 +1916,7 @@ export namespace Prisma {
    * Fields of the File model
    */
   interface FileFieldRefs {
+    readonly uuid: FieldRef<"File", 'String'>
     readonly path: FieldRef<"File", 'String'>
     readonly filename: FieldRef<"File", 'String'>
     readonly last_modified: FieldRef<"File", 'DateTime'>
@@ -3439,6 +3452,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMinAggregateOutputType = {
+    uuid: string | null
     path: string | null
     filename: string | null
     last_modified: Date | null
@@ -3453,6 +3467,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMaxAggregateOutputType = {
+    uuid: string | null
     path: string | null
     filename: string | null
     last_modified: Date | null
@@ -3467,6 +3482,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCountAggregateOutputType = {
+    uuid: number
     path: number
     filename: number
     last_modified: number
@@ -3491,6 +3507,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMinAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -3505,6 +3522,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMaxAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -3519,6 +3537,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCountAggregateInputType = {
+    uuid?: true
     path?: true
     filename?: true
     last_modified?: true
@@ -3620,6 +3639,7 @@ export namespace Prisma {
   }
 
   export type FileQueueGroupByOutputType = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date
@@ -3653,6 +3673,7 @@ export namespace Prisma {
 
 
   export type FileQueueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -3668,6 +3689,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["fileQueue"]>
 
   export type FileQueueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -3683,6 +3705,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["fileQueue"]>
 
   export type FileQueueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -3698,6 +3721,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["fileQueue"]>
 
   export type FileQueueSelectScalar = {
+    uuid?: boolean
     path?: boolean
     filename?: boolean
     last_modified?: boolean
@@ -3711,7 +3735,7 @@ export namespace Prisma {
     old_filename?: boolean
   }
 
-  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "absPath" | "old_path" | "old_filename", ExtArgs["result"]["fileQueue"]>
+  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "absPath" | "old_path" | "old_filename", ExtArgs["result"]["fileQueue"]>
   export type FileQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }
@@ -3728,6 +3752,7 @@ export namespace Prisma {
       directoryID: Prisma.$DirectoryQueuePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
+      uuid: string
       path: string
       filename: string
       last_modified: Date
@@ -3822,8 +3847,8 @@ export namespace Prisma {
      * // Get first 10 FileQueues
      * const fileQueues = await prisma.fileQueue.findMany({ take: 10 })
      * 
-     * // Only select the `path`
-     * const fileQueueWithPathOnly = await prisma.fileQueue.findMany({ select: { path: true } })
+     * // Only select the `uuid`
+     * const fileQueueWithUuidOnly = await prisma.fileQueue.findMany({ select: { uuid: true } })
      * 
      */
     findMany<T extends FileQueueFindManyArgs>(args?: SelectSubset<T, FileQueueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FileQueuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -3867,9 +3892,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many FileQueues and only return the `path`
-     * const fileQueueWithPathOnly = await prisma.fileQueue.createManyAndReturn({
-     *   select: { path: true },
+     * // Create many FileQueues and only return the `uuid`
+     * const fileQueueWithUuidOnly = await prisma.fileQueue.createManyAndReturn({
+     *   select: { uuid: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -3958,9 +3983,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more FileQueues and only return the `path`
-     * const fileQueueWithPathOnly = await prisma.fileQueue.updateManyAndReturn({
-     *   select: { path: true },
+     * // Update zero or more FileQueues and only return the `uuid`
+     * const fileQueueWithUuidOnly = await prisma.fileQueue.updateManyAndReturn({
+     *   select: { uuid: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -4163,6 +4188,7 @@ export namespace Prisma {
    * Fields of the FileQueue model
    */
   interface FileQueueFieldRefs {
+    readonly uuid: FieldRef<"FileQueue", 'String'>
     readonly path: FieldRef<"FileQueue", 'String'>
     readonly filename: FieldRef<"FileQueue", 'String'>
     readonly last_modified: FieldRef<"FileQueue", 'DateTime'>
@@ -5718,6 +5744,7 @@ export namespace Prisma {
 
 
   export const FileScalarFieldEnum: {
+    uuid: 'uuid',
     path: 'path',
     filename: 'filename',
     last_modified: 'last_modified',
@@ -5745,6 +5772,7 @@ export namespace Prisma {
 
 
   export const FileQueueScalarFieldEnum: {
+    uuid: 'uuid',
     path: 'path',
     filename: 'filename',
     last_modified: 'last_modified',
@@ -5839,6 +5867,7 @@ export namespace Prisma {
     AND?: FileWhereInput | FileWhereInput[]
     OR?: FileWhereInput[]
     NOT?: FileWhereInput | FileWhereInput[]
+    uuid?: StringFilter<"File"> | string
     path?: StringFilter<"File"> | string
     filename?: StringFilter<"File"> | string
     last_modified?: DateTimeFilter<"File"> | Date | string
@@ -5851,6 +5880,7 @@ export namespace Prisma {
   }
 
   export type FileOrderByWithRelationInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -5863,6 +5893,7 @@ export namespace Prisma {
   }
 
   export type FileWhereUniqueInput = Prisma.AtLeast<{
+    uuid?: string
     path_filename?: FilePathFilenameCompoundUniqueInput
     AND?: FileWhereInput | FileWhereInput[]
     OR?: FileWhereInput[]
@@ -5876,9 +5907,10 @@ export namespace Prisma {
     inode?: StringFilter<"File"> | string
     absPath?: StringFilter<"File"> | string
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
-  }, "path_filename">
+  }, "uuid" | "path_filename">
 
   export type FileOrderByWithAggregationInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -5898,6 +5930,7 @@ export namespace Prisma {
     AND?: FileScalarWhereWithAggregatesInput | FileScalarWhereWithAggregatesInput[]
     OR?: FileScalarWhereWithAggregatesInput[]
     NOT?: FileScalarWhereWithAggregatesInput | FileScalarWhereWithAggregatesInput[]
+    uuid?: StringWithAggregatesFilter<"File"> | string
     path?: StringWithAggregatesFilter<"File"> | string
     filename?: StringWithAggregatesFilter<"File"> | string
     last_modified?: DateTimeWithAggregatesFilter<"File"> | Date | string
@@ -5978,6 +6011,7 @@ export namespace Prisma {
     AND?: FileQueueWhereInput | FileQueueWhereInput[]
     OR?: FileQueueWhereInput[]
     NOT?: FileQueueWhereInput | FileQueueWhereInput[]
+    uuid?: StringFilter<"FileQueue"> | string
     path?: StringFilter<"FileQueue"> | string
     filename?: StringFilter<"FileQueue"> | string
     last_modified?: DateTimeFilter<"FileQueue"> | Date | string
@@ -5993,6 +6027,7 @@ export namespace Prisma {
   }
 
   export type FileQueueOrderByWithRelationInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6008,6 +6043,7 @@ export namespace Prisma {
   }
 
   export type FileQueueWhereUniqueInput = Prisma.AtLeast<{
+    uuid?: string
     path_filename?: FileQueuePathFilenameCompoundUniqueInput
     AND?: FileQueueWhereInput | FileQueueWhereInput[]
     OR?: FileQueueWhereInput[]
@@ -6024,9 +6060,10 @@ export namespace Prisma {
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
     directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
-  }, "path_filename">
+  }, "uuid" | "path_filename">
 
   export type FileQueueOrderByWithAggregationInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6049,6 +6086,7 @@ export namespace Prisma {
     AND?: FileQueueScalarWhereWithAggregatesInput | FileQueueScalarWhereWithAggregatesInput[]
     OR?: FileQueueScalarWhereWithAggregatesInput[]
     NOT?: FileQueueScalarWhereWithAggregatesInput | FileQueueScalarWhereWithAggregatesInput[]
+    uuid?: StringWithAggregatesFilter<"FileQueue"> | string
     path?: StringWithAggregatesFilter<"FileQueue"> | string
     filename?: StringWithAggregatesFilter<"FileQueue"> | string
     last_modified?: DateTimeWithAggregatesFilter<"FileQueue"> | Date | string
@@ -6139,6 +6177,7 @@ export namespace Prisma {
   }
 
   export type FileCreateInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6150,6 +6189,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedCreateInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6161,6 +6201,7 @@ export namespace Prisma {
   }
 
   export type FileUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6172,6 +6213,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6183,6 +6225,7 @@ export namespace Prisma {
   }
 
   export type FileCreateManyInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6194,6 +6237,7 @@ export namespace Prisma {
   }
 
   export type FileUpdateManyMutationInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6204,6 +6248,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedUpdateManyInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6289,6 +6334,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCreateInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6303,6 +6349,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedCreateInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6317,6 +6364,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6331,6 +6379,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6345,6 +6394,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCreateManyInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -6359,6 +6409,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUpdateManyMutationInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6372,6 +6423,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedUpdateManyInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6520,6 +6572,7 @@ export namespace Prisma {
   }
 
   export type FileCountOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6535,6 +6588,7 @@ export namespace Prisma {
   }
 
   export type FileMaxOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6546,6 +6600,7 @@ export namespace Prisma {
   }
 
   export type FileMinOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6700,6 +6755,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCountOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6718,6 +6774,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMaxOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -6732,6 +6789,7 @@ export namespace Prisma {
   }
 
   export type FileQueueMinOrderByAggregateInput = {
+    uuid?: SortOrder
     path?: SortOrder
     filename?: SortOrder
     last_modified?: SortOrder
@@ -7137,6 +7195,7 @@ export namespace Prisma {
   }
 
   export type FileCreateWithoutDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7147,6 +7206,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedCreateWithoutDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7185,6 +7245,7 @@ export namespace Prisma {
     AND?: FileScalarWhereInput | FileScalarWhereInput[]
     OR?: FileScalarWhereInput[]
     NOT?: FileScalarWhereInput | FileScalarWhereInput[]
+    uuid?: StringFilter<"File"> | string
     path?: StringFilter<"File"> | string
     filename?: StringFilter<"File"> | string
     last_modified?: DateTimeFilter<"File"> | Date | string
@@ -7260,6 +7321,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCreateWithoutDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7273,6 +7335,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedCreateWithoutDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7314,6 +7377,7 @@ export namespace Prisma {
     AND?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
     OR?: FileQueueScalarWhereInput[]
     NOT?: FileQueueScalarWhereInput | FileQueueScalarWhereInput[]
+    uuid?: StringFilter<"FileQueue"> | string
     path?: StringFilter<"FileQueue"> | string
     filename?: StringFilter<"FileQueue"> | string
     last_modified?: DateTimeFilter<"FileQueue"> | Date | string
@@ -7328,6 +7392,7 @@ export namespace Prisma {
   }
 
   export type FileCreateManyDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7338,6 +7403,7 @@ export namespace Prisma {
   }
 
   export type FileUpdateWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7348,6 +7414,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedUpdateWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7358,6 +7425,7 @@ export namespace Prisma {
   }
 
   export type FileUncheckedUpdateManyWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7368,6 +7436,7 @@ export namespace Prisma {
   }
 
   export type FileQueueCreateManyDirectoryIDInput = {
+    uuid: string
     path: string
     filename: string
     last_modified: Date | string
@@ -7381,6 +7450,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUpdateWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7394,6 +7464,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedUpdateWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7407,6 +7478,7 @@ export namespace Prisma {
   }
 
   export type FileQueueUncheckedUpdateManyWithoutDirectoryIDInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
     path?: StringFieldUpdateOperationsInput | string
     filename?: StringFieldUpdateOperationsInput | string
     last_modified?: DateTimeFieldUpdateOperationsInput | Date | string

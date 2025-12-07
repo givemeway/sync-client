@@ -1,11 +1,11 @@
 // src/utils/UploadPool.ts - Concurrent upload pool for parallel file uploads
 
-import type { FileMetadata, UploadResult } from '../types/index.js';
+import type { FileMetadata, SyncUploadResult } from '../types/index.js';
 
 type UploadTask = {
   file: FileMetadata;
-  uploadFn: (file: FileMetadata) => Promise<UploadResult>;
-  resolve: (result: UploadResult) => void;
+  uploadFn: (file: FileMetadata) => Promise<SyncUploadResult>;
+  resolve: (result: SyncUploadResult) => void;
   reject: (error: Error) => void;
 };
 
@@ -33,21 +33,21 @@ export class UploadPool {
     failed: 0,
     inProgress: 0
   };
-  
+
   /**
    * @param concurrency Maximum number of concurrent uploads (default: 5)
    */
   constructor(concurrency: number = 5) {
     this.concurrency = Math.max(1, concurrency);
   }
-  
+
   /**
    * Upload a file with concurrency control
    */
   upload(
     file: FileMetadata,
-    uploadFn: (file: FileMetadata) => Promise<UploadResult>
-  ): Promise<UploadResult> {
+    uploadFn: (file: FileMetadata) => Promise<SyncUploadResult>
+  ): Promise<SyncUploadResult> {
     return new Promise((resolve, reject) => {
       const task: UploadTask = {
         file,
@@ -55,13 +55,13 @@ export class UploadPool {
         resolve,
         reject
       };
-      
+
       this.queue.push(task);
       this.stats.total++;
       this.processQueue();
     });
   }
-  
+
   /**
    * Process the upload queue
    */
@@ -70,28 +70,28 @@ export class UploadPool {
     while (this.queue.length > 0 && this.activeUploads < this.concurrency) {
       const task = this.queue.shift();
       if (!task) break;
-      
+
       this.activeUploads++;
       this.stats.inProgress++;
-      
+
       // Start upload (don't await - let it run in background)
       this.executeUpload(task);
     }
   }
-  
+
   /**
    * Execute a single upload task
    */
   private async executeUpload(task: UploadTask): Promise<void> {
     try {
       const result = await task.uploadFn(task.file);
-      
+
       if (result.success) {
         this.stats.completed++;
       } else {
         this.stats.failed++;
       }
-      
+
       task.resolve(result);
     } catch (error) {
       this.stats.failed++;
@@ -99,12 +99,12 @@ export class UploadPool {
     } finally {
       this.activeUploads--;
       this.stats.inProgress--;
-      
+
       // Process more from queue
       this.processQueue();
     }
   }
-  
+
   /**
    * Wait for all uploads to complete
    */
@@ -113,14 +113,14 @@ export class UploadPool {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
-  
+
   /**
    * Get current statistics
    */
   getStats() {
     return { ...this.stats };
   }
-  
+
   /**
    * Reset statistics
    */
@@ -132,14 +132,14 @@ export class UploadPool {
       inProgress: 0
     };
   }
-  
+
   /**
    * Get current concurrency limit
    */
   getConcurrency(): number {
     return this.concurrency;
   }
-  
+
   /**
    * Update concurrency limit
    */
@@ -147,7 +147,7 @@ export class UploadPool {
     this.concurrency = Math.max(1, concurrency);
     this.processQueue(); // Process more if we increased concurrency
   }
-  
+
   /**
    * Clear the queue (does not cancel active uploads)
    */

@@ -2,6 +2,7 @@
 
 import dotenv from 'dotenv';
 import { SyncClient } from './SyncClient.js';
+import { ApiClient } from "./core/ApiClient.js";
 import type { SyncClientConfig } from './types/index.js';
 dotenv.config();
 // Load configuration from environment variables
@@ -21,7 +22,6 @@ console.log('Configuration:', {
 
 // Create the sync client
 const client = new SyncClient(config);
-
 // Listen to events
 client.on('sync:started', () => {
   console.log('✅ Sync started');

@@ -1,0 +1,156 @@
+import { ApiClient } from './ApiClient.js';
+import { join } from "node:path"
+import { DatabaseManager } from './DatabaseManager.js';
+import { PrismaClient, File, Directory } from '../../DB/prisma-client/index.js';
+import {
+  LocalFolderCreateMetadata,
+  CloudFolderCreateMetadata,
+  LocalFolderDeleteMetadata,
+  CloudFileMetadata,
+  CloudFolderRenameMetadata,
+  CloudFolderMetadata,
+  LocalFileRenameMetadata,
+  LocalFileDeleteMetadata,
+  FileUploadMetadata,
+  CloudFileDeleteMetadata,
+  CloudFolderDeleteMetadata,
+  CloudFileRenameMetadata
+} from '../types/index.js';
+
+export class ReconciliationService {
+  private apiClient: ApiClient;
+  private dbManager: DatabaseManager;
+  private prisma: PrismaClient;
+  private syncPath: string;
+
+  constructor(apiClient: ApiClient, dbManager: DatabaseManager, prisma: PrismaClient, syncPath: string) {
+    this.apiClient = apiClient;
+    this.dbManager = dbManager;
+    this.prisma = prisma;
+    this.syncPath = syncPath
+  }
+
+  async reconcile(
+    cloudFiles: CloudFileMetadata[],
+    cloudDirs: CloudFolderMetadata[],
+    dbFiles: File[],
+    dbDirs: Directory[]
+  ): Promise<{
+    filesToDownload: CloudFileMetadata[],
+    filesToDeleteLocal: LocalFileDeleteMetadata[],
+    foldersToCreateLocal: LocalFolderCreateMetadata[],
+    foldersToDeleteLocal: LocalFolderDeleteMetadata[]
+  } | any> {
+
+    try {
+      console.log('Starting reconciliation...');
+      //let filesToUpload: FileUploadMetadata[] = [];
+      let filesToDownload: CloudFileMetadata[] = [];
+      let filesToDeleteLocal: LocalFileDeleteMetadata[] = [];
+      //let filesToDeleteCloud: CloudFileDeleteMetadata[] = [];
+      //let filesToRenameLocal: LocalFileRenameMetadata[] = [];
+      //let filesToRenameCloud: CloudFileRenameMetadata[] = []
+      //let foldersToRenameCloud: CloudFolderRenameMetadata[] = [];
+      //let foldersToDeleteCloud: CloudFolderDeleteMetadata[] = [];
+      //let foldersToCreateCloud: CloudFolderCreateMetadata[] = [];
+      let foldersToCreateLocal: LocalFolderCreateMetadata[] = [];
+      let foldersToDeleteLocal: LocalFolderDeleteMetadata[] = [];
+      // 1. Indexing for fast lookup
+      const cloudFileMap = new Map(cloudFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
+      const cloudDirMap = new Map(cloudDirs.map(d => [d.path, d]));
+      const dbFileMap = new Map(dbFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
+      const dbDirMap = new Map(dbDirs.map(d => [d.path, d]));
+
+      // 2. Process Cloud Files (Download / Update / Conflict)
+      for (const cloudFile of cloudFiles) {
+        const key = this.getUniqueKey(cloudFile.path, cloudFile.filename);
+        const localFile = dbFileMap.get(key);
+        if (!localFile) {
+          // Case: New in Cloud -> Download
+          // console.log(`[Reconcile] New file in cloud: ${cloudFile.filename}. Downloading...`);
+          // TODO: Implement download logic
+          // await this.downloadFile(cloudFile);
+          filesToDownload.push(cloudFile);
+        } else {
+          // Case: Exists locally -> Check for modifications
+          if (localFile.hashvalue !== cloudFile.hashvalue) {
+            // console.log(`[Reconcile] File modified in cloud: ${cloudFile.filename}. Checking for conflicts...`);
+            // Check if local file is also modified (in Queue)
+            const inQueue = await this.prisma.fileQueue.findUnique({
+              where: { path_filename: { path: localFile.path, filename: localFile.filename } }
+            });
+
+            if (inQueue) {
+              // console.log(`[Reconcile] CONFLICT detected for ${cloudFile.filename}. Creating conflicted copy.`);
+              // TODO: Implement conflict resolution (rename local and download cloud version)
+            } else {
+              // console.log(`[Reconcile] Updating local file: ${cloudFile.filename}`);
+              // TODO: Implement download/overwrite logic
+              filesToDownload.push(cloudFile);
+            }
+          }
+        }
+      }
+      // 3. Process Cloud Directories (Create locally)
+      for (const cloudDir of cloudDirs) {
+        if (!dbDirMap.has(cloudDir.path)) {
+          //console.log(`[Reconcile] New directory in cloud: ${cloudDir.path}. Creating locally...`);
+          // TODO: Implement create directory logic
+          foldersToCreateLocal.push({ absPath: join(this.syncPath, cloudDir.path), path: cloudDir.path, folder: cloudDir.folder });
+        }
+      }
+      // 4. Detect Deletions (Cloud -> Local)
+      // Iterate local DB files, if not in Cloud Map -> It was deleted on Cloud
+      for (const dbFile of dbFiles) {
+        const key = this.getUniqueKey(dbFile.path, dbFile.filename);
+
+        if (!cloudFileMap.has(key)) {
+          // Check if it's currently being uploaded (in Queue with 'new' status)
+          const inQueue = await this.prisma.fileQueue.findUnique({
+            where: { path_filename: { path: dbFile.path, filename: dbFile.filename } }
+          });
+          if (inQueue && inQueue.sync_status === 'new') {
+            // It's a new local file waiting to be uploaded, so it's expected not to be in cloud yet.
+            continue;
+          }
+          filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
+          // console.log(`[Reconcile] File deleted in cloud: ${dbFile.filename}. Deleting locally...`);
+          // TODO: Implement delete local file logic
+        }
+      }
+
+      // Iterate local DB dirs, if not in Cloud Map -> Deleted on Cloud
+      for (const dbDir of dbDirs) {
+        if (dbDir.path === '/') continue; // Skip root
+        if (!cloudDirMap.has(dbDir.path)) {
+          // Check queue
+          const inQueue = await this.prisma.directoryQueue.findUnique({
+            where: { device_folder_path: { device: dbDir.device, folder: dbDir.folder, path: dbDir.path } }
+          });
+          if (inQueue && inQueue.sync_status === 'new') continue;
+          foldersToDeleteLocal.push({ absPath: dbDir.absPath, path: dbDir.path, folder: dbDir.folder });
+          // console.log(`[Reconcile] Directory deleted in cloud: ${dbDir.path}. Deleting locally...`);
+          // TODO: Implement delete local dir logic
+        }
+      }
+      return { filesToDeleteLocal, filesToDownload, foldersToDeleteLocal, foldersToCreateLocal }
+    } catch (error: any) {
+      return error?.message;
+    }
+  }
+
+  private getUniqueKey(dir: string, filename: string): string {
+    // Ensure consistent path format
+    const normalizedDir = dir.endsWith('/') ? dir : dir + '/';
+    return `${normalizedDir}${filename}`;
+  }
+
+  private getDirFromPath(path: string): string {
+    // Extract directory from full path
+    // path: /folder/file.txt -> /folder
+    const parts = path.split('/');
+    parts.pop();
+    const dir = parts.join('/');
+    return dir === '' ? '/' : dir;
+  }
+}

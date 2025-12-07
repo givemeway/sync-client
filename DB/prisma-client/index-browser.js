@@ -118,6 +118,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 });
 
 exports.Prisma.FileScalarFieldEnum = {
+  uuid: 'uuid',
   path: 'path',
   filename: 'filename',
   last_modified: 'last_modified',
@@ -139,6 +140,7 @@ exports.Prisma.DirectoryScalarFieldEnum = {
 };
 
 exports.Prisma.FileQueueScalarFieldEnum = {
+  uuid: 'uuid',
   path: 'path',
   filename: 'filename',
   last_modified: 'last_modified',

@@ -16,6 +16,6 @@ export type {
   SyncEvent,
   SyncResult,
   WatcherOptions,
-  UploadResult,
-  CloudMetadata
+  SyncUploadResult,
+  CloudFileMetadata
 } from './types/index.js';

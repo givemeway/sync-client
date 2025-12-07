@@ -28,22 +28,6 @@ export class DatabaseManager {
     const device = isFile ? substringArr.slice(0, -1).at(1) : substringArr.at(1);
     const folder = isFile ? substringArr.slice(0, -1).at(-1) : substringArr.at(-1)
     return { folder: folder || "/", device: device || "/", relPath };
-    /*
-        let relPath = path;
-        if (path.startsWith(this.syncPath)) {
-          relPath = path.substring(this.syncPath.length);
-        }
-        let parts = relPath.split(/[/\\]/).filter(p => p.length > 0);
-        if (parts.length === 0) {
-          return { folder: '/', device: '/', relPath: '/' };
-        }
-        const device = parts[0];
-        const folder = isFile ? (parts.length > 1 ? parts[parts.length - 2] : '/') : parts[parts.length - 1];
-    
-        const relPathParts = isFile ? parts.slice(0, -1) : parts;
-        const relPathStr = relPathParts.length > 0 ? '/' + relPathParts.join('/') : '/';
-    
-        return { folder: folder || '/', device: device || '/', relPath: relPathStr }; */
   }
 
   private async getPathTree(pathParts: string[]) {
@@ -62,6 +46,7 @@ export class DatabaseManager {
 
   async addFileQueue(prisma: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">, file: FileMetadata) {
     try {
+
       const fileExists = await prisma.fileQueue.findUnique({
         where: { path_filename: { path: file.path, filename: file.filename } }
       });
@@ -74,7 +59,6 @@ export class DatabaseManager {
       const parts = relPath.split(/[/\\]/).filter(p => p.length > 0);
       const parentParts = parts.slice(0);
       const parentPath = parentParts.length > 0 ? '/' + parentParts.join('/') : '/';
-
       const dirParts = await this.getPathTree(parentParts);
       const dirObjArr = [];
 
@@ -146,7 +130,7 @@ export class DatabaseManager {
           device,
           folder,
           sync_status: "FILE_LINKED",
-          created_at: new Date(),
+          created_at: (await stat(this.syncPath)).ino,
           absPath: this.syncPath
         };
 
@@ -173,7 +157,7 @@ export class DatabaseManager {
 
       const dirID = dirObjArr.at(-1)?.uuid || uuidv4();
 
-      const fileCopy = {
+      let fileCopy = {
         path: parentPath,
         filename: file.filename,
         last_modified: file.last_modified,
@@ -182,10 +166,20 @@ export class DatabaseManager {
         inode: file.inode,
         absPath: file.absPath,
         sync_status: "new",
-        dirID
+        dirID,
+        uuid: uuidv4()
       };
+      if (!fileExists) {
 
-      const upsertedFile = await prisma.fileQueue.upsert({
+        const mainFileExists = await prisma.file.findUnique({
+          where: { path_filename: { path: file.path, filename: file.filename } },
+          select: { uuid: true }
+        });
+        if (mainFileExists) {
+          fileCopy.uuid = mainFileExists.uuid;
+        }
+      }
+      await prisma.fileQueue.upsert({
         where: {
           path_filename: {
             path: fileCopy.path,
@@ -233,7 +227,8 @@ export class DatabaseManager {
           inode: file.inode,
           absPath: file.absPath,
           sync_status: "modified",
-          dirID: queuedFile.dirID
+          dirID: queuedFile.dirID,
+          uuid: queuedFile.uuid
         };
 
         await tx.fileQueue.update({
@@ -256,7 +251,7 @@ export class DatabaseManager {
             filename: file.filename
           }
         },
-        select: { dirID: true }
+        select: { dirID: true, uuid: true }
       });
 
       // If not in main DB either, treat as new file
@@ -310,7 +305,8 @@ export class DatabaseManager {
         inode: file.inode,
         absPath: file.absPath,
         sync_status: "modified",
-        dirID: existingFile.dirID
+        dirID: existingFile.dirID,
+        uuid: existingFile.uuid
       };
 
       await tx.fileQueue.create({
@@ -329,55 +325,28 @@ export class DatabaseManager {
         where: { path_filename: { path: file.path, filename: file.filename } }
       });
 
-      // If the file doesn't exist in main DB, check if it's in the queue
       if (!existingFile) {
-        // Try to find it in the queue
-        const queuedFile = await tx.fileQueue.findUnique({
-          where: { path_filename: { path: file.path, filename: file.filename } }
-        });
-
-        if (queuedFile) {
-          // File is in queue, mark it as deleted
-          await tx.fileQueue.update({
-            where: { path_filename: { path: file.path, filename: file.filename } },
-            data: { sync_status: "delete" }
-          });
-        }
-        // If file doesn't exist in main DB or queue, nothing to delete
         return;
       }
-
-      // File exists in main DB, so we need to mark it for deletion in the queue
-      // Ensure the parent directory exists in DirectoryQueue
-      const dirID = existingFile.dirID;
-
-      // Check if the directory exists in DirectoryQueue
-      const dirInQueue = await tx.directoryQueue.findUnique({
-        where: { uuid: dirID }
+      const { relPath, device, folder } = this.getFolderDevicePath(file.absPath, true);
+      const dirInMain = await tx.directory.findUnique({
+        where: { device_folder_path: { device, folder, path: relPath } }
       });
 
-      if (!dirInQueue) {
-        // Get the directory from main DB
-        const dirInMain = await tx.directory.findUnique({
-          where: { uuid: dirID }
+      if (dirInMain) {
+        // Add the directory to the queue
+        await tx.directoryQueue.upsert({
+          where: {
+            device_folder_path: {
+              device: dirInMain.device,
+              folder: dirInMain.folder,
+              path: dirInMain.path
+            }
+          },
+          update: { uuid: dirInMain.uuid, created_at: dirInMain.created_at, absPath: dirInMain.absPath, sync_status: "FILE_LINKED" },
+          create: { uuid: dirInMain.uuid, device: dirInMain.device, folder: dirInMain.folder, path: dirInMain.path, created_at: dirInMain.created_at, absPath: dirInMain.absPath, sync_status: "FILE_LINKED" }
         });
-
-        if (dirInMain) {
-          // Add the directory to the queue
-          await tx.directoryQueue.upsert({
-            where: {
-              device_folder_path: {
-                device: dirInMain.device,
-                folder: dirInMain.folder,
-                path: dirInMain.path
-              }
-            },
-            update: { uuid: dirInMain.uuid, created_at: dirInMain.created_at, absPath: dirInMain.absPath, sync_status: "FILE_LINKED" },
-            create: { uuid: dirInMain.uuid, device: dirInMain.device, folder: dirInMain.folder, path: dirInMain.path, created_at: dirInMain.created_at, absPath: dirInMain.absPath, sync_status: "FILE_LINKED" }
-          });
-        }
       }
-
       // Now create/update the file queue entry
       const queueData = {
         path: file.path,
@@ -388,7 +357,8 @@ export class DatabaseManager {
         inode: existingFile.inode,
         absPath: existingFile.absPath,
         dirID: existingFile.dirID,
-        sync_status: "delete"
+        sync_status: "delete",
+        uuid: existingFile.uuid
       };
 
       await tx.fileQueue.upsert({
@@ -475,7 +445,9 @@ export class DatabaseManager {
 
   async removeDirQueue(tx: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">, path: string) {
     try {
+
       const { relPath } = this.getFolderDevicePath(path, false);
+
 
       const files = await tx.file.findMany({
         where: { path: relPath }
@@ -528,23 +500,17 @@ export class DatabaseManager {
       const existingDest = await tx.fileQueue.findUnique({
         where: { path_filename: { path: newFile.path, filename: newFile.filename } }
       });
-
       if (existingDest) {
         console.log(`Removing existing destination file from queue (race condition fix): ${newFile.filename}`);
         await tx.fileQueue.delete({
           where: { path_filename: { path: newFile.path, filename: newFile.filename } }
         });
       }
-
-      const file = await tx.fileQueue.findUnique({ where: { path_filename: { path: oldFile.path, filename: oldFile.filename } } });
-      const dirID = file?.dirID || newFile.dirID;
-
-      if (!dirID) {
-        console.warn(`Cannot rename file in queue: dirID not found for ${oldFile.filename}`);
-        return;
-      }
-
-      const fileData = {
+      const existingOldFile = await tx.fileQueue.findUnique({
+        where: { path_filename: { path: oldFile.path, filename: oldFile.filename } },
+        select: { uuid: true }
+      });
+      let fileData = {
         path: newFile.path,
         filename: newFile.filename,
         last_modified: newFile.last_modified,
@@ -555,14 +521,20 @@ export class DatabaseManager {
         sync_status: "rename",
         old_path: oldFile.path,
         old_filename: oldFile.filename,
-        dirID
+        dirID: newFile.dirID || "",
+        uuid: uuidv4()
       };
+      if (existingOldFile) {
+        fileData.uuid = existingOldFile.uuid
+      }
+      if (!existingOldFile) {
+        return;
+      }
       await tx.fileQueue.upsert({
         where: { path_filename: { path: oldFile.path, filename: oldFile.filename } },
-        update: fileData,
+        update: { filename: newFile.filename, sync_status: "rename", old_filename: oldFile.filename },
         create: fileData
       })
-      return;
     } catch (err) {
       console.error("Error in renameFileQueue:", err);
       throw err;
@@ -738,9 +710,17 @@ export class DatabaseManager {
         size: BigInt(file.size),
         inode: file.inode,
         absPath: file.absPath,
-        dirID
+        dirID,
+        uuid: uuidv4()
       };
 
+      const fileQueueExists = await tx.fileQueue.findUnique({
+        where: { path_filename: { path: file.path, filename: file.filename } },
+        select: { uuid: true }
+      });
+      if (fileQueueExists) {
+        fileObj.uuid = fileQueueExists.uuid
+      }
       await tx.file.upsert({
         where: {
           path_filename: {
@@ -751,7 +731,6 @@ export class DatabaseManager {
         update: fileObj,
         create: fileObj
       });
-
     } catch (err) {
       console.error("Error in addFileMain:", err);
       throw err;
@@ -792,7 +771,6 @@ export class DatabaseManager {
   async removeDirMain(tx: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">, path: string) {
     try {
       const { relPath } = this.getFolderDevicePath(path, false);
-
       await tx.file.deleteMany({
         where: {
           OR: [{ path: relPath }, { path: { startsWith: relPath + "/" } }]
@@ -816,7 +794,6 @@ export class DatabaseManager {
         where: { path_filename: { path: file.path, filename: file.filename } },
         select: { dirID: true }
       });
-
       if (!existing) return;
 
       const fileObj = {
@@ -848,7 +825,8 @@ export class DatabaseManager {
   async renameFileMain(tx: Omit<PrismaClient, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">, oldFile: FileMetadata, newFile: FileMetadata) {
     try {
       const existing = await tx.file.findUnique({
-        where: { path_filename: { path: oldFile.path, filename: oldFile.filename } }
+        where: { path_filename: { path: oldFile.path, filename: oldFile.filename } },
+        select: { dirID: true, uuid: true }
       });
 
       if (existing) {
@@ -865,6 +843,7 @@ export class DatabaseManager {
           inode: newFile.inode,
           absPath: newFile.absPath,
           dirID: existing.dirID,
+          uuid: existing.uuid
         };
 
         await tx.file.upsert({
@@ -998,7 +977,8 @@ export class DatabaseManager {
         last_modified: file.last_modified,
         absPath: file.absPath,
         sync_status: file.sync_status as any,
-        dirID: file.dirID
+        dirID: file.dirID,
+        uuid: file.uuid
       };
     } catch (err) {
       console.error("Error in getFileFromQueue:", err);
@@ -1033,7 +1013,8 @@ export class DatabaseManager {
         last_modified: f.last_modified,
         absPath: f.absPath,
         sync_status: f.sync_status as any,
-        dirID: f.dirID
+        dirID: f.dirID,
+        uuid: f.uuid
       }));
     } catch (err) {
       console.error("Error in findFilesByInodeInQueue:", err);
@@ -1151,7 +1132,8 @@ export class DatabaseManager {
     // Key: path/filename
     const dbFilesMap = new Map<string, File>();
     for (const f of dbFiles) {
-      dbFilesMap.set(`${f.path}/${f.filename}`, f);
+      const key = f.path === "/" ? "/" + f.filename : f.path + "/" + f.filename
+      dbFilesMap.set(key, f);
     }
 
     // Key: path (relative)
@@ -1166,7 +1148,8 @@ export class DatabaseManager {
       // Ensure path starts with /
       let path = f.path;
       if (!path.startsWith('/')) path = '/' + path;
-      scannedFilesMap.set(`${path}/${f.filename}`, { ...f, path });
+      const key = path === "/" ? "/" + f.filename : path + "/" + f.filename
+      scannedFilesMap.set(key, { ...f, path });
     }
 
     const scannedDirsMap = new Map<string, ScannedDirectory>();
@@ -1183,7 +1166,6 @@ export class DatabaseManager {
     const filesToAdd: ScannedFile[] = [];
     const filesToUpdate: ScannedFile[] = [];
     const filesToDelete: File[] = [];
-
     for (const [key, sFile] of scannedFilesMap) {
       const dbFile = dbFilesMap.get(key);
       if (!dbFile) {
@@ -1196,13 +1178,11 @@ export class DatabaseManager {
         }
       }
     }
-
     for (const [key, dbFile] of dbFilesMap) {
       if (!scannedFilesMap.has(key)) {
         filesToDelete.push(dbFile);
       }
     }
-
     // Directories
     const dirsToAdd: ScannedDirectory[] = [];
     const dirsToDelete: Directory[] = [];
@@ -1252,6 +1232,27 @@ export class DatabaseManager {
     await this.prisma.$transaction(async (tx) => {
       // --- Deletions ---
       // Delete files first to avoid FK constraints
+      dirsToDelete.sort((a, b) => b.path.length - a.path.length);
+      for (const d of dirsToDelete) {
+        // Add to Queue
+        await tx.directoryQueue.upsert({
+          where: { device_folder_path: { device: d.device, folder: d.folder, path: d.path } },
+          update: {
+            uuid: d.uuid, device: d.device, folder: d.folder, path: d.path,
+            sync_status: 'delete', inode: d.inode, created_at: d.created_at, absPath: d.absPath
+          },
+          create: {
+            uuid: d.uuid, device: d.device, inode: d.inode, folder: d.folder, path: d.path,
+            sync_status: 'delete', created_at: d.created_at, absPath: d.absPath
+          }
+        });
+        // Remove from Main
+        try {
+          await tx.directory.delete({ where: { uuid: d.uuid } });
+        } catch (e) {
+          console.warn(`Could not delete directory ${d.path} from Main DB (might not be empty): ${e}`);
+        }
+      }
       for (const f of filesToDelete) {
         // Delete directories (reverse order of depth to avoid FK issues?)
         // Actually Prisma handles cascading deletes if configured, but let's be safe.
@@ -1280,11 +1281,18 @@ export class DatabaseManager {
         }
 
         if (dirID) {
+          const existingFile = await tx.fileQueue.findUnique({ where: { path_filename: { path: f.path, filename: f.filename } }, select: { uuid: true } })
+          let fileObj = {
+            uuid: uuidv4(), filename: f.filename, path: f.path, dirID, absPath: f.absPath, inode: f.inode, last_modified: f.last_modified, hashvalue: f.hashvalue, size: BigInt(f.size), sync_status: "delete"
+          }
+          if (existingFile) {
+            fileObj.uuid = existingFile.uuid;
+          }
           // Add to Queue as delete
           await tx.fileQueue.upsert({
             where: { path_filename: { path: f.path, filename: f.filename } },
-            update: { filename: f.filename, path: f.path, dirID, absPath: f.absPath, inode: f.inode, last_modified: f.last_modified, hashvalue: f.hashvalue, size: BigInt(f.size), sync_status: "delete" },
-            create: { filename: f.filename, path: f.path, dirID, absPath: f.absPath, inode: f.inode, last_modified: f.last_modified, hashvalue: f.hashvalue, size: BigInt(f.size), sync_status: "delete" },
+            update: fileObj,
+            create: fileObj,
           });
         } else {
           console.warn(`Could not find parent directory for deleted file ${f.path}/${f.filename}`);
@@ -1294,32 +1302,11 @@ export class DatabaseManager {
           where: { path_filename: { path: f.path, filename: f.filename } }
         });
       }
-      dirsToDelete.sort((a, b) => b.path.length - a.path.length);
-      for (const d of dirsToDelete) {
-        // Add to Queue
-        await tx.directoryQueue.upsert({
-          where: { device_folder_path: { device: d.device, folder: d.folder, path: d.path } },
-          update: {
-            uuid: d.uuid, device: d.device, folder: d.folder, path: d.path,
-            sync_status: 'delete', inode: d.inode, created_at: d.created_at, absPath: d.absPath
-          },
-          create: {
-            uuid: d.uuid, device: d.device, inode: d.inode, folder: d.folder, path: d.path,
-            sync_status: 'delete', created_at: d.created_at, absPath: d.absPath
-          }
-        });
-        // Remove from Main
-        try {
-          await tx.directory.delete({ where: { uuid: d.uuid } });
-        } catch (e) {
-          console.warn(`Could not delete directory ${d.path} from Main DB (might not be empty): ${e}`);
-        }
-      }
       // --- Additions (Directories first) ---
       // Sort by depth ascending
       dirsToAdd.sort((a, b) => a.path.length - b.path.length);
       for (const d of dirsToAdd) {
-        const { device, folder, relPath } = this.getFolderDevicePath(d.path === '/' ? `/${d.name}` : `${d.path}/${d.name}`, false);
+        const { device, folder, relPath } = this.getFolderDevicePath(d.absPath, false);
         const uuid = uuidv4();
         // Add to Main
         const dirObj = {
@@ -1346,14 +1333,13 @@ export class DatabaseManager {
       // --- Additions (Files) ---
       for (const f of filesToAdd) {
         // Find parent dir UUID
-        const parentPath = f.path.startsWith('/') ? f.path : '/' + f.path;
-        const { device, folder } = this.getFolderDevicePath(join(this.syncPath, ...parentPath.split('/')), false);
+        const { device, folder } = this.getFolderDevicePath(f.absPath, true);
 
         let parentDir = await tx.directory.findUnique({
-          where: { device_folder_path: { device, folder, path: parentPath } }
+          where: { device_folder_path: { device, folder, path: f.path } }
         });
         if (!parentDir) {
-          console.error(`Parent directory not found for file ${f.filename} at ${parentPath}`);
+          console.error(`Parent directory not found for file ${f.filename} at ${f.path}`);
           const { mtime, ino } = await stat(f.absPath)
           const uuid = uuidv4();
           parentDir = await tx.directory.upsert({
@@ -1366,13 +1352,13 @@ export class DatabaseManager {
         // CRITICAL: Ensure parent directory exists in DirectoryQueue before inserting file
         // FileQueue has a foreign key constraint to DirectoryQueue, not Directory
         await tx.directoryQueue.upsert({
-          where: { device_folder_path: { device, folder, path: parentPath } },
+          where: { device_folder_path: { device, folder, path: f.path } },
           update: { uuid: parentDir.uuid, sync_status: 'FILE_LINKED' },
           create: {
             uuid: parentDir.uuid,
             device,
             folder,
-            path: parentPath,
+            path: f.path,
             created_at: parentDir.created_at,
             absPath: parentDir.absPath,
             inode: parentDir.inode,
@@ -1381,24 +1367,25 @@ export class DatabaseManager {
         });
 
         const fileObj = {
-          path: parentPath,
+          path: f.path,
           filename: f.filename,
           hashvalue: f.hash,
           size: BigInt(f.size),
           inode: f.inode,
           last_modified: f.mtime,
           absPath: f.absPath,
-          dirID: parentDir.uuid
+          dirID: parentDir.uuid,
+          uuid: uuidv4()
         };
         // Add to Main
         await tx.file.upsert({
-          where: { path_filename: { path: parentPath, filename: f.filename } },
+          where: { path_filename: { path: f.path, filename: f.filename } },
           update: fileObj,
           create: fileObj
         });
         // Add to Queue
         await tx.fileQueue.upsert({
-          where: { path_filename: { path: parentPath, filename: f.filename } },
+          where: { path_filename: { path: f.path, filename: f.filename } },
           update: { ...fileObj, sync_status: 'new' },
           create: { ...fileObj, sync_status: 'new' }
         });
@@ -1406,15 +1393,14 @@ export class DatabaseManager {
       // --- Updates (Files) ---
       for (const f of filesToUpdate) {
         // Find parent dir UUID (should exist)
-        const parentPath = f.path.startsWith('/') ? f.path : '/' + f.path;
-        const { device, folder } = this.getFolderDevicePath(join(this.syncPath, ...parentPath.split('/')), false);
+        const { device, folder } = this.getFolderDevicePath(f.absPath, true);
 
         let parentDir = await tx.directory.findUnique({
-          where: { device_folder_path: { device, folder, path: parentPath } }
+          where: { device_folder_path: { device, folder, path: f.path } }
         });
 
         if (!parentDir) {
-          console.error(`Parent directory not found for file ${f.filename} at ${parentPath}`);
+          console.error(`Parent directory not found for file ${f.filename} at ${f.path}`);
           const { mtime, ino } = await stat(f.absPath)
           const uuid = uuidv4();
           parentDir = await tx.directory.upsert({
@@ -1427,38 +1413,53 @@ export class DatabaseManager {
         // CRITICAL: Ensure parent directory exists in DirectoryQueue before inserting file
         // FileQueue has a foreign key constraint to DirectoryQueue, not Directory
         await tx.directoryQueue.upsert({
-          where: { device_folder_path: { device, folder, path: parentPath } },
+          where: { device_folder_path: { device, folder, path: f.path } },
           update: { uuid: parentDir.uuid, sync_status: 'FILE_LINKED' },
           create: {
             uuid: parentDir.uuid,
             device,
             folder,
-            path: parentPath,
+            path: f.path,
             created_at: parentDir.created_at,
             absPath: parentDir.absPath,
             inode: parentDir.inode,
             sync_status: 'FILE_LINKED'
           },
         });
-        const fileObj = {
-          path: parentPath,
+        const existingFile = await tx.file.findUnique({
+          where: {
+            path_filename: {
+              path: f.path,
+              filename: f.filename
+            }
+          },
+          select: {
+            uuid: true
+          }
+        })
+        let fileObj = {
+          path: f.path,
           filename: f.filename,
           hashvalue: f.hash,
           size: BigInt(f.size),
           inode: f.inode,
           last_modified: f.mtime,
           absPath: f.absPath,
-          dirID: parentDir.uuid
+          dirID: parentDir.uuid,
+          uuid: uuidv4()
         };
+        if (existingFile) {
+          fileObj.uuid = existingFile.uuid;
+        }
         // Update Main
         await tx.file.upsert({
-          where: { path_filename: { path: parentPath, filename: f.filename } },
+          where: { path_filename: { path: f.path, filename: f.filename } },
           update: fileObj,
           create: fileObj
         });
         // Update Queue
         await tx.fileQueue.upsert({
-          where: { path_filename: { path: parentPath, filename: f.filename } },
+          where: { path_filename: { path: f.path, filename: f.filename } },
           update: { ...fileObj, sync_status: 'modified' },
           create: { ...fileObj, sync_status: 'modified' }
         });
@@ -1467,9 +1468,6 @@ export class DatabaseManager {
 
     console.log('Reconciliation complete.');
   }
-
-
-
   // --- Transaction Wrapper Methods ---
   // These methods encapsulate transaction logic for SyncClient
 
@@ -1478,8 +1476,13 @@ export class DatabaseManager {
    */
   async addFileWithTransaction(file: FileMetadata): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      await this.addFileQueue(tx, file);
-      await this.addFileMain(tx, file);
+      const mainFileExists = await tx.file.findUnique({
+        where: { path_filename: { path: file.path, filename: file.filename } }
+      });
+      if (!mainFileExists) {
+        await this.addFileQueue(tx, file);
+        await this.addFileMain(tx, file);
+      }
     });
   }
 
@@ -1498,8 +1501,14 @@ export class DatabaseManager {
    */
   async removeFileWithTransaction(file: FileMetadata): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      await this.removeFileQueue(tx, file);
-      await this.removeFileMain(tx, file);
+      const existingFile = await tx.file.findUnique({
+        where: { path_filename: { path: file.path, filename: file.filename } }
+      });
+      if (existingFile) {
+        await this.removeFileQueue(tx, file);
+        await this.removeFileMain(tx, file);
+
+      }
     });
   }
 
@@ -1520,17 +1529,25 @@ export class DatabaseManager {
     // Queue this operation to prevent concurrent transaction conflicts
     this.operationQueue = this.operationQueue.then(async () => {
       await this.prisma.$transaction(async (tx) => {
-        const dirMetaData = await this.addDirQueue(tx, path, stats);
-        const dir: Directory = {
-          uuid: dirMetaData.uuid,
-          device: dirMetaData.device,
-          folder: dirMetaData.folder,
-          path: dirMetaData.path,
-          created_at: dirMetaData.created_at,
-          absPath: dirMetaData.absPath,
-          inode: dirMetaData.inode,
+        const { device, folder, relPath } = this.getFolderDevicePath(path, false);
+        const mainDirExists = await tx.directory.findUnique({
+          where: {
+            device_folder_path: { device, folder, path: relPath }
+          }
+        });
+        if (!mainDirExists) {
+          const dirMetaData = await this.addDirQueue(tx, path, stats);
+          const dir: Directory = {
+            uuid: dirMetaData.uuid,
+            device: dirMetaData.device,
+            folder: dirMetaData.folder,
+            path: dirMetaData.path,
+            created_at: dirMetaData.created_at,
+            absPath: dirMetaData.absPath,
+            inode: dirMetaData.inode,
+          }
+          await this.addDirMain(tx, dir)
         }
-        await this.addDirMain(tx, dir)
       });
     }).catch(err => {
       console.error(`Error in queued addDirWithTransaction for ${path}:`, err);
@@ -1545,8 +1562,14 @@ export class DatabaseManager {
    */
   async removeDirWithTransaction(path: string): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      await this.removeDirQueue(tx, path);
-      await this.removeDirMain(tx, path);
+      const { relPath, device, folder } = this.getFolderDevicePath(path, false)
+      const mainDirExists = await tx.directory.findUnique({
+        where: { device_folder_path: { path: relPath, device, folder } }
+      });
+      if (mainDirExists) {
+        await this.removeDirQueue(tx, path);
+        await this.removeDirMain(tx, path);
+      }
     });
   }
 

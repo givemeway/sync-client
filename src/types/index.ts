@@ -17,12 +17,26 @@ export interface RenameCandidate {
 
 export interface initialScannedGlobalFileQueue {
   [path: string]: {
-    [filename: string]: FileMetadata
-  }
+    [filename: string]: FileMetadata;
+  };
 }
 
 export interface initialScannedGlobalDirQueue {
-  [path: string]: DirectoryMetadata
+  [path: string]: DirectoryMetadata;
+}
+export interface FileUploadMetadata {
+  mtime: Date;
+  size: number;
+  type: string | undefined;
+  checksum: string;
+  isModified: boolean;
+  device: string;
+  version: number;
+  username: string;
+  filename: string;
+  directory: string;
+  height?: number;
+  width?: number;
 }
 
 export interface FileMetadata {
@@ -33,11 +47,13 @@ export interface FileMetadata {
   inode: string;
   last_modified: Date;
   absPath: string;
-  sync_status: 'new' | 'modified' | 'delete' | 'rename' | 'DIR_RENAMED';
+  sync_status: "new" | "modified" | "delete" | "rename" | "DIR_RENAMED" | "downloading";
   old_path?: string;
   old_filename?: string;
   dirID?: string;
   uuid?: string;
+  height?: number;
+  width?: number;
 }
 
 export interface DirectoryMetadata {
@@ -47,23 +63,23 @@ export interface DirectoryMetadata {
   folder: string;
   created_at: Date;
   absPath: string;
-  sync_status: 'new' | 'delete' | 'rename' | 'FILE_LINKED';
+  sync_status: "new" | "delete" | "rename" | "FILE_LINKED";
   old_path?: string;
   inode?: string;
 }
 
 export type SyncEvent =
-  | 'sync:started'
-  | 'sync:completed'
-  | 'file:uploaded'
-  | 'file:downloaded'
-  | 'file:added'
-  | 'file:changed'
-  | 'file:removed'
-  | 'dir:added'
-  | 'dir:removed'
-  | 'rename:detected'
-  | 'error';
+  | "sync:started"
+  | "sync:completed"
+  | "file:uploaded"
+  | "file:downloaded"
+  | "file:added"
+  | "file:changed"
+  | "file:removed"
+  | "dir:added"
+  | "dir:removed"
+  | "rename:detected"
+  | "error";
 
 export interface SyncStatus {
   isRunning: boolean;
@@ -79,7 +95,7 @@ export interface WatcherOptions {
   usePolling?: boolean;
   alwaysStat?: boolean;
   atomic?: boolean;
-
+  awaitWriteFinish?: boolean;
 }
 
 export interface SyncResult {
@@ -90,21 +106,134 @@ export interface SyncResult {
   errors?: Error[];
 }
 
-export interface UploadResult {
+export interface SyncUploadResult {
   success: boolean;
   fileId?: string;
   error?: string;
 }
 
-export interface CloudMetadata {
-  files: FileMetadata[];
-  directories: DirectoryMetadata[];
+export interface SyncDeleteResult {
+  success: boolean;
+  type?: string;
+  itemId?: string;
+  error?: string;
 }
 
+export interface SyncRenameResult {
+  success: boolean;
+  type?: string;
+  oldName?: string;
+  newName?: string;
+  error?: string;
+}
+
+export interface SyncFolderCreateResult {
+  success: boolean;
+  folderCreated?: string;
+  error?: string;
+}
+
+export interface CloudMetadataResult {
+  success: boolean;
+  files: CloudFileMetadata[];
+  directories: CloudFolderMetadata[];
+}
+
+export interface CloudMetadataResultError {
+  success: boolean;
+  error: string;
+  files?: CloudFileMetadata[];
+  directories?: CloudFolderMetadata[];
+}
+
+export interface CloudFileDownloadMetadata {
+  file: string;
+  uuid: string;
+  db: string;
+  dir: string;
+  device: string;
+}
+
+export interface CloudFileMetadata {
+  filename: string;
+  type: string;
+  dirID: string;
+  hashvalue: string;
+  last_modified: Date;
+  path: string;
+  size: number;
+  uuid: string;
+  inode?: string;
+}
+export interface CloudFileDeleteMetadata {
+  id: string;
+  path: string;
+  origin: string;
+  dir: string;
+  versions: number;
+  username: string;
+}
+export interface CloudFileRenameMetadata {
+  type: string;
+  dir: string;
+  device: string;
+  filename: string;
+  to: string;
+  origin: string;
+}
+export interface CloudFolderDeleteMetadata {
+  path: string;
+  folder: string;
+  directory: string;
+  username: string;
+  device: String;
+}
+export interface CloudFolderRenameMetadata {
+  oldPath: string;
+  folder: string;
+  value: string;
+  to: string;
+}
+export interface LocalFileRenameMetadata {
+  filename: string;
+  old_filename: string;
+  path: string;
+}
+export interface LocalFileDeleteMetadata {
+  filename: string;
+  absPath: string;
+  path: string;
+}
+export interface CloudFolderCreateMetadata {
+  path: string;
+  device: string;
+  created_at: Date;
+  username: string;
+}
+export interface CloudFolderMetadata {
+  folder: string;
+  path: string;
+  uuid: string;
+  device: string;
+  type: string;
+  created_at: Date;
+}
+
+export interface LocalFolderCreateMetadata {
+  absPath: string;
+  path: string;
+  folder: string;
+}
+
+export interface LocalFolderDeleteMetadata {
+  absPath: string;
+  folder: string;
+  path: string;
+}
 export interface Conflict {
   localFile: FileMetadata;
   cloudFile: FileMetadata;
-  resolutionStrategy: 'keepBoth' | 'keepLocal' | 'keepCloud';
+  resolutionStrategy: "keepBoth" | "keepLocal" | "keepCloud";
 }
 
 export interface FileFilter {

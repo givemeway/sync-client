@@ -11,6 +11,7 @@ import { DatabaseManager } from './core/DatabaseManager.js';
 import { HashWorkerPool } from './utils/HashWorkerPool.js';
 import { FilesystemScanner } from './utils/FilesystemScanner.js';
 import { progress } from './utils/ProgressDisplay.js';
+import { CloudSyncManager } from './core/CloudSyncManager.js';
 import type {
   SyncClientConfig,
   SyncStatus,
@@ -38,6 +39,7 @@ export class SyncClient extends EventEmitter {
   private hashPool?: HashWorkerPool;
   private hashFiles?: HashFilesService;
   private fsScanner?: FilesystemScanner;
+  private cloudSyncManager?: CloudSyncManager;
   private stats = {
     files: 0,
     dirs: 0,
@@ -158,7 +160,8 @@ export class SyncClient extends EventEmitter {
     try {
       const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
       for (const path of renameCandidates) {
-        await this.dbManager.removeDirWithTransaction(path);
+        const absPath = join(this.config.syncPath, path)
+        await this.dbManager.removeDirWithTransaction(absPath);
         this.emit('dir:removed', { path });
       }
     } catch (err) {
@@ -266,7 +269,7 @@ export class SyncClient extends EventEmitter {
     });
 
     // Initialize Worker Pool
-    const workerPath = join(__dirname, "..", 'dist', 'utils', 'worker.js');
+    const workerPath = join(__dirname, "..", 'dist', 'workers', 'hash.worker.js');
     this.hashPool = new HashWorkerPool(workerPath);
 
     // Initialize Database Manager
@@ -278,6 +281,13 @@ export class SyncClient extends EventEmitter {
     // Start file system watcher with dependencies for rename detection
     this.watcher = new FileSystemWatcher(this.config.syncPath, {}, this.dbManager, this.fsScanner);
 
+    // Initialize Cloud Sync Manager
+    this.cloudSyncManager = new CloudSyncManager({
+      apiUrl: this.config.apiBaseUrl,
+      userEmail: this.config.userEmail,
+      syncPath: this.config.syncPath
+    });
+    this.cloudSyncManager.start();
     // Initial scan buffers
     const initialScanFiles: ScannedFile[] = [];
     const initialScanDirs: ScannedDirectory[] = [];
@@ -444,8 +454,8 @@ export class SyncClient extends EventEmitter {
       // Don't increment changes during initial scan
       if (isReady) this.stats.changes++;
 
-      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
-      if (isReady) progress.updateAction('📁 Directory added: ' + path, statusLine);
+      //const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
+      //if (isReady) progress.updateAction('📁 Directory added: ' + path, statusLine);
 
       try {
         if (this.dbManager) {
@@ -487,8 +497,8 @@ export class SyncClient extends EventEmitter {
 
       this.stats.dirs--;
       this.stats.changes++;
-      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
-      progress.updateAction('🗂️  Directory removed: ' + path, statusLine);
+      //      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
+      //    progress.updateAction('🗂️  Directory removed: ' + path, statusLine);
 
       try {
         if (this.dbManager) {
@@ -533,6 +543,11 @@ export class SyncClient extends EventEmitter {
     if (this.prisma) {
       await this.prisma.$disconnect();
       this.prisma = undefined;
+    }
+
+    if (this.cloudSyncManager) {
+      this.cloudSyncManager.stop();
+      this.cloudSyncManager = undefined;
     }
 
     this.isRunning = false;

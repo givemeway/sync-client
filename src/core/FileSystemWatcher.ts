@@ -49,6 +49,7 @@ export class FileSystemWatcher extends EventEmitter {
       atomic: true,
       persistent: true,
       ignoreInitial: false,
+      awaitWriteFinish: true,
       usePolling: true,  // Use polling for better compatibility
       ...options
     };
@@ -159,7 +160,7 @@ export class FileSystemWatcher extends EventEmitter {
    */
   private handleFileAdd(path: string, stats?: Stats): void {
     // During initial scan, just emit (don't show individual logs)
-    //console.log('Add File  ->', path);
+    console.log('Add File  ->', path);
     this.emit('file:add', path, stats);
   }
 
@@ -167,7 +168,7 @@ export class FileSystemWatcher extends EventEmitter {
    * Handle file change
    */
   private handleFileChange(path: string, stats?: Stats): void {
-    //console.log('Change File ->', path);
+    console.log('Change File ->', path);
     this.emit('file:change', path, stats);
   }
 
@@ -222,7 +223,6 @@ export class FileSystemWatcher extends EventEmitter {
       //     a) Missing Directory - sandeep 
       //     b) Directory to Add - sandeepkumar
       // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder
-      console.log("ABSPath inside DirRemoval: ", path);
       const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
       const normalizedABSPath = path.replace(/[/\\]/g, "/");
       let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
@@ -291,14 +291,8 @@ export class FileSystemWatcher extends EventEmitter {
       const fsFolders = Array.from(fsFoldersMap.values());
       const dbPaths = new Set(dbFolders.map(f => f.path));
       const fsPaths = new Set(fsFolders.map(f => f.path));
-      console.log("DBFolders: ", dbFolders);
-      console.log("FSFolders: ", fsFolders);
-      console.log("dbPaths: ", dbPaths);
-      console.log("fsPaths: ", fsPaths);
       const missingFolders = dbFolders.filter(f => !fsPaths.has(f.path));
       const addedFolders = fsFolders.filter(f => !dbPaths.has(f.path));
-      console.log("Missing folders: ", missingFolders);
-      console.log("Added Folders: ", addedFolders);
       if (missingFolders.length === 1 && addedFolders.length === 1) {
         const oldDir = missingFolders[0];
         const newDir = addedFolders[0];
@@ -317,7 +311,6 @@ export class FileSystemWatcher extends EventEmitter {
     } catch (err) {
       this.emit("dir:remove", path);
     }
-
 
   }
 
