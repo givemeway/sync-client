@@ -5,9 +5,8 @@ import FormData from 'form-data';
 import { createReadStream, createWriteStream } from 'node:fs';
 import mime from 'mime-types';
 import sharp from 'sharp';
-import { join } from "node:path";
-import {stat} from "node:fs/promises"
-import { FileQueue, File } from '../../DB/prisma-client/index.js'
+import { stat } from "node:fs/promises"
+import { FileQueue, } from '../../DB/prisma-client/index.js'
 import type {
   DirectoryMetadata,
   SyncUploadResult,
@@ -46,7 +45,7 @@ export class ApiClient {
   /**
    * Download a file from the server
    */
-  async downloadFile(file: CloudFileMetadata, absPath: string): Promise<{success: boolean, ino: number} | {success: false, error: string}> {
+  async downloadFile(file: CloudFileMetadata, absPath: string): Promise<{ success: boolean, ino: number } | { success: false, error: string }> {
     try {
       const { dir, device } = this.getDirDevice(file.path);
       const urlParam = new URLSearchParams("")
@@ -67,17 +66,17 @@ export class ApiClient {
       return new Promise((resolve, reject) => {
         writer.on('finish', async () => {
           try {
-            const {ino} = await stat(absPath);
-            resolve({success: true, ino});
-          } catch(err: any) {
-             resolve({success: false, error: err.message});
+            const { ino } = await stat(absPath);
+            resolve({ success: true, ino });
+          } catch (err: any) {
+            resolve({ success: false, error: err.message });
           }
         });
-        writer.on('error', (err) => resolve({success: false, error: err.message}));
+        writer.on('error', (err) => resolve({ success: false, error: err.message }));
       });
-    } catch (error:any) {
+    } catch (error: any) {
       console.error(`Failed to download file: ${error}`);
-      return {success: false, error: error.message};
+      return { success: false, error: error.message };
     }
   }
 

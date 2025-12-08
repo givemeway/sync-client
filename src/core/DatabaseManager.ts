@@ -447,12 +447,14 @@ export class DatabaseManager {
     try {
 
       const { relPath } = this.getFolderDevicePath(path, false);
-
-
       const files = await tx.file.findMany({
-        where: { path: relPath }
+        where: {
+          OR: [
+            { path: relPath },
+            { path: { startsWith: relPath + "/" } }
+          ]
+        }
       });
-
       const dirs = await tx.directory.findMany({
         where: {
           OR: [
@@ -461,7 +463,6 @@ export class DatabaseManager {
           ]
         }
       });
-
       for (const dir of dirs) {
         await tx.directoryQueue.upsert({
           where: {
@@ -475,7 +476,6 @@ export class DatabaseManager {
           create: { ...dir, sync_status: "delete" }
         });
       }
-
       for (const file of files) {
         await tx.fileQueue.upsert({
           where: {
@@ -1570,6 +1570,9 @@ export class DatabaseManager {
         await this.removeDirQueue(tx, path);
         await this.removeDirMain(tx, path);
       }
+      const dirAfterTransaction = await tx.directoryQueue.findMany({
+        where: { OR: [{ path: relPath }, { path: { startsWith: relPath + "/" } }] }
+      });
     });
   }
 

@@ -454,8 +454,8 @@ export class SyncClient extends EventEmitter {
       // Don't increment changes during initial scan
       if (isReady) this.stats.changes++;
 
-      //const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
-      //if (isReady) progress.updateAction('📁 Directory added: ' + path, statusLine);
+      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
+      if (isReady) progress.updateAction('📁 Directory added: ' + path, statusLine);
 
       try {
         if (this.dbManager) {
@@ -497,8 +497,8 @@ export class SyncClient extends EventEmitter {
 
       this.stats.dirs--;
       this.stats.changes++;
-      //      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
-      //    progress.updateAction('🗂️  Directory removed: ' + path, statusLine);
+      const statusLine = `👀 Watching: ${this.stats.files} files, ${this.stats.dirs} dirs | Changes: ${this.stats.changes}`;
+      progress.updateAction('🗂️  Directory removed: ' + path, statusLine);
 
       try {
         if (this.dbManager) {

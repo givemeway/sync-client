@@ -4,17 +4,10 @@ import { DatabaseManager } from './DatabaseManager.js';
 import { PrismaClient, File, Directory } from '../../DB/prisma-client/index.js';
 import {
   LocalFolderCreateMetadata,
-  CloudFolderCreateMetadata,
   LocalFolderDeleteMetadata,
   CloudFileMetadata,
-  CloudFolderRenameMetadata,
   CloudFolderMetadata,
-  LocalFileRenameMetadata,
   LocalFileDeleteMetadata,
-  FileUploadMetadata,
-  CloudFileDeleteMetadata,
-  CloudFolderDeleteMetadata,
-  CloudFileRenameMetadata
 } from '../types/index.js';
 
 export class ReconciliationService {
@@ -44,15 +37,8 @@ export class ReconciliationService {
 
     try {
       console.log('Starting reconciliation...');
-      //let filesToUpload: FileUploadMetadata[] = [];
       let filesToDownload: CloudFileMetadata[] = [];
       let filesToDeleteLocal: LocalFileDeleteMetadata[] = [];
-      //let filesToDeleteCloud: CloudFileDeleteMetadata[] = [];
-      //let filesToRenameLocal: LocalFileRenameMetadata[] = [];
-      //let filesToRenameCloud: CloudFileRenameMetadata[] = []
-      //let foldersToRenameCloud: CloudFolderRenameMetadata[] = [];
-      //let foldersToDeleteCloud: CloudFolderDeleteMetadata[] = [];
-      //let foldersToCreateCloud: CloudFolderCreateMetadata[] = [];
       let foldersToCreateLocal: LocalFolderCreateMetadata[] = [];
       let foldersToDeleteLocal: LocalFolderDeleteMetadata[] = [];
       // 1. Indexing for fast lookup
@@ -60,7 +46,6 @@ export class ReconciliationService {
       const cloudDirMap = new Map(cloudDirs.map(d => [d.path, d]));
       const dbFileMap = new Map(dbFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
       const dbDirMap = new Map(dbDirs.map(d => [d.path, d]));
-
       // 2. Process Cloud Files (Download / Update / Conflict)
       for (const cloudFile of cloudFiles) {
         const key = this.getUniqueKey(cloudFile.path, cloudFile.filename);
@@ -70,7 +55,13 @@ export class ReconciliationService {
           // console.log(`[Reconcile] New file in cloud: ${cloudFile.filename}. Downloading...`);
           // TODO: Implement download logic
           // await this.downloadFile(cloudFile);
-          filesToDownload.push(cloudFile);
+          const fileInQueue = await this.prisma.fileQueue.findUnique({
+            where: {
+              path_filename: { path: cloudFile.path, filename: cloudFile.filename }, AND: { OR: [{ sync_status: "delete" }, { sync_status: "new" }] }
+            }
+          });
+          if (!fileInQueue)
+            filesToDownload.push(cloudFile);
         } else {
           // Case: Exists locally -> Check for modifications
           if (localFile.hashvalue !== cloudFile.hashvalue) {
@@ -93,27 +84,29 @@ export class ReconciliationService {
       }
       // 3. Process Cloud Directories (Create locally)
       for (const cloudDir of cloudDirs) {
+        if (cloudDir.path === '/') continue; // Skip root        
         if (!dbDirMap.has(cloudDir.path)) {
           //console.log(`[Reconcile] New directory in cloud: ${cloudDir.path}. Creating locally...`);
           // TODO: Implement create directory logic
-          foldersToCreateLocal.push({ absPath: join(this.syncPath, cloudDir.path), path: cloudDir.path, folder: cloudDir.folder });
+          const inQueue = await this.prisma.directoryQueue.findUnique({ where: { device_folder_path: { device: cloudDir.device, path: cloudDir.path, folder: cloudDir.folder } } })
+          if (!inQueue) {
+            foldersToCreateLocal.push({ absPath: join(this.syncPath, cloudDir.path), path: cloudDir.path, folder: cloudDir.folder });
+          }
         }
       }
       // 4. Detect Deletions (Cloud -> Local)
       // Iterate local DB files, if not in Cloud Map -> It was deleted on Cloud
       for (const dbFile of dbFiles) {
         const key = this.getUniqueKey(dbFile.path, dbFile.filename);
-
         if (!cloudFileMap.has(key)) {
           // Check if it's currently being uploaded (in Queue with 'new' status)
           const inQueue = await this.prisma.fileQueue.findUnique({
             where: { path_filename: { path: dbFile.path, filename: dbFile.filename } }
           });
-          if (inQueue && inQueue.sync_status === 'new') {
+          if (!inQueue) {
             // It's a new local file waiting to be uploaded, so it's expected not to be in cloud yet.
-            continue;
+            filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
           }
-          filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
           // console.log(`[Reconcile] File deleted in cloud: ${dbFile.filename}. Deleting locally...`);
           // TODO: Implement delete local file logic
         }
@@ -127,8 +120,8 @@ export class ReconciliationService {
           const inQueue = await this.prisma.directoryQueue.findUnique({
             where: { device_folder_path: { device: dbDir.device, folder: dbDir.folder, path: dbDir.path } }
           });
-          if (inQueue && inQueue.sync_status === 'new') continue;
-          foldersToDeleteLocal.push({ absPath: dbDir.absPath, path: dbDir.path, folder: dbDir.folder });
+          if (!inQueue)
+            foldersToDeleteLocal.push({ absPath: dbDir.absPath, path: dbDir.path, folder: dbDir.folder });
           // console.log(`[Reconcile] Directory deleted in cloud: ${dbDir.path}. Deleting locally...`);
           // TODO: Implement delete local dir logic
         }

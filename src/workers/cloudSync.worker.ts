@@ -113,6 +113,9 @@ async function processQueue() {
             old_path: dir.old_path || undefined,
           };
           await apiClient.deleteFolder(dirMeta);
+          await prisma.fileQueue.deleteMany({
+            where: { dirID: dir.uuid }
+          });
           await prisma.directoryQueue.delete({ where: { uuid: dir.uuid } });
         } catch (err: any) {
           await error(`Failed to delete folder ${dir.path}: ${err.message}`);
@@ -178,25 +181,6 @@ async function processQueue() {
     await error(`Queue processing error: ${err.message}`);
   }
   isSyncing = false;
-}
-
-async function cloudLocalFileReconcillation(
-  cloudFiles: CloudFileMetadata[],
-  cloudDirs: CloudFolderMetadata[],
-  dbFiles: File[],
-  dbDirs: Directory[]
-) {
-  //create dbFiles index
-  // create dbfolders index
-  // create cloudFiles index
-  // create cloudFolders index
-  // get files to upload
-  // get folders to upload
-  // get files to download onto local
-  // get folders to create/rename on local
-  // get files to delete/rename in cloud
-  // get folders to rename/delete in cloud
-  //
 }
 
 async function pollCloud() {
