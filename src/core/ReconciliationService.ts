@@ -1,5 +1,6 @@
 import { ApiClient } from './ApiClient.js';
-import { join } from "node:path"
+import { join, parse } from "node:path"
+import { rename } from "node:fs/promises"
 import { DatabaseManager } from './DatabaseManager.js';
 import { PrismaClient, File, Directory } from '../../DB/prisma-client/index.js';
 import {
@@ -73,10 +74,25 @@ export class ReconciliationService {
 
             if (inQueue) {
               // console.log(`[Reconcile] CONFLICT detected for ${cloudFile.filename}. Creating conflicted copy.`);
-              // TODO: Implement conflict resolution (rename local and download cloud version)
+              // Implement conflict resolution (rename local and download cloud version)
+              try {
+                const { name, ext } = parse(localFile.filename);
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const conflictFilename = `${name} (conflicted copy ${timestamp})${ext}`;
+                const oldPath = join(this.syncPath, localFile.path)
+                const newPath = join(this.syncPath, localFile.path.replace(localFile.filename, ''), conflictFilename);
+
+                await rename(oldPath, newPath);
+
+                console.log(`Conflict resolved: Renamed ${localFile.filename} to ${conflictFilename}`);
+                filesToDownload.push(cloudFile);
+              } catch (err) {
+                console.error(`Failed to handle conflict for ${cloudFile.filename}:`, err);
+                // If rename fails, we probably shouldn't download to avoid overwrite? 
+                // Or should we let it fail? For safety, skip download if rename fails.
+              }
             } else {
               // console.log(`[Reconcile] Updating local file: ${cloudFile.filename}`);
-              // TODO: Implement download/overwrite logic
               filesToDownload.push(cloudFile);
             }
           }
@@ -138,12 +154,5 @@ export class ReconciliationService {
     return `${normalizedDir}${filename}`;
   }
 
-  private getDirFromPath(path: string): string {
-    // Extract directory from full path
-    // path: /folder/file.txt -> /folder
-    const parts = path.split('/');
-    parts.pop();
-    const dir = parts.join('/');
-    return dir === '' ? '/' : dir;
-  }
+
 }

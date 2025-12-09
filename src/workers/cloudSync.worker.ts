@@ -3,17 +3,14 @@ import { PrismaClient, File, Directory } from "../../DB/prisma-client/index.js";
 import { ApiClient } from "../core/ApiClient.js";
 import { DatabaseManager } from "../core/DatabaseManager.js";
 import { ReconciliationService } from "../core/ReconciliationService.js";
-import {
+import type {
   DirectoryMetadata,
-  LocalFolderCreateMetadata,
-  LocalFileDeleteMetadata,
   CloudFileMetadata,
   CloudFolderMetadata,
-  LocalFolderDeleteMetadata,
 } from "../types/index.js";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
-import { join, dirname } from "path";
+import { join, } from "path";
 
 // Configuration from main thread
 const { apiUrl, userEmail, syncPath } = workerData;
@@ -30,15 +27,6 @@ const reconciliationService = new ReconciliationService(
 
 let isSyncing: boolean = false;
 const POLLING_INTERVAL = 5000; // 5 seconds
-function getPathTree(pathParts: string[]) {
-  return pathParts
-    .map((part, idx) => [
-      part === "" ? "/" : part,
-      pathParts.slice(0, idx + 1).join("/"),
-    ])
-    .slice(1);
-}
-
 
 function getDirDevicePath(path: string): {
   directory: string;
@@ -182,7 +170,6 @@ async function processQueue() {
   }
   isSyncing = false;
 }
-
 async function pollCloud() {
   try {
     // await log('Polling cloud for changes...');
