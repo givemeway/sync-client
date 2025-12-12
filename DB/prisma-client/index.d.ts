@@ -1209,10 +1209,12 @@ export namespace Prisma {
 
   export type FileAvgAggregateOutputType = {
     size: number | null
+    versions: number | null
   }
 
   export type FileSumAggregateOutputType = {
     size: bigint | null
+    versions: number | null
   }
 
   export type FileMinAggregateOutputType = {
@@ -1225,6 +1227,8 @@ export namespace Prisma {
     dirID: string | null
     inode: string | null
     absPath: string | null
+    versions: number | null
+    origin: string | null
   }
 
   export type FileMaxAggregateOutputType = {
@@ -1237,6 +1241,8 @@ export namespace Prisma {
     dirID: string | null
     inode: string | null
     absPath: string | null
+    versions: number | null
+    origin: string | null
   }
 
   export type FileCountAggregateOutputType = {
@@ -1249,16 +1255,20 @@ export namespace Prisma {
     dirID: number
     inode: number
     absPath: number
+    versions: number
+    origin: number
     _all: number
   }
 
 
   export type FileAvgAggregateInputType = {
     size?: true
+    versions?: true
   }
 
   export type FileSumAggregateInputType = {
     size?: true
+    versions?: true
   }
 
   export type FileMinAggregateInputType = {
@@ -1271,6 +1281,8 @@ export namespace Prisma {
     dirID?: true
     inode?: true
     absPath?: true
+    versions?: true
+    origin?: true
   }
 
   export type FileMaxAggregateInputType = {
@@ -1283,6 +1295,8 @@ export namespace Prisma {
     dirID?: true
     inode?: true
     absPath?: true
+    versions?: true
+    origin?: true
   }
 
   export type FileCountAggregateInputType = {
@@ -1295,6 +1309,8 @@ export namespace Prisma {
     dirID?: true
     inode?: true
     absPath?: true
+    versions?: true
+    origin?: true
     _all?: true
   }
 
@@ -1394,6 +1410,8 @@ export namespace Prisma {
     dirID: string
     inode: string
     absPath: string
+    versions: number
+    origin: string
     _count: FileCountAggregateOutputType | null
     _avg: FileAvgAggregateOutputType | null
     _sum: FileSumAggregateOutputType | null
@@ -1425,6 +1443,8 @@ export namespace Prisma {
     dirID?: boolean
     inode?: boolean
     absPath?: boolean
+    versions?: boolean
+    origin?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1438,6 +1458,8 @@ export namespace Prisma {
     dirID?: boolean
     inode?: boolean
     absPath?: boolean
+    versions?: boolean
+    origin?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1451,6 +1473,8 @@ export namespace Prisma {
     dirID?: boolean
     inode?: boolean
     absPath?: boolean
+    versions?: boolean
+    origin?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1464,9 +1488,11 @@ export namespace Prisma {
     dirID?: boolean
     inode?: boolean
     absPath?: boolean
+    versions?: boolean
+    origin?: boolean
   }
 
-  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath", ExtArgs["result"]["file"]>
+  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath" | "versions" | "origin", ExtArgs["result"]["file"]>
   export type FileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }
@@ -1492,6 +1518,8 @@ export namespace Prisma {
       dirID: string
       inode: string
       absPath: string
+      versions: number
+      origin: string
     }, ExtArgs["result"]["file"]>
     composites: {}
   }
@@ -1925,6 +1953,8 @@ export namespace Prisma {
     readonly dirID: FieldRef<"File", 'String'>
     readonly inode: FieldRef<"File", 'String'>
     readonly absPath: FieldRef<"File", 'String'>
+    readonly versions: FieldRef<"File", 'Int'>
+    readonly origin: FieldRef<"File", 'String'>
   }
     
 
@@ -3445,10 +3475,12 @@ export namespace Prisma {
 
   export type FileQueueAvgAggregateOutputType = {
     size: number | null
+    versions: number | null
   }
 
   export type FileQueueSumAggregateOutputType = {
     size: bigint | null
+    versions: number | null
   }
 
   export type FileQueueMinAggregateOutputType = {
@@ -3461,6 +3493,8 @@ export namespace Prisma {
     dirID: string | null
     sync_status: string | null
     inode: string | null
+    versions: number | null
+    origin: string | null
     absPath: string | null
     old_path: string | null
     old_filename: string | null
@@ -3476,6 +3510,8 @@ export namespace Prisma {
     dirID: string | null
     sync_status: string | null
     inode: string | null
+    versions: number | null
+    origin: string | null
     absPath: string | null
     old_path: string | null
     old_filename: string | null
@@ -3491,6 +3527,8 @@ export namespace Prisma {
     dirID: number
     sync_status: number
     inode: number
+    versions: number
+    origin: number
     absPath: number
     old_path: number
     old_filename: number
@@ -3500,10 +3538,12 @@ export namespace Prisma {
 
   export type FileQueueAvgAggregateInputType = {
     size?: true
+    versions?: true
   }
 
   export type FileQueueSumAggregateInputType = {
     size?: true
+    versions?: true
   }
 
   export type FileQueueMinAggregateInputType = {
@@ -3516,6 +3556,8 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    versions?: true
+    origin?: true
     absPath?: true
     old_path?: true
     old_filename?: true
@@ -3531,6 +3573,8 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    versions?: true
+    origin?: true
     absPath?: true
     old_path?: true
     old_filename?: true
@@ -3546,6 +3590,8 @@ export namespace Prisma {
     dirID?: true
     sync_status?: true
     inode?: true
+    versions?: true
+    origin?: true
     absPath?: true
     old_path?: true
     old_filename?: true
@@ -3648,6 +3694,8 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path: string | null
     old_filename: string | null
@@ -3682,6 +3730,8 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    versions?: boolean
+    origin?: boolean
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
@@ -3698,6 +3748,8 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    versions?: boolean
+    origin?: boolean
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
@@ -3714,6 +3766,8 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    versions?: boolean
+    origin?: boolean
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
@@ -3730,12 +3784,14 @@ export namespace Prisma {
     dirID?: boolean
     sync_status?: boolean
     inode?: boolean
+    versions?: boolean
+    origin?: boolean
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
   }
 
-  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "absPath" | "old_path" | "old_filename", ExtArgs["result"]["fileQueue"]>
+  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "versions" | "origin" | "absPath" | "old_path" | "old_filename", ExtArgs["result"]["fileQueue"]>
   export type FileQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }
@@ -3761,6 +3817,8 @@ export namespace Prisma {
       dirID: string
       sync_status: string
       inode: string
+      versions: number
+      origin: string
       absPath: string
       old_path: string | null
       old_filename: string | null
@@ -4197,6 +4255,8 @@ export namespace Prisma {
     readonly dirID: FieldRef<"FileQueue", 'String'>
     readonly sync_status: FieldRef<"FileQueue", 'String'>
     readonly inode: FieldRef<"FileQueue", 'String'>
+    readonly versions: FieldRef<"FileQueue", 'Int'>
+    readonly origin: FieldRef<"FileQueue", 'String'>
     readonly absPath: FieldRef<"FileQueue", 'String'>
     readonly old_path: FieldRef<"FileQueue", 'String'>
     readonly old_filename: FieldRef<"FileQueue", 'String'>
@@ -5752,7 +5812,9 @@ export namespace Prisma {
     size: 'size',
     dirID: 'dirID',
     inode: 'inode',
-    absPath: 'absPath'
+    absPath: 'absPath',
+    versions: 'versions',
+    origin: 'origin'
   };
 
   export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
@@ -5781,6 +5843,8 @@ export namespace Prisma {
     dirID: 'dirID',
     sync_status: 'sync_status',
     inode: 'inode',
+    versions: 'versions',
+    origin: 'origin',
     absPath: 'absPath',
     old_path: 'old_path',
     old_filename: 'old_filename'
@@ -5876,6 +5940,8 @@ export namespace Prisma {
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
     absPath?: StringFilter<"File"> | string
+    versions?: IntFilter<"File"> | number
+    origin?: StringFilter<"File"> | string
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }
 
@@ -5889,6 +5955,8 @@ export namespace Prisma {
     dirID?: SortOrder
     inode?: SortOrder
     absPath?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     directoryID?: DirectoryOrderByWithRelationInput
   }
 
@@ -5906,6 +5974,8 @@ export namespace Prisma {
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
     absPath?: StringFilter<"File"> | string
+    versions?: IntFilter<"File"> | number
+    origin?: StringFilter<"File"> | string
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }, "uuid" | "path_filename">
 
@@ -5919,6 +5989,8 @@ export namespace Prisma {
     dirID?: SortOrder
     inode?: SortOrder
     absPath?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     _count?: FileCountOrderByAggregateInput
     _avg?: FileAvgOrderByAggregateInput
     _max?: FileMaxOrderByAggregateInput
@@ -5939,6 +6011,8 @@ export namespace Prisma {
     dirID?: StringWithAggregatesFilter<"File"> | string
     inode?: StringWithAggregatesFilter<"File"> | string
     absPath?: StringWithAggregatesFilter<"File"> | string
+    versions?: IntWithAggregatesFilter<"File"> | number
+    origin?: StringWithAggregatesFilter<"File"> | string
   }
 
   export type DirectoryWhereInput = {
@@ -6020,6 +6094,8 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    versions?: IntFilter<"FileQueue"> | number
+    origin?: StringFilter<"FileQueue"> | string
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
@@ -6036,6 +6112,8 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     absPath?: SortOrder
     old_path?: SortOrderInput | SortOrder
     old_filename?: SortOrderInput | SortOrder
@@ -6056,6 +6134,8 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    versions?: IntFilter<"FileQueue"> | number
+    origin?: StringFilter<"FileQueue"> | string
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
@@ -6072,6 +6152,8 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     absPath?: SortOrder
     old_path?: SortOrderInput | SortOrder
     old_filename?: SortOrderInput | SortOrder
@@ -6095,6 +6177,8 @@ export namespace Prisma {
     dirID?: StringWithAggregatesFilter<"FileQueue"> | string
     sync_status?: StringWithAggregatesFilter<"FileQueue"> | string
     inode?: StringWithAggregatesFilter<"FileQueue"> | string
+    versions?: IntWithAggregatesFilter<"FileQueue"> | number
+    origin?: StringWithAggregatesFilter<"FileQueue"> | string
     absPath?: StringWithAggregatesFilter<"FileQueue"> | string
     old_path?: StringNullableWithAggregatesFilter<"FileQueue"> | string | null
     old_filename?: StringNullableWithAggregatesFilter<"FileQueue"> | string | null
@@ -6185,6 +6269,8 @@ export namespace Prisma {
     size: bigint | number
     inode: string
     absPath: string
+    versions: number
+    origin: string
     directoryID: DirectoryCreateNestedOneWithoutFilesInput
   }
 
@@ -6198,6 +6284,8 @@ export namespace Prisma {
     dirID: string
     inode: string
     absPath: string
+    versions: number
+    origin: string
   }
 
   export type FileUpdateInput = {
@@ -6209,6 +6297,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     directoryID?: DirectoryUpdateOneRequiredWithoutFilesNestedInput
   }
 
@@ -6222,6 +6312,8 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileCreateManyInput = {
@@ -6234,6 +6326,8 @@ export namespace Prisma {
     dirID: string
     inode: string
     absPath: string
+    versions: number
+    origin: string
   }
 
   export type FileUpdateManyMutationInput = {
@@ -6245,6 +6339,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateManyInput = {
@@ -6257,6 +6353,8 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryCreateInput = {
@@ -6342,6 +6440,8 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -6358,6 +6458,8 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -6372,6 +6474,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6388,6 +6492,8 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6403,6 +6509,8 @@ export namespace Prisma {
     dirID: string
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -6417,6 +6525,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6432,6 +6542,8 @@ export namespace Prisma {
     dirID?: StringFieldUpdateOperationsInput | string
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -6561,6 +6673,17 @@ export namespace Prisma {
     not?: NestedBigIntFilter<$PrismaModel> | bigint | number
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type DirectoryScalarRelationFilter = {
     is?: DirectoryWhereInput
     isNot?: DirectoryWhereInput
@@ -6581,10 +6704,13 @@ export namespace Prisma {
     dirID?: SortOrder
     inode?: SortOrder
     absPath?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
   }
 
   export type FileAvgOrderByAggregateInput = {
     size?: SortOrder
+    versions?: SortOrder
   }
 
   export type FileMaxOrderByAggregateInput = {
@@ -6597,6 +6723,8 @@ export namespace Prisma {
     dirID?: SortOrder
     inode?: SortOrder
     absPath?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
   }
 
   export type FileMinOrderByAggregateInput = {
@@ -6609,10 +6737,13 @@ export namespace Prisma {
     dirID?: SortOrder
     inode?: SortOrder
     absPath?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
   }
 
   export type FileSumOrderByAggregateInput = {
     size?: SortOrder
+    versions?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -6660,6 +6791,22 @@ export namespace Prisma {
     _sum?: NestedBigIntFilter<$PrismaModel>
     _min?: NestedBigIntFilter<$PrismaModel>
     _max?: NestedBigIntFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -6764,6 +6911,8 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
@@ -6771,6 +6920,7 @@ export namespace Prisma {
 
   export type FileQueueAvgOrderByAggregateInput = {
     size?: SortOrder
+    versions?: SortOrder
   }
 
   export type FileQueueMaxOrderByAggregateInput = {
@@ -6783,6 +6933,8 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
@@ -6798,6 +6950,8 @@ export namespace Prisma {
     dirID?: SortOrder
     sync_status?: SortOrder
     inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
@@ -6805,6 +6959,7 @@ export namespace Prisma {
 
   export type FileQueueSumOrderByAggregateInput = {
     size?: SortOrder
+    versions?: SortOrder
   }
 
   export type FileQueueListRelationFilter = {
@@ -6879,6 +7034,14 @@ export namespace Prisma {
     decrement?: bigint | number
     multiply?: bigint | number
     divide?: bigint | number
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type DirectoryUpdateOneRequiredWithoutFilesNestedInput = {
@@ -7027,6 +7190,17 @@ export namespace Prisma {
     not?: NestedBigIntFilter<$PrismaModel> | bigint | number
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -7042,17 +7216,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[]
-    notIn?: number[]
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -7094,6 +7257,22 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
@@ -7203,6 +7382,8 @@ export namespace Prisma {
     size: bigint | number
     inode: string
     absPath: string
+    versions: number
+    origin: string
   }
 
   export type FileUncheckedCreateWithoutDirectoryIDInput = {
@@ -7214,6 +7395,8 @@ export namespace Prisma {
     size: bigint | number
     inode: string
     absPath: string
+    versions: number
+    origin: string
   }
 
   export type FileCreateOrConnectWithoutDirectoryIDInput = {
@@ -7254,6 +7437,8 @@ export namespace Prisma {
     dirID?: StringFilter<"File"> | string
     inode?: StringFilter<"File"> | string
     absPath?: StringFilter<"File"> | string
+    versions?: IntFilter<"File"> | number
+    origin?: StringFilter<"File"> | string
   }
 
   export type DirectoryQueueCreateWithoutFilesInput = {
@@ -7329,6 +7514,8 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -7343,6 +7530,8 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -7386,6 +7575,8 @@ export namespace Prisma {
     dirID?: StringFilter<"FileQueue"> | string
     sync_status?: StringFilter<"FileQueue"> | string
     inode?: StringFilter<"FileQueue"> | string
+    versions?: IntFilter<"FileQueue"> | number
+    origin?: StringFilter<"FileQueue"> | string
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
@@ -7400,6 +7591,8 @@ export namespace Prisma {
     size: bigint | number
     inode: string
     absPath: string
+    versions: number
+    origin: string
   }
 
   export type FileUpdateWithoutDirectoryIDInput = {
@@ -7411,6 +7604,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateWithoutDirectoryIDInput = {
@@ -7422,6 +7617,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileUncheckedUpdateManyWithoutDirectoryIDInput = {
@@ -7433,6 +7630,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     inode?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateManyDirectoryIDInput = {
@@ -7444,6 +7643,8 @@ export namespace Prisma {
     size: bigint | number
     sync_status: string
     inode: string
+    versions: number
+    origin: string
     absPath: string
     old_path?: string | null
     old_filename?: string | null
@@ -7458,6 +7659,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7472,6 +7675,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
@@ -7486,6 +7691,8 @@ export namespace Prisma {
     size?: BigIntFieldUpdateOperationsInput | bigint | number
     sync_status?: StringFieldUpdateOperationsInput | string
     inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null

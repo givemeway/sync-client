@@ -49,7 +49,7 @@ export class FileSystemWatcher extends EventEmitter {
       atomic: true,
       persistent: true,
       ignoreInitial: false,
-      awaitWriteFinish: true,
+      awaitWriteFinish: { stabilityThreshold: 4000, pollInterval: 50 },
       usePolling: true,  // Use polling for better compatibility
       ...options
     };
@@ -80,7 +80,6 @@ export class FileSystemWatcher extends EventEmitter {
     return relPath === "" ? "/" : relPath;
   }
 
-
   private identifyDirRenameCandidates(dirRemoveQueue: string[]): string[] {
     // split the path with / to find the depth of the path
     // one with the least depth is the parent node that is a potential renamed candidate
@@ -106,10 +105,8 @@ export class FileSystemWatcher extends EventEmitter {
         candidates.push(path);
       }
     }
-
     return candidates.map(path => this.normalizeToRelPath(path));
   }
-
 
   private debounce(cb: (...args: any[]) => void, delay: number) {
     let timeout: NodeJS.Timeout;

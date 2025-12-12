@@ -126,7 +126,9 @@ exports.Prisma.FileScalarFieldEnum = {
   size: 'size',
   dirID: 'dirID',
   inode: 'inode',
-  absPath: 'absPath'
+  absPath: 'absPath',
+  versions: 'versions',
+  origin: 'origin'
 };
 
 exports.Prisma.DirectoryScalarFieldEnum = {
@@ -149,6 +151,8 @@ exports.Prisma.FileQueueScalarFieldEnum = {
   dirID: 'dirID',
   sync_status: 'sync_status',
   inode: 'inode',
+  versions: 'versions',
+  origin: 'origin',
   absPath: 'absPath',
   old_path: 'old_path',
   old_filename: 'old_filename'

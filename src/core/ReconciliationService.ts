@@ -58,46 +58,48 @@ export class ReconciliationService {
           // await this.downloadFile(cloudFile);
           const fileInQueue = await this.prisma.fileQueue.findUnique({
             where: {
-              path_filename: { path: cloudFile.path, filename: cloudFile.filename }, AND: { OR: [{ sync_status: "delete" }, { sync_status: "new" }] }
+              path_filename: { path: cloudFile.path, filename: cloudFile.filename },
             }
           });
           if (!fileInQueue)
             filesToDownload.push(cloudFile);
-        } else {
-          // Case: Exists locally -> Check for modifications
-          if (localFile.hashvalue !== cloudFile.hashvalue) {
-            // console.log(`[Reconcile] File modified in cloud: ${cloudFile.filename}. Checking for conflicts...`);
-            // Check if local file is also modified (in Queue)
-            const inQueue = await this.prisma.fileQueue.findUnique({
-              where: { path_filename: { path: localFile.path, filename: localFile.filename } }
-            });
-
-            if (inQueue) {
-              // console.log(`[Reconcile] CONFLICT detected for ${cloudFile.filename}. Creating conflicted copy.`);
-              // Implement conflict resolution (rename local and download cloud version)
-              try {
-                const { name, ext } = parse(localFile.filename);
-                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                const conflictFilename = `${name} (conflicted copy ${timestamp})${ext}`;
-                const oldPath = join(this.syncPath, localFile.path)
-                const newPath = join(this.syncPath, localFile.path.replace(localFile.filename, ''), conflictFilename);
-
-                await rename(oldPath, newPath);
-
-                console.log(`Conflict resolved: Renamed ${localFile.filename} to ${conflictFilename}`);
-                filesToDownload.push(cloudFile);
-              } catch (err) {
-                console.error(`Failed to handle conflict for ${cloudFile.filename}:`, err);
-                // If rename fails, we probably shouldn't download to avoid overwrite? 
-                // Or should we let it fail? For safety, skip download if rename fails.
-              }
-            } else {
-              // console.log(`[Reconcile] Updating local file: ${cloudFile.filename}`);
-              filesToDownload.push(cloudFile);
-            }
-          }
         }
+        /*
+                else {
+                  // Case: Exists locally -> Check for modifications
+                  if (localFile.hashvalue !== cloudFile.hashvalue) {
+                    console.log(`[Reconcile] File modified in cloud: ${cloudFile.filename}. Checking for conflicts...`);
+                    // Check if local file is also modified (in Queue)
+                    const inQueue = await this.prisma.fileQueue.findUnique({
+                      where: { path_filename: { path: localFile.path, filename: localFile.filename } }
+                    });
+        
+                    if (inQueue) {
+                      console.log(`[Reconcile] CONFLICT detected for ${cloudFile.filename}. Creating conflicted copy.`);
+                      // Implement conflict resolution (rename local and download cloud version)
+                      try {
+                        const { name, ext } = parse(localFile.filename);
+                        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                        const conflictFilename = `${name} (conflicted copy ${timestamp})${ext}`;
+                        const oldPath = join(this.syncPath, localFile.path)
+                        const newPath = join(this.syncPath, localFile.path.replace(localFile.filename, ''), conflictFilename);
+                        await rename(oldPath, newPath);
+                        console.log(`Conflict resolved: Renamed ${localFile.filename} to ${conflictFilename}`);
+                        filesToDownload.push(cloudFile);
+                      } catch (err) {
+                        console.error(`Failed to handle conflict for ${cloudFile.filename}:`, err);
+                        // If rename fails, we probably shouldn't download to avoid overwrite? 
+                        // Or should we let it fail? For safety, skip download if rename fails.
+                      }
+                    } else {
+                      // console.log(`[Reconcile] Updating local file: ${cloudFile.filename}`);
+                      filesToDownload.push(cloudFile);
+                    }
+                  }
+                }
+                */
       }
+      console.log("FilesToDownload: ", filesToDownload);
       // 3. Process Cloud Directories (Create locally)
       for (const cloudDir of cloudDirs) {
         if (cloudDir.path === '/') continue; // Skip root        

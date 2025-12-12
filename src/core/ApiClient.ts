@@ -58,7 +58,7 @@ export class ApiClient {
       const queryString = urlParam.toString();
 
       const response = await this.client.get(`/syncDownFile?${queryString}`, {
-        responseType: "stream"
+        responseType: "stream",
       });
       const writer = createWriteStream(absPath);
       response.data.pipe(writer);
@@ -87,6 +87,7 @@ export class ApiClient {
     try {
       const { directory, device } = this.parsePath(file.path);
       let type = mime.lookup(file.filename)?.toString() || 'application/octet-stream';
+      const versions = file.sync_status === "modified" ? file.versions : 1;
       const filestat: any = {
         mtime: file.last_modified,
         size: parseInt(file.size.toString()),
@@ -94,10 +95,12 @@ export class ApiClient {
         checksum: file.hashvalue,
         isModified: file.sync_status === 'modified',
         device: device,
-        version: 1,
+        version: versions,
         username: this.userEmail,
         filename: file.filename,
-        directory: directory
+        directory: directory,
+        uuid: file.uuid,
+        origin: file.origin
       };
       // Get image dimensions if it's an image
       if (type.split('/')[0] === 'image') {
@@ -113,7 +116,6 @@ export class ApiClient {
       } else {
         filestat.type = file.filename.split('.').slice(-1)[0];
       }
-
       const form = new FormData();
       const fileStream = createReadStream(file.absPath);
       form.append('file', fileStream);

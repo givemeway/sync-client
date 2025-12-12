@@ -24,6 +24,8 @@ model File {
   dirID String
   inode String
   absPath String
+  versions Int 
+  origin String
   directoryID Directory @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 
@@ -52,6 +54,8 @@ model FileQueue {
   dirID String
   sync_status String
   inode String
+  versions Int 
+  origin String
   absPath String
   old_path String?
   old_filename String?

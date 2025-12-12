@@ -12,6 +12,7 @@ import { HashWorkerPool } from './utils/HashWorkerPool.js';
 import { FilesystemScanner } from './utils/FilesystemScanner.js';
 import { progress } from './utils/ProgressDisplay.js';
 import { CloudSyncManager } from './core/CloudSyncManager.js';
+import { v4 as uuidv4 } from "uuid";
 import type {
   SyncClientConfig,
   SyncStatus,
@@ -92,7 +93,7 @@ export class SyncClient extends EventEmitter {
         const hash = await this.hashPool!.run(path);
         // Normalize both paths to forward slashes before substring
         const relPath = this.normalizeToRelPath(path, true);
-        const fileMeta: FileMetadata = {
+        let fileMeta: FileMetadata = {
           path: relPath,
           filename: path.split(/[/\\]/).pop() || '',
           last_modified: stats.mtime,
@@ -100,8 +101,12 @@ export class SyncClient extends EventEmitter {
           inode: stats.ino.toString(),
           absPath: path,
           hashvalue: hash,
-          sync_status: "new"
+          sync_status: "new",
+          uuid: uuidv4(),
+          origin: "",
+          versions: 1
         };
+        fileMeta.origin = fileMeta.uuid || ""
         await this.dbManager.addFileWithTransaction(fileMeta);
         this.emit('file:added', { path, stats });
       }
@@ -142,7 +147,9 @@ export class SyncClient extends EventEmitter {
           inode: '',
           absPath: path,
           hashvalue: '',
-          sync_status: "delete"
+          sync_status: "delete",
+          origin: "",
+          versions: 1,
         };
         await this.dbManager.removeFileWithTransaction(fileMeta);
         this.emit('file:removed', { path });
@@ -179,7 +186,7 @@ export class SyncClient extends EventEmitter {
         const hash = await this.hashPool!.run(path);
         // Normalize both paths to forward slashes before substring
         const relPath = this.normalizeToRelPath(path, true)
-        const fileMeta: FileMetadata = {
+        let fileMeta: FileMetadata = {
           path: relPath,
           filename: path.split(/[/\\]/).pop() || '',
           last_modified: stats.mtime,
@@ -187,8 +194,12 @@ export class SyncClient extends EventEmitter {
           inode: stats.ino.toString(),
           absPath: path,
           hashvalue: hash,
-          sync_status: "modified"
+          sync_status: "modified",
+          uuid: uuidv4(),
+          origin: "",
+          versions: 1
         };
+        //        fileMeta.origin = fileMeta.uuid || "";
         await this.dbManager.updateFileWithTransaction(fileMeta);
         this.emit('file:changed', { path, stats });
       }
@@ -407,7 +418,7 @@ export class SyncClient extends EventEmitter {
           if (!newRelPath.startsWith('/')) newRelPath = '/' + newRelPath;
           oldRelPath = oldRelPath === "" ? "/" : oldRelPath;
           newRelPath = newRelPath === "" ? "/" : newRelPath;
-          const oldMeta: FileMetadata = {
+          let oldMeta: FileMetadata = {
             path: oldRelPath,
             filename: oldPath.split(/[/\\]/).pop() || '',
             last_modified: stats.mtime,
@@ -415,9 +426,12 @@ export class SyncClient extends EventEmitter {
             inode: stats.ino.toString(),
             absPath: oldPath,
             hashvalue: hash,
-            sync_status: "rename"
+            sync_status: "rename",
+            uuid: uuidv4(),
+            origin: '',
+            versions: 1
           };
-          const newMeta: FileMetadata = {
+          let newMeta: FileMetadata = {
             path: newRelPath,
             filename: newPath.split(/[/\\]/).pop() || '',
             last_modified: stats.mtime,
@@ -425,8 +439,14 @@ export class SyncClient extends EventEmitter {
             inode: stats.ino.toString(),
             absPath: newPath,
             hashvalue: hash,
-            sync_status: "rename"
+            sync_status: "rename",
+            origin: "",
+            uuid: "",
+            versions: 1
           };
+          newMeta.origin = oldMeta.uuid || "";
+          newMeta.uuid = oldMeta.uuid;
+          oldMeta.origin = oldMeta.uuid || "";
           await this.dbManager.renameFileWithTransaction(oldMeta, newMeta);
         }
       } catch (err) {

@@ -5,7 +5,7 @@ import { join } from 'path';
 import { HashWorkerPool } from './HashWorkerPool.js';
 import { FileMetadata } from '../types/index.js';
 import type { ScannedFile, ScannedDirectory } from "../types/index.ts"
-
+import { v4 as uuidv4 } from "uuid";
 /**
  * FilesystemScanner utility
  * Scans a directory and returns files with metadata (inode, hash, etc.)
@@ -195,7 +195,10 @@ export class FilesystemScanner {
       inode: scanned.inode,
       last_modified: scanned.mtime,
       absPath: scanned.absPath,
-      sync_status: 'new'
+      sync_status: 'new',
+      uuid: uuidv4(),
+      origin: "",
+      versions: 1
     };
   }
 }

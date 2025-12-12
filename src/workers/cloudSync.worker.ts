@@ -222,6 +222,8 @@ async function pollCloud() {
                   hashvalue: file.hashvalue || "",
                   inode: status.ino.toString(), // Placeholder
                   uuid: file.uuid || uuidv4(),
+                  origin: file.origin,
+                  versions: file.versions,
                   directoryID: {
                     connectOrCreate: {
                       where: {

@@ -54,6 +54,8 @@ export interface FileMetadata {
   uuid?: string;
   height?: number;
   width?: number;
+  versions: number;
+  origin: string;
 }
 
 export interface DirectoryMetadata {
@@ -95,7 +97,10 @@ export interface WatcherOptions {
   usePolling?: boolean;
   alwaysStat?: boolean;
   atomic?: boolean;
-  awaitWriteFinish?: boolean;
+  awaitWriteFinish?: {
+    stabilityThreshold?: number,
+    pollInterval?: number
+  };
 }
 
 export interface SyncResult {
@@ -164,6 +169,8 @@ export interface CloudFileMetadata {
   size: number;
   uuid: string;
   inode?: string;
+  origin: string;
+  versions: string;
 }
 export interface CloudFileDeleteMetadata {
   id: string;
