@@ -19,6 +19,11 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type File = $Result.DefaultSelection<Prisma.$FilePayload>
 /**
+ * Model ConflictQueue
+ * 
+ */
+export type ConflictQueue = $Result.DefaultSelection<Prisma.$ConflictQueuePayload>
+/**
  * Model Directory
  * 
  */
@@ -161,6 +166,16 @@ export class PrismaClient<
     * ```
     */
   get file(): Prisma.FileDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.conflictQueue`: Exposes CRUD operations for the **ConflictQueue** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ConflictQueues
+    * const conflictQueues = await prisma.conflictQueue.findMany()
+    * ```
+    */
+  get conflictQueue(): Prisma.ConflictQueueDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.directory`: Exposes CRUD operations for the **Directory** model.
@@ -633,6 +648,7 @@ export namespace Prisma {
 
   export const ModelName: {
     File: 'File',
+    ConflictQueue: 'ConflictQueue',
     Directory: 'Directory',
     FileQueue: 'FileQueue',
     DirectoryQueue: 'DirectoryQueue'
@@ -654,7 +670,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "file" | "directory" | "fileQueue" | "directoryQueue"
+      modelProps: "file" | "conflictQueue" | "directory" | "fileQueue" | "directoryQueue"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -729,6 +745,80 @@ export namespace Prisma {
           count: {
             args: Prisma.FileCountArgs<ExtArgs>
             result: $Utils.Optional<FileCountAggregateOutputType> | number
+          }
+        }
+      }
+      ConflictQueue: {
+        payload: Prisma.$ConflictQueuePayload<ExtArgs>
+        fields: Prisma.ConflictQueueFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ConflictQueueFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ConflictQueueFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          findFirst: {
+            args: Prisma.ConflictQueueFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ConflictQueueFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          findMany: {
+            args: Prisma.ConflictQueueFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>[]
+          }
+          create: {
+            args: Prisma.ConflictQueueCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          createMany: {
+            args: Prisma.ConflictQueueCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ConflictQueueCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>[]
+          }
+          delete: {
+            args: Prisma.ConflictQueueDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          update: {
+            args: Prisma.ConflictQueueUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          deleteMany: {
+            args: Prisma.ConflictQueueDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ConflictQueueUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ConflictQueueUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>[]
+          }
+          upsert: {
+            args: Prisma.ConflictQueueUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ConflictQueuePayload>
+          }
+          aggregate: {
+            args: Prisma.ConflictQueueAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateConflictQueue>
+          }
+          groupBy: {
+            args: Prisma.ConflictQueueGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ConflictQueueGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ConflictQueueCountArgs<ExtArgs>
+            result: $Utils.Optional<ConflictQueueCountAggregateOutputType> | number
           }
         }
       }
@@ -1051,6 +1141,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     file?: FileOmit
+    conflictQueue?: ConflictQueueOmit
     directory?: DirectoryOmit
     fileQueue?: FileQueueOmit
     directoryQueue?: DirectoryQueueOmit
@@ -1229,6 +1320,8 @@ export namespace Prisma {
     absPath: string | null
     versions: number | null
     origin: string | null
+    lastSyncedHashValue: string | null
+    conflictId: string | null
   }
 
   export type FileMaxAggregateOutputType = {
@@ -1243,6 +1336,8 @@ export namespace Prisma {
     absPath: string | null
     versions: number | null
     origin: string | null
+    lastSyncedHashValue: string | null
+    conflictId: string | null
   }
 
   export type FileCountAggregateOutputType = {
@@ -1257,6 +1352,8 @@ export namespace Prisma {
     absPath: number
     versions: number
     origin: number
+    lastSyncedHashValue: number
+    conflictId: number
     _all: number
   }
 
@@ -1283,6 +1380,8 @@ export namespace Prisma {
     absPath?: true
     versions?: true
     origin?: true
+    lastSyncedHashValue?: true
+    conflictId?: true
   }
 
   export type FileMaxAggregateInputType = {
@@ -1297,6 +1396,8 @@ export namespace Prisma {
     absPath?: true
     versions?: true
     origin?: true
+    lastSyncedHashValue?: true
+    conflictId?: true
   }
 
   export type FileCountAggregateInputType = {
@@ -1311,6 +1412,8 @@ export namespace Prisma {
     absPath?: true
     versions?: true
     origin?: true
+    lastSyncedHashValue?: true
+    conflictId?: true
     _all?: true
   }
 
@@ -1412,6 +1515,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId: string | null
     _count: FileCountAggregateOutputType | null
     _avg: FileAvgAggregateOutputType | null
     _sum: FileSumAggregateOutputType | null
@@ -1445,6 +1550,8 @@ export namespace Prisma {
     absPath?: boolean
     versions?: boolean
     origin?: boolean
+    lastSyncedHashValue?: boolean
+    conflictId?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1460,6 +1567,8 @@ export namespace Prisma {
     absPath?: boolean
     versions?: boolean
     origin?: boolean
+    lastSyncedHashValue?: boolean
+    conflictId?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1475,6 +1584,8 @@ export namespace Prisma {
     absPath?: boolean
     versions?: boolean
     origin?: boolean
+    lastSyncedHashValue?: boolean
+    conflictId?: boolean
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["file"]>
 
@@ -1490,9 +1601,11 @@ export namespace Prisma {
     absPath?: boolean
     versions?: boolean
     origin?: boolean
+    lastSyncedHashValue?: boolean
+    conflictId?: boolean
   }
 
-  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath" | "versions" | "origin", ExtArgs["result"]["file"]>
+  export type FileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "inode" | "absPath" | "versions" | "origin" | "lastSyncedHashValue" | "conflictId", ExtArgs["result"]["file"]>
   export type FileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryDefaultArgs<ExtArgs>
   }
@@ -1520,6 +1633,8 @@ export namespace Prisma {
       absPath: string
       versions: number
       origin: string
+      lastSyncedHashValue: string
+      conflictId: string | null
     }, ExtArgs["result"]["file"]>
     composites: {}
   }
@@ -1955,6 +2070,8 @@ export namespace Prisma {
     readonly absPath: FieldRef<"File", 'String'>
     readonly versions: FieldRef<"File", 'Int'>
     readonly origin: FieldRef<"File", 'String'>
+    readonly lastSyncedHashValue: FieldRef<"File", 'String'>
+    readonly conflictId: FieldRef<"File", 'String'>
   }
     
 
@@ -2364,6 +2481,1128 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: FileInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ConflictQueue
+   */
+
+  export type AggregateConflictQueue = {
+    _count: ConflictQueueCountAggregateOutputType | null
+    _avg: ConflictQueueAvgAggregateOutputType | null
+    _sum: ConflictQueueSumAggregateOutputType | null
+    _min: ConflictQueueMinAggregateOutputType | null
+    _max: ConflictQueueMaxAggregateOutputType | null
+  }
+
+  export type ConflictQueueAvgAggregateOutputType = {
+    size: number | null
+    versions: number | null
+  }
+
+  export type ConflictQueueSumAggregateOutputType = {
+    size: bigint | null
+    versions: number | null
+  }
+
+  export type ConflictQueueMinAggregateOutputType = {
+    uuid: string | null
+    path: string | null
+    filename: string | null
+    last_modified: Date | null
+    hashvalue: string | null
+    lastSyncedHashValue: string | null
+    absPath: string | null
+    size: bigint | null
+    inode: string | null
+    versions: number | null
+    origin: string | null
+    conflictId: string | null
+  }
+
+  export type ConflictQueueMaxAggregateOutputType = {
+    uuid: string | null
+    path: string | null
+    filename: string | null
+    last_modified: Date | null
+    hashvalue: string | null
+    lastSyncedHashValue: string | null
+    absPath: string | null
+    size: bigint | null
+    inode: string | null
+    versions: number | null
+    origin: string | null
+    conflictId: string | null
+  }
+
+  export type ConflictQueueCountAggregateOutputType = {
+    uuid: number
+    path: number
+    filename: number
+    last_modified: number
+    hashvalue: number
+    lastSyncedHashValue: number
+    absPath: number
+    size: number
+    inode: number
+    versions: number
+    origin: number
+    conflictId: number
+    _all: number
+  }
+
+
+  export type ConflictQueueAvgAggregateInputType = {
+    size?: true
+    versions?: true
+  }
+
+  export type ConflictQueueSumAggregateInputType = {
+    size?: true
+    versions?: true
+  }
+
+  export type ConflictQueueMinAggregateInputType = {
+    uuid?: true
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    lastSyncedHashValue?: true
+    absPath?: true
+    size?: true
+    inode?: true
+    versions?: true
+    origin?: true
+    conflictId?: true
+  }
+
+  export type ConflictQueueMaxAggregateInputType = {
+    uuid?: true
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    lastSyncedHashValue?: true
+    absPath?: true
+    size?: true
+    inode?: true
+    versions?: true
+    origin?: true
+    conflictId?: true
+  }
+
+  export type ConflictQueueCountAggregateInputType = {
+    uuid?: true
+    path?: true
+    filename?: true
+    last_modified?: true
+    hashvalue?: true
+    lastSyncedHashValue?: true
+    absPath?: true
+    size?: true
+    inode?: true
+    versions?: true
+    origin?: true
+    conflictId?: true
+    _all?: true
+  }
+
+  export type ConflictQueueAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConflictQueue to aggregate.
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConflictQueues to fetch.
+     */
+    orderBy?: ConflictQueueOrderByWithRelationInput | ConflictQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ConflictQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConflictQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConflictQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ConflictQueues
+    **/
+    _count?: true | ConflictQueueCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ConflictQueueAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ConflictQueueSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ConflictQueueMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ConflictQueueMaxAggregateInputType
+  }
+
+  export type GetConflictQueueAggregateType<T extends ConflictQueueAggregateArgs> = {
+        [P in keyof T & keyof AggregateConflictQueue]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateConflictQueue[P]>
+      : GetScalarType<T[P], AggregateConflictQueue[P]>
+  }
+
+
+
+
+  export type ConflictQueueGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ConflictQueueWhereInput
+    orderBy?: ConflictQueueOrderByWithAggregationInput | ConflictQueueOrderByWithAggregationInput[]
+    by: ConflictQueueScalarFieldEnum[] | ConflictQueueScalarFieldEnum
+    having?: ConflictQueueScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ConflictQueueCountAggregateInputType | true
+    _avg?: ConflictQueueAvgAggregateInputType
+    _sum?: ConflictQueueSumAggregateInputType
+    _min?: ConflictQueueMinAggregateInputType
+    _max?: ConflictQueueMaxAggregateInputType
+  }
+
+  export type ConflictQueueGroupByOutputType = {
+    uuid: string
+    path: string
+    filename: string
+    last_modified: Date
+    hashvalue: string
+    lastSyncedHashValue: string
+    absPath: string
+    size: bigint
+    inode: string
+    versions: number
+    origin: string
+    conflictId: string
+    _count: ConflictQueueCountAggregateOutputType | null
+    _avg: ConflictQueueAvgAggregateOutputType | null
+    _sum: ConflictQueueSumAggregateOutputType | null
+    _min: ConflictQueueMinAggregateOutputType | null
+    _max: ConflictQueueMaxAggregateOutputType | null
+  }
+
+  type GetConflictQueueGroupByPayload<T extends ConflictQueueGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ConflictQueueGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ConflictQueueGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ConflictQueueGroupByOutputType[P]>
+            : GetScalarType<T[P], ConflictQueueGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ConflictQueueSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    lastSyncedHashValue?: boolean
+    absPath?: boolean
+    size?: boolean
+    inode?: boolean
+    versions?: boolean
+    origin?: boolean
+    conflictId?: boolean
+  }, ExtArgs["result"]["conflictQueue"]>
+
+  export type ConflictQueueSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    lastSyncedHashValue?: boolean
+    absPath?: boolean
+    size?: boolean
+    inode?: boolean
+    versions?: boolean
+    origin?: boolean
+    conflictId?: boolean
+  }, ExtArgs["result"]["conflictQueue"]>
+
+  export type ConflictQueueSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    uuid?: boolean
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    lastSyncedHashValue?: boolean
+    absPath?: boolean
+    size?: boolean
+    inode?: boolean
+    versions?: boolean
+    origin?: boolean
+    conflictId?: boolean
+  }, ExtArgs["result"]["conflictQueue"]>
+
+  export type ConflictQueueSelectScalar = {
+    uuid?: boolean
+    path?: boolean
+    filename?: boolean
+    last_modified?: boolean
+    hashvalue?: boolean
+    lastSyncedHashValue?: boolean
+    absPath?: boolean
+    size?: boolean
+    inode?: boolean
+    versions?: boolean
+    origin?: boolean
+    conflictId?: boolean
+  }
+
+  export type ConflictQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "lastSyncedHashValue" | "absPath" | "size" | "inode" | "versions" | "origin" | "conflictId", ExtArgs["result"]["conflictQueue"]>
+
+  export type $ConflictQueuePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ConflictQueue"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      uuid: string
+      path: string
+      filename: string
+      last_modified: Date
+      hashvalue: string
+      lastSyncedHashValue: string
+      absPath: string
+      size: bigint
+      inode: string
+      versions: number
+      origin: string
+      conflictId: string
+    }, ExtArgs["result"]["conflictQueue"]>
+    composites: {}
+  }
+
+  type ConflictQueueGetPayload<S extends boolean | null | undefined | ConflictQueueDefaultArgs> = $Result.GetResult<Prisma.$ConflictQueuePayload, S>
+
+  type ConflictQueueCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ConflictQueueFindManyArgs, 'select' | 'include' | 'distinct' | 'omit' | 'relationLoadStrategy'> & {
+      select?: ConflictQueueCountAggregateInputType | true
+    }
+
+  export interface ConflictQueueDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ConflictQueue'], meta: { name: 'ConflictQueue' } }
+    /**
+     * Find zero or one ConflictQueue that matches the filter.
+     * @param {ConflictQueueFindUniqueArgs} args - Arguments to find a ConflictQueue
+     * @example
+     * // Get one ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ConflictQueueFindUniqueArgs>(args: SelectSubset<T, ConflictQueueFindUniqueArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ConflictQueue that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ConflictQueueFindUniqueOrThrowArgs} args - Arguments to find a ConflictQueue
+     * @example
+     * // Get one ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ConflictQueueFindUniqueOrThrowArgs>(args: SelectSubset<T, ConflictQueueFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConflictQueue that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueFindFirstArgs} args - Arguments to find a ConflictQueue
+     * @example
+     * // Get one ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ConflictQueueFindFirstArgs>(args?: SelectSubset<T, ConflictQueueFindFirstArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ConflictQueue that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueFindFirstOrThrowArgs} args - Arguments to find a ConflictQueue
+     * @example
+     * // Get one ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ConflictQueueFindFirstOrThrowArgs>(args?: SelectSubset<T, ConflictQueueFindFirstOrThrowArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ConflictQueues that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ConflictQueues
+     * const conflictQueues = await prisma.conflictQueue.findMany()
+     * 
+     * // Get first 10 ConflictQueues
+     * const conflictQueues = await prisma.conflictQueue.findMany({ take: 10 })
+     * 
+     * // Only select the `uuid`
+     * const conflictQueueWithUuidOnly = await prisma.conflictQueue.findMany({ select: { uuid: true } })
+     * 
+     */
+    findMany<T extends ConflictQueueFindManyArgs>(args?: SelectSubset<T, ConflictQueueFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ConflictQueue.
+     * @param {ConflictQueueCreateArgs} args - Arguments to create a ConflictQueue.
+     * @example
+     * // Create one ConflictQueue
+     * const ConflictQueue = await prisma.conflictQueue.create({
+     *   data: {
+     *     // ... data to create a ConflictQueue
+     *   }
+     * })
+     * 
+     */
+    create<T extends ConflictQueueCreateArgs>(args: SelectSubset<T, ConflictQueueCreateArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ConflictQueues.
+     * @param {ConflictQueueCreateManyArgs} args - Arguments to create many ConflictQueues.
+     * @example
+     * // Create many ConflictQueues
+     * const conflictQueue = await prisma.conflictQueue.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ConflictQueueCreateManyArgs>(args?: SelectSubset<T, ConflictQueueCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ConflictQueues and returns the data saved in the database.
+     * @param {ConflictQueueCreateManyAndReturnArgs} args - Arguments to create many ConflictQueues.
+     * @example
+     * // Create many ConflictQueues
+     * const conflictQueue = await prisma.conflictQueue.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ConflictQueues and only return the `uuid`
+     * const conflictQueueWithUuidOnly = await prisma.conflictQueue.createManyAndReturn({
+     *   select: { uuid: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ConflictQueueCreateManyAndReturnArgs>(args?: SelectSubset<T, ConflictQueueCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ConflictQueue.
+     * @param {ConflictQueueDeleteArgs} args - Arguments to delete one ConflictQueue.
+     * @example
+     * // Delete one ConflictQueue
+     * const ConflictQueue = await prisma.conflictQueue.delete({
+     *   where: {
+     *     // ... filter to delete one ConflictQueue
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ConflictQueueDeleteArgs>(args: SelectSubset<T, ConflictQueueDeleteArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ConflictQueue.
+     * @param {ConflictQueueUpdateArgs} args - Arguments to update one ConflictQueue.
+     * @example
+     * // Update one ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ConflictQueueUpdateArgs>(args: SelectSubset<T, ConflictQueueUpdateArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ConflictQueues.
+     * @param {ConflictQueueDeleteManyArgs} args - Arguments to filter ConflictQueues to delete.
+     * @example
+     * // Delete a few ConflictQueues
+     * const { count } = await prisma.conflictQueue.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ConflictQueueDeleteManyArgs>(args?: SelectSubset<T, ConflictQueueDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConflictQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ConflictQueues
+     * const conflictQueue = await prisma.conflictQueue.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ConflictQueueUpdateManyArgs>(args: SelectSubset<T, ConflictQueueUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ConflictQueues and returns the data updated in the database.
+     * @param {ConflictQueueUpdateManyAndReturnArgs} args - Arguments to update many ConflictQueues.
+     * @example
+     * // Update many ConflictQueues
+     * const conflictQueue = await prisma.conflictQueue.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ConflictQueues and only return the `uuid`
+     * const conflictQueueWithUuidOnly = await prisma.conflictQueue.updateManyAndReturn({
+     *   select: { uuid: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ConflictQueueUpdateManyAndReturnArgs>(args: SelectSubset<T, ConflictQueueUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ConflictQueue.
+     * @param {ConflictQueueUpsertArgs} args - Arguments to update or create a ConflictQueue.
+     * @example
+     * // Update or create a ConflictQueue
+     * const conflictQueue = await prisma.conflictQueue.upsert({
+     *   create: {
+     *     // ... data to create a ConflictQueue
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ConflictQueue we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ConflictQueueUpsertArgs>(args: SelectSubset<T, ConflictQueueUpsertArgs<ExtArgs>>): Prisma__ConflictQueueClient<$Result.GetResult<Prisma.$ConflictQueuePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ConflictQueues.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueCountArgs} args - Arguments to filter ConflictQueues to count.
+     * @example
+     * // Count the number of ConflictQueues
+     * const count = await prisma.conflictQueue.count({
+     *   where: {
+     *     // ... the filter for the ConflictQueues we want to count
+     *   }
+     * })
+    **/
+    count<T extends ConflictQueueCountArgs>(
+      args?: Subset<T, ConflictQueueCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ConflictQueueCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ConflictQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ConflictQueueAggregateArgs>(args: Subset<T, ConflictQueueAggregateArgs>): Prisma.PrismaPromise<GetConflictQueueAggregateType<T>>
+
+    /**
+     * Group by ConflictQueue.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ConflictQueueGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ConflictQueueGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ConflictQueueGroupByArgs['orderBy'] }
+        : { orderBy?: ConflictQueueGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ConflictQueueGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetConflictQueueGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ConflictQueue model
+   */
+  readonly fields: ConflictQueueFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ConflictQueue.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ConflictQueueClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ConflictQueue model
+   */
+  interface ConflictQueueFieldRefs {
+    readonly uuid: FieldRef<"ConflictQueue", 'String'>
+    readonly path: FieldRef<"ConflictQueue", 'String'>
+    readonly filename: FieldRef<"ConflictQueue", 'String'>
+    readonly last_modified: FieldRef<"ConflictQueue", 'DateTime'>
+    readonly hashvalue: FieldRef<"ConflictQueue", 'String'>
+    readonly lastSyncedHashValue: FieldRef<"ConflictQueue", 'String'>
+    readonly absPath: FieldRef<"ConflictQueue", 'String'>
+    readonly size: FieldRef<"ConflictQueue", 'BigInt'>
+    readonly inode: FieldRef<"ConflictQueue", 'String'>
+    readonly versions: FieldRef<"ConflictQueue", 'Int'>
+    readonly origin: FieldRef<"ConflictQueue", 'String'>
+    readonly conflictId: FieldRef<"ConflictQueue", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ConflictQueue findUnique
+   */
+  export type ConflictQueueFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter, which ConflictQueue to fetch.
+     */
+    where: ConflictQueueWhereUniqueInput
+  }
+
+  /**
+   * ConflictQueue findUniqueOrThrow
+   */
+  export type ConflictQueueFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter, which ConflictQueue to fetch.
+     */
+    where: ConflictQueueWhereUniqueInput
+  }
+
+  /**
+   * ConflictQueue findFirst
+   */
+  export type ConflictQueueFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter, which ConflictQueue to fetch.
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConflictQueues to fetch.
+     */
+    orderBy?: ConflictQueueOrderByWithRelationInput | ConflictQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConflictQueues.
+     */
+    cursor?: ConflictQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConflictQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConflictQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConflictQueues.
+     */
+    distinct?: ConflictQueueScalarFieldEnum | ConflictQueueScalarFieldEnum[]
+  }
+
+  /**
+   * ConflictQueue findFirstOrThrow
+   */
+  export type ConflictQueueFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter, which ConflictQueue to fetch.
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConflictQueues to fetch.
+     */
+    orderBy?: ConflictQueueOrderByWithRelationInput | ConflictQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ConflictQueues.
+     */
+    cursor?: ConflictQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConflictQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConflictQueues.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ConflictQueues.
+     */
+    distinct?: ConflictQueueScalarFieldEnum | ConflictQueueScalarFieldEnum[]
+  }
+
+  /**
+   * ConflictQueue findMany
+   */
+  export type ConflictQueueFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter, which ConflictQueues to fetch.
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ConflictQueues to fetch.
+     */
+    orderBy?: ConflictQueueOrderByWithRelationInput | ConflictQueueOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ConflictQueues.
+     */
+    cursor?: ConflictQueueWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ConflictQueues from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ConflictQueues.
+     */
+    skip?: number
+    distinct?: ConflictQueueScalarFieldEnum | ConflictQueueScalarFieldEnum[]
+  }
+
+  /**
+   * ConflictQueue create
+   */
+  export type ConflictQueueCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * The data needed to create a ConflictQueue.
+     */
+    data: XOR<ConflictQueueCreateInput, ConflictQueueUncheckedCreateInput>
+  }
+
+  /**
+   * ConflictQueue createMany
+   */
+  export type ConflictQueueCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ConflictQueues.
+     */
+    data: ConflictQueueCreateManyInput | ConflictQueueCreateManyInput[]
+  }
+
+  /**
+   * ConflictQueue createManyAndReturn
+   */
+  export type ConflictQueueCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * The data used to create many ConflictQueues.
+     */
+    data: ConflictQueueCreateManyInput | ConflictQueueCreateManyInput[]
+  }
+
+  /**
+   * ConflictQueue update
+   */
+  export type ConflictQueueUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * The data needed to update a ConflictQueue.
+     */
+    data: XOR<ConflictQueueUpdateInput, ConflictQueueUncheckedUpdateInput>
+    /**
+     * Choose, which ConflictQueue to update.
+     */
+    where: ConflictQueueWhereUniqueInput
+  }
+
+  /**
+   * ConflictQueue updateMany
+   */
+  export type ConflictQueueUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ConflictQueues.
+     */
+    data: XOR<ConflictQueueUpdateManyMutationInput, ConflictQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which ConflictQueues to update
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * Limit how many ConflictQueues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConflictQueue updateManyAndReturn
+   */
+  export type ConflictQueueUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * The data used to update ConflictQueues.
+     */
+    data: XOR<ConflictQueueUpdateManyMutationInput, ConflictQueueUncheckedUpdateManyInput>
+    /**
+     * Filter which ConflictQueues to update
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * Limit how many ConflictQueues to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConflictQueue upsert
+   */
+  export type ConflictQueueUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * The filter to search for the ConflictQueue to update in case it exists.
+     */
+    where: ConflictQueueWhereUniqueInput
+    /**
+     * In case the ConflictQueue found by the `where` argument doesn't exist, create a new ConflictQueue with this data.
+     */
+    create: XOR<ConflictQueueCreateInput, ConflictQueueUncheckedCreateInput>
+    /**
+     * In case the ConflictQueue was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ConflictQueueUpdateInput, ConflictQueueUncheckedUpdateInput>
+  }
+
+  /**
+   * ConflictQueue delete
+   */
+  export type ConflictQueueDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
+    /**
+     * Filter which ConflictQueue to delete.
+     */
+    where: ConflictQueueWhereUniqueInput
+  }
+
+  /**
+   * ConflictQueue deleteMany
+   */
+  export type ConflictQueueDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ConflictQueues to delete
+     */
+    where?: ConflictQueueWhereInput
+    /**
+     * Limit how many ConflictQueues to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ConflictQueue without action
+   */
+  export type ConflictQueueDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ConflictQueue
+     */
+    select?: ConflictQueueSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ConflictQueue
+     */
+    omit?: ConflictQueueOmit<ExtArgs> | null
   }
 
 
@@ -3498,6 +4737,7 @@ export namespace Prisma {
     absPath: string | null
     old_path: string | null
     old_filename: string | null
+    lastSyncedHashValue: string | null
   }
 
   export type FileQueueMaxAggregateOutputType = {
@@ -3515,6 +4755,7 @@ export namespace Prisma {
     absPath: string | null
     old_path: string | null
     old_filename: string | null
+    lastSyncedHashValue: string | null
   }
 
   export type FileQueueCountAggregateOutputType = {
@@ -3532,6 +4773,7 @@ export namespace Prisma {
     absPath: number
     old_path: number
     old_filename: number
+    lastSyncedHashValue: number
     _all: number
   }
 
@@ -3561,6 +4803,7 @@ export namespace Prisma {
     absPath?: true
     old_path?: true
     old_filename?: true
+    lastSyncedHashValue?: true
   }
 
   export type FileQueueMaxAggregateInputType = {
@@ -3578,6 +4821,7 @@ export namespace Prisma {
     absPath?: true
     old_path?: true
     old_filename?: true
+    lastSyncedHashValue?: true
   }
 
   export type FileQueueCountAggregateInputType = {
@@ -3595,6 +4839,7 @@ export namespace Prisma {
     absPath?: true
     old_path?: true
     old_filename?: true
+    lastSyncedHashValue?: true
     _all?: true
   }
 
@@ -3699,6 +4944,7 @@ export namespace Prisma {
     absPath: string
     old_path: string | null
     old_filename: string | null
+    lastSyncedHashValue: string
     _count: FileQueueCountAggregateOutputType | null
     _avg: FileQueueAvgAggregateOutputType | null
     _sum: FileQueueSumAggregateOutputType | null
@@ -3735,6 +4981,7 @@ export namespace Prisma {
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
+    lastSyncedHashValue?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3753,6 +5000,7 @@ export namespace Prisma {
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
+    lastSyncedHashValue?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3771,6 +5019,7 @@ export namespace Prisma {
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
+    lastSyncedHashValue?: boolean
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["fileQueue"]>
 
@@ -3789,9 +5038,10 @@ export namespace Prisma {
     absPath?: boolean
     old_path?: boolean
     old_filename?: boolean
+    lastSyncedHashValue?: boolean
   }
 
-  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "versions" | "origin" | "absPath" | "old_path" | "old_filename", ExtArgs["result"]["fileQueue"]>
+  export type FileQueueOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"uuid" | "path" | "filename" | "last_modified" | "hashvalue" | "size" | "dirID" | "sync_status" | "inode" | "versions" | "origin" | "absPath" | "old_path" | "old_filename" | "lastSyncedHashValue", ExtArgs["result"]["fileQueue"]>
   export type FileQueueInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     directoryID?: boolean | DirectoryQueueDefaultArgs<ExtArgs>
   }
@@ -3822,6 +5072,7 @@ export namespace Prisma {
       absPath: string
       old_path: string | null
       old_filename: string | null
+      lastSyncedHashValue: string
     }, ExtArgs["result"]["fileQueue"]>
     composites: {}
   }
@@ -4260,6 +5511,7 @@ export namespace Prisma {
     readonly absPath: FieldRef<"FileQueue", 'String'>
     readonly old_path: FieldRef<"FileQueue", 'String'>
     readonly old_filename: FieldRef<"FileQueue", 'String'>
+    readonly lastSyncedHashValue: FieldRef<"FileQueue", 'String'>
   }
     
 
@@ -5814,10 +7066,30 @@ export namespace Prisma {
     inode: 'inode',
     absPath: 'absPath',
     versions: 'versions',
-    origin: 'origin'
+    origin: 'origin',
+    lastSyncedHashValue: 'lastSyncedHashValue',
+    conflictId: 'conflictId'
   };
 
   export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
+
+
+  export const ConflictQueueScalarFieldEnum: {
+    uuid: 'uuid',
+    path: 'path',
+    filename: 'filename',
+    last_modified: 'last_modified',
+    hashvalue: 'hashvalue',
+    lastSyncedHashValue: 'lastSyncedHashValue',
+    absPath: 'absPath',
+    size: 'size',
+    inode: 'inode',
+    versions: 'versions',
+    origin: 'origin',
+    conflictId: 'conflictId'
+  };
+
+  export type ConflictQueueScalarFieldEnum = (typeof ConflictQueueScalarFieldEnum)[keyof typeof ConflictQueueScalarFieldEnum]
 
 
   export const DirectoryScalarFieldEnum: {
@@ -5847,7 +7119,8 @@ export namespace Prisma {
     origin: 'origin',
     absPath: 'absPath',
     old_path: 'old_path',
-    old_filename: 'old_filename'
+    old_filename: 'old_filename',
+    lastSyncedHashValue: 'lastSyncedHashValue'
   };
 
   export type FileQueueScalarFieldEnum = (typeof FileQueueScalarFieldEnum)[keyof typeof FileQueueScalarFieldEnum]
@@ -5942,6 +7215,8 @@ export namespace Prisma {
     absPath?: StringFilter<"File"> | string
     versions?: IntFilter<"File"> | number
     origin?: StringFilter<"File"> | string
+    lastSyncedHashValue?: StringFilter<"File"> | string
+    conflictId?: StringNullableFilter<"File"> | string | null
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }
 
@@ -5957,6 +7232,8 @@ export namespace Prisma {
     absPath?: SortOrder
     versions?: SortOrder
     origin?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    conflictId?: SortOrderInput | SortOrder
     directoryID?: DirectoryOrderByWithRelationInput
   }
 
@@ -5976,6 +7253,8 @@ export namespace Prisma {
     absPath?: StringFilter<"File"> | string
     versions?: IntFilter<"File"> | number
     origin?: StringFilter<"File"> | string
+    lastSyncedHashValue?: StringFilter<"File"> | string
+    conflictId?: StringNullableFilter<"File"> | string | null
     directoryID?: XOR<DirectoryScalarRelationFilter, DirectoryWhereInput>
   }, "uuid" | "path_filename">
 
@@ -5991,6 +7270,8 @@ export namespace Prisma {
     absPath?: SortOrder
     versions?: SortOrder
     origin?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    conflictId?: SortOrderInput | SortOrder
     _count?: FileCountOrderByAggregateInput
     _avg?: FileAvgOrderByAggregateInput
     _max?: FileMaxOrderByAggregateInput
@@ -6013,6 +7294,98 @@ export namespace Prisma {
     absPath?: StringWithAggregatesFilter<"File"> | string
     versions?: IntWithAggregatesFilter<"File"> | number
     origin?: StringWithAggregatesFilter<"File"> | string
+    lastSyncedHashValue?: StringWithAggregatesFilter<"File"> | string
+    conflictId?: StringNullableWithAggregatesFilter<"File"> | string | null
+  }
+
+  export type ConflictQueueWhereInput = {
+    AND?: ConflictQueueWhereInput | ConflictQueueWhereInput[]
+    OR?: ConflictQueueWhereInput[]
+    NOT?: ConflictQueueWhereInput | ConflictQueueWhereInput[]
+    uuid?: StringFilter<"ConflictQueue"> | string
+    path?: StringFilter<"ConflictQueue"> | string
+    filename?: StringFilter<"ConflictQueue"> | string
+    last_modified?: DateTimeFilter<"ConflictQueue"> | Date | string
+    hashvalue?: StringFilter<"ConflictQueue"> | string
+    lastSyncedHashValue?: StringFilter<"ConflictQueue"> | string
+    absPath?: StringFilter<"ConflictQueue"> | string
+    size?: BigIntFilter<"ConflictQueue"> | bigint | number
+    inode?: StringFilter<"ConflictQueue"> | string
+    versions?: IntFilter<"ConflictQueue"> | number
+    origin?: StringFilter<"ConflictQueue"> | string
+    conflictId?: StringFilter<"ConflictQueue"> | string
+  }
+
+  export type ConflictQueueOrderByWithRelationInput = {
+    uuid?: SortOrder
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    absPath?: SortOrder
+    size?: SortOrder
+    inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
+    conflictId?: SortOrder
+  }
+
+  export type ConflictQueueWhereUniqueInput = Prisma.AtLeast<{
+    uuid?: string
+    origin?: string
+    conflictId?: string
+    path_filename?: ConflictQueuePathFilenameCompoundUniqueInput
+    AND?: ConflictQueueWhereInput | ConflictQueueWhereInput[]
+    OR?: ConflictQueueWhereInput[]
+    NOT?: ConflictQueueWhereInput | ConflictQueueWhereInput[]
+    path?: StringFilter<"ConflictQueue"> | string
+    filename?: StringFilter<"ConflictQueue"> | string
+    last_modified?: DateTimeFilter<"ConflictQueue"> | Date | string
+    hashvalue?: StringFilter<"ConflictQueue"> | string
+    lastSyncedHashValue?: StringFilter<"ConflictQueue"> | string
+    absPath?: StringFilter<"ConflictQueue"> | string
+    size?: BigIntFilter<"ConflictQueue"> | bigint | number
+    inode?: StringFilter<"ConflictQueue"> | string
+    versions?: IntFilter<"ConflictQueue"> | number
+  }, "uuid" | "origin" | "conflictId" | "path_filename">
+
+  export type ConflictQueueOrderByWithAggregationInput = {
+    uuid?: SortOrder
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    absPath?: SortOrder
+    size?: SortOrder
+    inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
+    conflictId?: SortOrder
+    _count?: ConflictQueueCountOrderByAggregateInput
+    _avg?: ConflictQueueAvgOrderByAggregateInput
+    _max?: ConflictQueueMaxOrderByAggregateInput
+    _min?: ConflictQueueMinOrderByAggregateInput
+    _sum?: ConflictQueueSumOrderByAggregateInput
+  }
+
+  export type ConflictQueueScalarWhereWithAggregatesInput = {
+    AND?: ConflictQueueScalarWhereWithAggregatesInput | ConflictQueueScalarWhereWithAggregatesInput[]
+    OR?: ConflictQueueScalarWhereWithAggregatesInput[]
+    NOT?: ConflictQueueScalarWhereWithAggregatesInput | ConflictQueueScalarWhereWithAggregatesInput[]
+    uuid?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    path?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    filename?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    last_modified?: DateTimeWithAggregatesFilter<"ConflictQueue"> | Date | string
+    hashvalue?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    lastSyncedHashValue?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    absPath?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    size?: BigIntWithAggregatesFilter<"ConflictQueue"> | bigint | number
+    inode?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    versions?: IntWithAggregatesFilter<"ConflictQueue"> | number
+    origin?: StringWithAggregatesFilter<"ConflictQueue"> | string
+    conflictId?: StringWithAggregatesFilter<"ConflictQueue"> | string
   }
 
   export type DirectoryWhereInput = {
@@ -6099,6 +7472,7 @@ export namespace Prisma {
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
+    lastSyncedHashValue?: StringFilter<"FileQueue"> | string
     directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
   }
 
@@ -6117,6 +7491,7 @@ export namespace Prisma {
     absPath?: SortOrder
     old_path?: SortOrderInput | SortOrder
     old_filename?: SortOrderInput | SortOrder
+    lastSyncedHashValue?: SortOrder
     directoryID?: DirectoryQueueOrderByWithRelationInput
   }
 
@@ -6139,6 +7514,7 @@ export namespace Prisma {
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
+    lastSyncedHashValue?: StringFilter<"FileQueue"> | string
     directoryID?: XOR<DirectoryQueueScalarRelationFilter, DirectoryQueueWhereInput>
   }, "uuid" | "path_filename">
 
@@ -6157,6 +7533,7 @@ export namespace Prisma {
     absPath?: SortOrder
     old_path?: SortOrderInput | SortOrder
     old_filename?: SortOrderInput | SortOrder
+    lastSyncedHashValue?: SortOrder
     _count?: FileQueueCountOrderByAggregateInput
     _avg?: FileQueueAvgOrderByAggregateInput
     _max?: FileQueueMaxOrderByAggregateInput
@@ -6182,6 +7559,7 @@ export namespace Prisma {
     absPath?: StringWithAggregatesFilter<"FileQueue"> | string
     old_path?: StringNullableWithAggregatesFilter<"FileQueue"> | string | null
     old_filename?: StringNullableWithAggregatesFilter<"FileQueue"> | string | null
+    lastSyncedHashValue?: StringWithAggregatesFilter<"FileQueue"> | string
   }
 
   export type DirectoryQueueWhereInput = {
@@ -6271,6 +7649,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
     directoryID: DirectoryCreateNestedOneWithoutFilesInput
   }
 
@@ -6286,6 +7666,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
   }
 
   export type FileUpdateInput = {
@@ -6299,6 +7681,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
     directoryID?: DirectoryUpdateOneRequiredWithoutFilesNestedInput
   }
 
@@ -6314,6 +7698,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileCreateManyInput = {
@@ -6328,6 +7714,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
   }
 
   export type FileUpdateManyMutationInput = {
@@ -6341,6 +7729,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileUncheckedUpdateManyInput = {
@@ -6355,6 +7745,113 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type ConflictQueueCreateInput = {
+    uuid: string
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    lastSyncedHashValue: string
+    absPath: string
+    size: bigint | number
+    inode: string
+    versions: number
+    origin: string
+    conflictId: string
+  }
+
+  export type ConflictQueueUncheckedCreateInput = {
+    uuid: string
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    lastSyncedHashValue: string
+    absPath: string
+    size: bigint | number
+    inode: string
+    versions: number
+    origin: string
+    conflictId: string
+  }
+
+  export type ConflictQueueUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
+    conflictId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ConflictQueueUncheckedUpdateInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
+    conflictId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ConflictQueueCreateManyInput = {
+    uuid: string
+    path: string
+    filename: string
+    last_modified: Date | string
+    hashvalue: string
+    lastSyncedHashValue: string
+    absPath: string
+    size: bigint | number
+    inode: string
+    versions: number
+    origin: string
+    conflictId: string
+  }
+
+  export type ConflictQueueUpdateManyMutationInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
+    conflictId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type ConflictQueueUncheckedUpdateManyInput = {
+    uuid?: StringFieldUpdateOperationsInput | string
+    path?: StringFieldUpdateOperationsInput | string
+    filename?: StringFieldUpdateOperationsInput | string
+    last_modified?: DateTimeFieldUpdateOperationsInput | Date | string
+    hashvalue?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    absPath?: StringFieldUpdateOperationsInput | string
+    size?: BigIntFieldUpdateOperationsInput | bigint | number
+    inode?: StringFieldUpdateOperationsInput | string
+    versions?: IntFieldUpdateOperationsInput | number
+    origin?: StringFieldUpdateOperationsInput | string
+    conflictId?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryCreateInput = {
@@ -6445,6 +7942,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
     directoryID: DirectoryQueueCreateNestedOneWithoutFilesInput
   }
 
@@ -6463,6 +7961,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
   }
 
   export type FileQueueUpdateInput = {
@@ -6479,6 +7978,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
     directoryID?: DirectoryQueueUpdateOneRequiredWithoutFilesNestedInput
   }
 
@@ -6497,6 +7997,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueCreateManyInput = {
@@ -6514,6 +8015,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
   }
 
   export type FileQueueUpdateManyMutationInput = {
@@ -6530,6 +8032,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateManyInput = {
@@ -6547,6 +8050,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
   export type DirectoryQueueCreateInput = {
@@ -6684,9 +8188,28 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type DirectoryScalarRelationFilter = {
     is?: DirectoryWhereInput
     isNot?: DirectoryWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type FilePathFilenameCompoundUniqueInput = {
@@ -6706,6 +8229,8 @@ export namespace Prisma {
     absPath?: SortOrder
     versions?: SortOrder
     origin?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    conflictId?: SortOrder
   }
 
   export type FileAvgOrderByAggregateInput = {
@@ -6725,6 +8250,8 @@ export namespace Prisma {
     absPath?: SortOrder
     versions?: SortOrder
     origin?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    conflictId?: SortOrder
   }
 
   export type FileMinOrderByAggregateInput = {
@@ -6739,6 +8266,8 @@ export namespace Prisma {
     absPath?: SortOrder
     versions?: SortOrder
     origin?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    conflictId?: SortOrder
   }
 
   export type FileSumOrderByAggregateInput = {
@@ -6809,7 +8338,7 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type StringNullableFilter<$PrismaModel = never> = {
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | null
     notIn?: string[] | null
@@ -6820,18 +8349,76 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type ConflictQueuePathFilenameCompoundUniqueInput = {
+    path: string
+    filename: string
+  }
+
+  export type ConflictQueueCountOrderByAggregateInput = {
+    uuid?: SortOrder
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    absPath?: SortOrder
+    size?: SortOrder
+    inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
+    conflictId?: SortOrder
+  }
+
+  export type ConflictQueueAvgOrderByAggregateInput = {
+    size?: SortOrder
+    versions?: SortOrder
+  }
+
+  export type ConflictQueueMaxOrderByAggregateInput = {
+    uuid?: SortOrder
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    absPath?: SortOrder
+    size?: SortOrder
+    inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
+    conflictId?: SortOrder
+  }
+
+  export type ConflictQueueMinOrderByAggregateInput = {
+    uuid?: SortOrder
+    path?: SortOrder
+    filename?: SortOrder
+    last_modified?: SortOrder
+    hashvalue?: SortOrder
+    lastSyncedHashValue?: SortOrder
+    absPath?: SortOrder
+    size?: SortOrder
+    inode?: SortOrder
+    versions?: SortOrder
+    origin?: SortOrder
+    conflictId?: SortOrder
+  }
+
+  export type ConflictQueueSumOrderByAggregateInput = {
+    size?: SortOrder
+    versions?: SortOrder
   }
 
   export type FileListRelationFilter = {
     every?: FileWhereInput
     some?: FileWhereInput
     none?: FileWhereInput
-  }
-
-  export type SortOrderInput = {
-    sort: SortOrder
-    nulls?: NullsOrder
   }
 
   export type FileOrderByRelationAggregateInput = {
@@ -6874,23 +8461,6 @@ export namespace Prisma {
     inode?: SortOrder
   }
 
-  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedStringNullableFilter<$PrismaModel>
-    _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-
   export type DirectoryQueueScalarRelationFilter = {
     is?: DirectoryQueueWhereInput
     isNot?: DirectoryQueueWhereInput
@@ -6916,6 +8486,7 @@ export namespace Prisma {
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
+    lastSyncedHashValue?: SortOrder
   }
 
   export type FileQueueAvgOrderByAggregateInput = {
@@ -6938,6 +8509,7 @@ export namespace Prisma {
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
+    lastSyncedHashValue?: SortOrder
   }
 
   export type FileQueueMinOrderByAggregateInput = {
@@ -6955,6 +8527,7 @@ export namespace Prisma {
     absPath?: SortOrder
     old_path?: SortOrder
     old_filename?: SortOrder
+    lastSyncedHashValue?: SortOrder
   }
 
   export type FileQueueSumOrderByAggregateInput = {
@@ -7044,6 +8617,10 @@ export namespace Prisma {
     divide?: number
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type DirectoryUpdateOneRequiredWithoutFilesNestedInput = {
     create?: XOR<DirectoryCreateWithoutFilesInput, DirectoryUncheckedCreateWithoutFilesInput>
     connectOrCreate?: DirectoryCreateOrConnectWithoutFilesInput
@@ -7064,10 +8641,6 @@ export namespace Prisma {
     connectOrCreate?: FileCreateOrConnectWithoutDirectoryIDInput | FileCreateOrConnectWithoutDirectoryIDInput[]
     createMany?: FileCreateManyDirectoryIDInputEnvelope
     connect?: FileWhereUniqueInput | FileWhereUniqueInput[]
-  }
-
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
   }
 
   export type FileUpdateManyWithoutDirectoryIDNestedInput = {
@@ -7201,6 +8774,20 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | null
+    notIn?: string[] | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -7273,20 +8860,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedStringNullableFilter<$PrismaModel = never> = {
-    equals?: string | StringFieldRefInput<$PrismaModel> | null
-    in?: string[] | null
-    notIn?: string[] | null
-    lt?: string | StringFieldRefInput<$PrismaModel>
-    lte?: string | StringFieldRefInput<$PrismaModel>
-    gt?: string | StringFieldRefInput<$PrismaModel>
-    gte?: string | StringFieldRefInput<$PrismaModel>
-    contains?: string | StringFieldRefInput<$PrismaModel>
-    startsWith?: string | StringFieldRefInput<$PrismaModel>
-    endsWith?: string | StringFieldRefInput<$PrismaModel>
-    not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -7384,6 +8957,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
   }
 
   export type FileUncheckedCreateWithoutDirectoryIDInput = {
@@ -7397,6 +8972,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
   }
 
   export type FileCreateOrConnectWithoutDirectoryIDInput = {
@@ -7439,6 +9016,8 @@ export namespace Prisma {
     absPath?: StringFilter<"File"> | string
     versions?: IntFilter<"File"> | number
     origin?: StringFilter<"File"> | string
+    lastSyncedHashValue?: StringFilter<"File"> | string
+    conflictId?: StringNullableFilter<"File"> | string | null
   }
 
   export type DirectoryQueueCreateWithoutFilesInput = {
@@ -7519,6 +9098,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
   }
 
   export type FileQueueUncheckedCreateWithoutDirectoryIDInput = {
@@ -7535,6 +9115,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
   }
 
   export type FileQueueCreateOrConnectWithoutDirectoryIDInput = {
@@ -7580,6 +9161,7 @@ export namespace Prisma {
     absPath?: StringFilter<"FileQueue"> | string
     old_path?: StringNullableFilter<"FileQueue"> | string | null
     old_filename?: StringNullableFilter<"FileQueue"> | string | null
+    lastSyncedHashValue?: StringFilter<"FileQueue"> | string
   }
 
   export type FileCreateManyDirectoryIDInput = {
@@ -7593,6 +9175,8 @@ export namespace Prisma {
     absPath: string
     versions: number
     origin: string
+    lastSyncedHashValue: string
+    conflictId?: string | null
   }
 
   export type FileUpdateWithoutDirectoryIDInput = {
@@ -7606,6 +9190,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileUncheckedUpdateWithoutDirectoryIDInput = {
@@ -7619,6 +9205,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileUncheckedUpdateManyWithoutDirectoryIDInput = {
@@ -7632,6 +9220,8 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     versions?: IntFieldUpdateOperationsInput | number
     origin?: StringFieldUpdateOperationsInput | string
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
+    conflictId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type FileQueueCreateManyDirectoryIDInput = {
@@ -7648,6 +9238,7 @@ export namespace Prisma {
     absPath: string
     old_path?: string | null
     old_filename?: string | null
+    lastSyncedHashValue: string
   }
 
   export type FileQueueUpdateWithoutDirectoryIDInput = {
@@ -7664,6 +9255,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateWithoutDirectoryIDInput = {
@@ -7680,6 +9272,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
   export type FileQueueUncheckedUpdateManyWithoutDirectoryIDInput = {
@@ -7696,6 +9289,7 @@ export namespace Prisma {
     absPath?: StringFieldUpdateOperationsInput | string
     old_path?: NullableStringFieldUpdateOperationsInput | string | null
     old_filename?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSyncedHashValue?: StringFieldUpdateOperationsInput | string
   }
 
 

@@ -12,6 +12,7 @@ import { HashWorkerPool } from './utils/HashWorkerPool.js';
 import { FilesystemScanner } from './utils/FilesystemScanner.js';
 import { progress } from './utils/ProgressDisplay.js';
 import { CloudSyncManager } from './core/CloudSyncManager.js';
+import { ApiClient } from "./core/ApiClient.js";
 import { v4 as uuidv4 } from "uuid";
 import type {
   SyncClientConfig,
@@ -41,6 +42,7 @@ export class SyncClient extends EventEmitter {
   private hashFiles?: HashFilesService;
   private fsScanner?: FilesystemScanner;
   private cloudSyncManager?: CloudSyncManager;
+  private apiClient?: ApiClient;
   private stats = {
     files: 0,
     dirs: 0,
@@ -72,6 +74,7 @@ export class SyncClient extends EventEmitter {
     this.debouncedRemoveFile = this.debounce(this.processFileRemoveQueue.bind(this), 500);
     this.debouncedRemoveDir = this.debounce(this.processDirRemoveQueue.bind(this), 500);
     this.debouncedFileChange = this.debounce(this.processFileChangeQueue.bind(this), 500);
+    this.apiClient = new ApiClient(this.config.apiBaseUrl, this.config.userEmail)
   }
 
   private debounce(cb: (...args: any[]) => void, delay: number) {
@@ -291,7 +294,6 @@ export class SyncClient extends EventEmitter {
     this.hashFiles = new HashFilesService();
     // Start file system watcher with dependencies for rename detection
     this.watcher = new FileSystemWatcher(this.config.syncPath, {}, this.dbManager, this.fsScanner);
-
     // Initialize Cloud Sync Manager
     this.cloudSyncManager = new CloudSyncManager({
       apiUrl: this.config.apiBaseUrl,
@@ -310,8 +312,15 @@ export class SyncClient extends EventEmitter {
 
       if (this.dbManager && this.hashPool) {
         const dbFiles = await this.dbManager.getAllFiles();
-        await this.hashFiles?.computeHashes(initialScanFiles, dbFiles, this.hashPool)
-        await this.dbManager.reconcileDatabaseWithFileSystem(initialScanFiles, initialScanDirs, dbFiles);
+        const metadata = await this.apiClient?.getMetadata();
+        if (metadata && metadata.success) {
+          const { files, directories } = metadata;
+          if(files && directories){
+            await this.hashFiles?.computeHashes(initialScanFiles, dbFiles, this.hashPool)
+            await this.dbManager.reconcileDatabaseWithFileSystem(initialScanFiles, initialScanDirs, dbFiles, files, directories);
+          }
+
+        }
       }
 
       isReady = true;

@@ -33,7 +33,9 @@ export class ReconciliationService {
     filesToDownload: CloudFileMetadata[],
     filesToDeleteLocal: LocalFileDeleteMetadata[],
     foldersToCreateLocal: LocalFolderCreateMetadata[],
-    foldersToDeleteLocal: LocalFolderDeleteMetadata[]
+    foldersToDeleteLocal: LocalFolderDeleteMetadata[],
+    filesInConflict: CloudFileMetadata[],
+    filesToUpdate: CloudFileMetadata[]
   } | any> {
 
     try {
@@ -42,6 +44,8 @@ export class ReconciliationService {
       let filesToDeleteLocal: LocalFileDeleteMetadata[] = [];
       let foldersToCreateLocal: LocalFolderCreateMetadata[] = [];
       let foldersToDeleteLocal: LocalFolderDeleteMetadata[] = [];
+      let filesInConflict: CloudFileMetadata[] = [];
+      let filesToUpdate: CloudFileMetadata[] = [];
       // 1. Indexing for fast lookup
       const cloudFileMap = new Map(cloudFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
       const cloudDirMap = new Map(cloudDirs.map(d => [d.path, d]));
@@ -64,42 +68,26 @@ export class ReconciliationService {
           if (!fileInQueue)
             filesToDownload.push(cloudFile);
         }
-        /*
-                else {
-                  // Case: Exists locally -> Check for modifications
-                  if (localFile.hashvalue !== cloudFile.hashvalue) {
-                    console.log(`[Reconcile] File modified in cloud: ${cloudFile.filename}. Checking for conflicts...`);
-                    // Check if local file is also modified (in Queue)
-                    const inQueue = await this.prisma.fileQueue.findUnique({
-                      where: { path_filename: { path: localFile.path, filename: localFile.filename } }
-                    });
-        
-                    if (inQueue) {
-                      console.log(`[Reconcile] CONFLICT detected for ${cloudFile.filename}. Creating conflicted copy.`);
-                      // Implement conflict resolution (rename local and download cloud version)
-                      try {
-                        const { name, ext } = parse(localFile.filename);
-                        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                        const conflictFilename = `${name} (conflicted copy ${timestamp})${ext}`;
-                        const oldPath = join(this.syncPath, localFile.path)
-                        const newPath = join(this.syncPath, localFile.path.replace(localFile.filename, ''), conflictFilename);
-                        await rename(oldPath, newPath);
-                        console.log(`Conflict resolved: Renamed ${localFile.filename} to ${conflictFilename}`);
-                        filesToDownload.push(cloudFile);
-                      } catch (err) {
-                        console.error(`Failed to handle conflict for ${cloudFile.filename}:`, err);
-                        // If rename fails, we probably shouldn't download to avoid overwrite? 
-                        // Or should we let it fail? For safety, skip download if rename fails.
-                      }
-                    } else {
-                      // console.log(`[Reconcile] Updating local file: ${cloudFile.filename}`);
-                      filesToDownload.push(cloudFile);
-                    }
-                  }
-                }
-                */
+        else {
+          // Case: Exists locally -> Check for modifications
+          const inConflictQueue = await this.prisma.conflictQueue.findUnique({ where: { path_filename: { path: cloudFile.path, filename: cloudFile.filename } } })
+          if (inConflictQueue) continue;
+          const inQueue = await this.prisma.fileQueue.findUnique({
+            where: { path_filename: { path: localFile.path, filename: localFile.filename } }
+          });
+          if (!inQueue && localFile.hashvalue !== cloudFile.hashvalue) {
+            // the file in the cloud is modified has to be downloaded.
+            filesToUpdate.push(cloudFile)
+          }
+          if (inQueue) {
+            if (inQueue.lastSyncedHashValue !== cloudFile.hashvalue) {
+              console.log(`[Reconcile] File modified in cloud & local: ${cloudFile.filename}. Adding files to conflicts...`);
+              filesInConflict.push(cloudFile);
+            }
+          }
+
+        }
       }
-      console.log("FilesToDownload: ", filesToDownload);
       // 3. Process Cloud Directories (Create locally)
       for (const cloudDir of cloudDirs) {
         if (cloudDir.path === '/') continue; // Skip root        
@@ -123,7 +111,14 @@ export class ReconciliationService {
           });
           if (!inQueue) {
             // It's a new local file waiting to be uploaded, so it's expected not to be in cloud yet.
-            filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
+            const inConflict = await this.prisma.conflictQueue.findUnique({
+              where: {
+                conflictId: dbFile.uuid
+              }
+            });
+            if (!inConflict) {
+              filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
+            }
           }
           // console.log(`[Reconcile] File deleted in cloud: ${dbFile.filename}. Deleting locally...`);
           // TODO: Implement delete local file logic
@@ -144,7 +139,7 @@ export class ReconciliationService {
           // TODO: Implement delete local dir logic
         }
       }
-      return { filesToDeleteLocal, filesToDownload, foldersToDeleteLocal, foldersToCreateLocal }
+      return { filesToDeleteLocal, filesToDownload, foldersToDeleteLocal, foldersToCreateLocal, filesInConflict, filesToUpdate }
     } catch (error: any) {
       return error?.message;
     }

@@ -128,7 +128,24 @@ exports.Prisma.FileScalarFieldEnum = {
   inode: 'inode',
   absPath: 'absPath',
   versions: 'versions',
-  origin: 'origin'
+  origin: 'origin',
+  lastSyncedHashValue: 'lastSyncedHashValue',
+  conflictId: 'conflictId'
+};
+
+exports.Prisma.ConflictQueueScalarFieldEnum = {
+  uuid: 'uuid',
+  path: 'path',
+  filename: 'filename',
+  last_modified: 'last_modified',
+  hashvalue: 'hashvalue',
+  lastSyncedHashValue: 'lastSyncedHashValue',
+  absPath: 'absPath',
+  size: 'size',
+  inode: 'inode',
+  versions: 'versions',
+  origin: 'origin',
+  conflictId: 'conflictId'
 };
 
 exports.Prisma.DirectoryScalarFieldEnum = {
@@ -155,7 +172,8 @@ exports.Prisma.FileQueueScalarFieldEnum = {
   origin: 'origin',
   absPath: 'absPath',
   old_path: 'old_path',
-  old_filename: 'old_filename'
+  old_filename: 'old_filename',
+  lastSyncedHashValue: 'lastSyncedHashValue'
 };
 
 exports.Prisma.DirectoryQueueScalarFieldEnum = {
@@ -183,6 +201,7 @@ exports.Prisma.NullsOrder = {
 
 exports.Prisma.ModelName = {
   File: 'File',
+  ConflictQueue: 'ConflictQueue',
   Directory: 'Directory',
   FileQueue: 'FileQueue',
   DirectoryQueue: 'DirectoryQueue'

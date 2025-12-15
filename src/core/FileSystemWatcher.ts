@@ -49,7 +49,7 @@ export class FileSystemWatcher extends EventEmitter {
       atomic: true,
       persistent: true,
       ignoreInitial: false,
-      awaitWriteFinish: { stabilityThreshold: 4000, pollInterval: 50 },
+      awaitWriteFinish: { stabilityThreshold: 5000, pollInterval: 50 },
       usePolling: true,  // Use polling for better compatibility
       ...options
     };

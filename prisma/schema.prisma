@@ -26,7 +26,26 @@ model File {
   absPath String
   versions Int 
   origin String
+  lastSyncedHashValue String
+  conflictId String?
   directoryID Directory @relation(fields: [dirID],references: [uuid])
+  @@unique([path,filename])
+  @@index([path,filename]) 
+}
+
+model ConflictQueue {
+  uuid String @unique()
+  path String
+  filename String
+  last_modified DateTime
+  hashvalue String
+  lastSyncedHashValue String
+  absPath String
+  size BigInt
+  inode String
+  versions Int 
+  origin String @unique()
+  conflictId String @unique()
   @@unique([path,filename])
   @@index([path,filename]) 
 }
@@ -59,6 +78,7 @@ model FileQueue {
   absPath String
   old_path String?
   old_filename String?
+  lastSyncedHashValue String
   directoryID DirectoryQueue @relation(fields: [dirID],references: [uuid])
   @@unique([path,filename])
   @@index([path,filename]) 

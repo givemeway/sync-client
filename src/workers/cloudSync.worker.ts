@@ -10,7 +10,7 @@ import type {
 } from "../types/index.js";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
-import { join, } from "path";
+import { join, parse, dirname } from "node:path";
 
 // Configuration from main thread
 const { apiUrl, userEmail, syncPath } = workerData;
@@ -26,7 +26,7 @@ const reconciliationService = new ReconciliationService(
 );
 
 let isSyncing: boolean = false;
-const POLLING_INTERVAL = 5000; // 5 seconds
+const POLLING_INTERVAL = 30000; // 30 seconds
 
 function getDirDevicePath(path: string): {
   directory: string;
@@ -187,6 +187,8 @@ async function pollCloud() {
         filesToDeleteLocal,
         foldersToCreateLocal,
         foldersToDeleteLocal,
+        filesInConflict,
+        filesToUpdate
       } = await reconciliationService.reconcile(
         metadata.files,
         metadata.directories,
@@ -208,22 +210,126 @@ async function pollCloud() {
             const status = await apiClient.downloadFile(file, dstPath);
             if (status && status.success) {
               await log(`✅ Downloaded: ${file.filename}`);
-              await prisma.file.upsert({
+              let fileObj = {
+                path: file.path,
+                filename: file.filename,
+                absPath: dstPath,
+                size: file.size,
+                last_modified: file.last_modified,
+                hashvalue: file.hashvalue || "",
+                inode: status.ino.toString(), // Placeholder
+                uuid: file.uuid || uuidv4(),
+                origin: file.origin,
+                versions: file.versions,
+                lastSyncedHashValue: file.hashvalue,
+              }
+              const fileExists = await prisma.file.findUnique({
                 where: {
-                  path_filename: { path: file.path, filename: file.filename },
+                  path_filename: { path: file.path, filename: file.filename }
+                }
+              });
+
+              if (!fileExists) {
+                await prisma.file.create({
+                  data: {
+                    ...fileObj,
+                    directoryID: {
+                      connectOrCreate: {
+                        where: {
+                          device_folder_path: {
+                            device: device, // Placeholder
+                            folder: folder, // Placeholder
+                            path: file.path,
+                          },
+                        },
+                        create: {
+                          uuid: uuidv4(),
+                          device: device, // Placeholder
+                          folder: folder, // Placeholder
+                          path: file.path,
+                          created_at: mtime,
+                          inode: ino.toString(),
+                          absPath: localPath,
+                        },
+                      },
+                    },
+                  },
+                });
+              }
+              if (fileExists) {
+                fileObj = { ...fileObj, ...fileExists }
+                await prisma.file.update({
+                  where: { path_filename: { path: file.path, filename: file.filename } },
+                  data: { ...fileObj }
+                })
+              }
+
+            } else {
+              await error(`❌ Failed to download: ${file.filename}`);
+              await fs.promises.unlink(localPath)
+            }
+          } catch (err: any) {
+            await error(
+              `❌ Exception during download ${file.filename}: ${err.message}`
+            );
+          }
+          console.log("File downloaded: ", file.filename, file.path);
+        }
+      }
+      if (filesToUpdate && filesToUpdate.length > 0) {
+        for (const file of filesToUpdate) {
+          const localPath = join(syncPath, file.path);
+          const { device, folder } = getDirDevicePath(file.path);
+          // Ensure directory exists
+          await fs.promises.mkdir(localPath, { recursive: true });
+          const { ino, mtime } = await fs.promises.stat(localPath);
+          await log(`⬇️ Downloadng updated File: ${file.filename}`);
+          const dstPath = join(syncPath, file.path, file.filename);
+          try {
+            //const deleted = await prisma.file.delete({ where: { path_filename: { path: file.path, filename: file.filename } } })
+            //await fs.promises.unlink(dstPath);
+            const status = await apiClient.downloadFile(file, dstPath);
+            if (status && status.success) {
+              let fileObj = {
+                path: file.path,
+                filename: file.filename,
+                absPath: dstPath,
+                size: file.size,
+                last_modified: file.last_modified,
+                hashvalue: file.hashvalue || "",
+                inode: status.ino.toString(), // Placeholder
+                uuid: file.uuid || uuidv4(),
+                origin: file.origin,
+                versions: file.versions,
+                lastSyncedHashValue: file.hashvalue,
+              }
+              const upserted = await prisma.file.upsert({
+                where: { path_filename: { path: file.path, filename: file.filename } },
+                update: {
+                  ...fileObj,
+                  directoryID: {
+                    connectOrCreate: {
+                      where: {
+                        device_folder_path: {
+                          device: device, // Placeholder
+                          folder: folder, // Placeholder
+                          path: file.path,
+                        },
+                      },
+                      create: {
+                        uuid: uuidv4(),
+                        device: device, // Placeholder
+                        folder: folder, // Placeholder
+                        path: file.path,
+                        created_at: mtime,
+                        inode: ino.toString(),
+                        absPath: localPath,
+                      },
+                    },
+                  },
                 },
-                update: {},
                 create: {
-                  path: file.path,
-                  filename: file.filename,
-                  absPath: dstPath,
-                  size: file.size,
-                  last_modified: file.last_modified,
-                  hashvalue: file.hashvalue || "",
-                  inode: status.ino.toString(), // Placeholder
-                  uuid: file.uuid || uuidv4(),
-                  origin: file.origin,
-                  versions: file.versions,
+                  ...fileObj,
                   directoryID: {
                     connectOrCreate: {
                       where: {
@@ -246,6 +352,7 @@ async function pollCloud() {
                   },
                 },
               });
+              await log(`✅ Updated: ${file.filename}`);
             } else {
               await error(`❌ Failed to download: ${file.filename}`);
               await fs.promises.unlink(localPath)
@@ -255,10 +362,9 @@ async function pollCloud() {
               `❌ Exception during download ${file.filename}: ${err.message}`
             );
           }
-
-          console.log("File downloaded: ", file.filename, file.path);
         }
       }
+
       // 2. Delete Local Files
       if (filesToDeleteLocal && filesToDeleteLocal.length > 0) {
         for (const file of filesToDeleteLocal) {
@@ -325,6 +431,93 @@ async function pollCloud() {
             await error(
               `Failed to delete folder ${f.folder}: ${err.message}`
             );
+          }
+        }
+      }
+      if (filesInConflict && filesInConflict.length > 0) {
+        for (const file of filesInConflict) {
+          try {
+            const inQueue = await prisma.fileQueue.findUnique({
+              where: { path_filename: { path: file.path, filename: file.filename }, AND: { sync_status: "modified" } }
+            });
+            if (!inQueue) continue;
+            const { ext, name } = parse(file.filename);
+            const abspath = join(syncPath, file.path, file.filename)
+            const path = dirname(abspath);
+            const conflictedName = `${name} (Conflicted Copy) - ${file.uuid} ${ext}`;
+            const newPath = join(path, conflictedName);
+            const localDirPath = join(syncPath, file.path);
+            const { device, folder } = getDirDevicePath(file.path);
+            // Ensure directory exists
+            await fs.promises.mkdir(localDirPath, { recursive: true });
+            const { ino, mtime } = await fs.promises.stat(localDirPath);
+            await log(`⬇️ Downloadig Conflicted Copy: ${conflictedName}`);
+            const status = await apiClient.downloadFile(file, newPath);
+            if (status && status.success) {
+              await log(`✅ Downloaded Conflicted Copy: ${conflictedName}`);
+              let fileObj = {
+                path: file.path,
+                filename: conflictedName,
+                absPath: newPath,
+                size: file.size,
+                last_modified: file.last_modified,
+                hashvalue: file.hashvalue || "",
+                inode: status.ino.toString(), // Placeholder
+                uuid: uuidv4(),
+                origin: "",
+                versions: 1,
+                lastSyncedHashValue: file.hashvalue,
+              }
+              fileObj.origin = fileObj.uuid
+              await prisma.$transaction(async (prisma) => {
+                await prisma.file.create({
+                  data: {
+                    ...fileObj,
+                    directoryID: {
+                      connectOrCreate: {
+                        where: {
+                          device_folder_path: {
+                            device: device, // Placeholder
+                            folder: folder, // Placeholder
+                            path: file.path,
+                          },
+                        },
+                        create: {
+                          uuid: uuidv4(),
+                          device: device, // Placeholder
+                          folder: folder, // Placeholder
+                          path: file.path,
+                          created_at: mtime,
+                          inode: ino.toString(),
+                          absPath: localDirPath,
+                        },
+                      },
+                    },
+                  },
+                });
+                await prisma.file.update({
+                  where: { path_filename: { path: file.path, filename: file.filename } },
+                  data: { conflictId: fileObj.uuid }
+                });
+                await prisma.fileQueue.delete({
+                  where: { path_filename: { path: file.path, filename: file.filename } }
+                });
+                /* await prisma.fileQueue.create({
+                  data: { ...fileObj, dirID: deleted.dirID, sync_status: "new", versions: 1 }
+                }); */
+                await prisma.conflictQueue.upsert({
+                  where: { path_filename: { path: file.path, filename: file.filename } },
+                  update: { ...fileObj, filename: file.filename, uuid: file.uuid, origin: file.origin, conflictId: fileObj.uuid },
+                  create: { ...fileObj, filename: file.filename, uuid: file.uuid, origin: file.origin, conflictId: fileObj.uuid }
+                });
+
+              });
+            } else {
+              await error(`❌ Failed to download Conflicted Copy : ${conflictedName}`);
+              await fs.promises.unlink(newPath)
+            }
+          } catch (err: any) {
+            console.error(err);
           }
         }
       }

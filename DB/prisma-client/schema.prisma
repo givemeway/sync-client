@@ -15,18 +15,38 @@ datasource db {
 }
 
 model File {
-  uuid          String    @unique()
-  path          String
-  filename      String
-  last_modified DateTime
-  hashvalue     String
-  size          BigInt
-  dirID         String
-  inode         String
-  absPath       String
-  versions      Int
-  origin        String
-  directoryID   Directory @relation(fields: [dirID], references: [uuid])
+  uuid                String    @unique()
+  path                String
+  filename            String
+  last_modified       DateTime
+  hashvalue           String
+  size                BigInt
+  dirID               String
+  inode               String
+  absPath             String
+  versions            Int
+  origin              String
+  lastSyncedHashValue String
+  conflictId          String?
+  directoryID         Directory @relation(fields: [dirID], references: [uuid])
+
+  @@unique([path, filename])
+  @@index([path, filename])
+}
+
+model ConflictQueue {
+  uuid                String   @unique()
+  path                String
+  filename            String
+  last_modified       DateTime
+  hashvalue           String
+  lastSyncedHashValue String
+  absPath             String
+  size                BigInt
+  inode               String
+  versions            Int
+  origin              String   @unique()
+  conflictId          String   @unique()
 
   @@unique([path, filename])
   @@index([path, filename])
@@ -47,21 +67,22 @@ model Directory {
 }
 
 model FileQueue {
-  uuid          String         @unique()
-  path          String
-  filename      String
-  last_modified DateTime
-  hashvalue     String
-  size          BigInt
-  dirID         String
-  sync_status   String
-  inode         String
-  versions      Int
-  origin        String
-  absPath       String
-  old_path      String?
-  old_filename  String?
-  directoryID   DirectoryQueue @relation(fields: [dirID], references: [uuid])
+  uuid                String         @unique()
+  path                String
+  filename            String
+  last_modified       DateTime
+  hashvalue           String
+  size                BigInt
+  dirID               String
+  sync_status         String
+  inode               String
+  versions            Int
+  origin              String
+  absPath             String
+  old_path            String?
+  old_filename        String?
+  lastSyncedHashValue String
+  directoryID         DirectoryQueue @relation(fields: [dirID], references: [uuid])
 
   @@unique([path, filename])
   @@index([path, filename])

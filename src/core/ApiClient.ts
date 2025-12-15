@@ -5,7 +5,7 @@ import FormData from 'form-data';
 import { createReadStream, createWriteStream } from 'node:fs';
 import mime from 'mime-types';
 import sharp from 'sharp';
-import { stat } from "node:fs/promises"
+import { stat, utimes } from "node:fs/promises"
 import { FileQueue, } from '../../DB/prisma-client/index.js'
 import type {
   DirectoryMetadata,
@@ -60,6 +60,7 @@ export class ApiClient {
       const response = await this.client.get(`/syncDownFile?${queryString}`, {
         responseType: "stream",
       });
+      const last_modified = new Date(response.headers['mtime']);
       const writer = createWriteStream(absPath);
       response.data.pipe(writer);
 
@@ -67,6 +68,12 @@ export class ApiClient {
         writer.on('finish', async () => {
           try {
             const { ino } = await stat(absPath);
+            writer.close();
+            try {
+              await utimes(absPath, last_modified, last_modified);
+            } catch (err: any) {
+              console.error(err);
+            }
             resolve({ success: true, ino });
           } catch (err: any) {
             resolve({ success: false, error: err.message });

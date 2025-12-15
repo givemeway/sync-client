@@ -2,19 +2,19 @@ import {
   PrismaClient,
   File,
   Directory,
-  FileQueue,
   DirectoryQueue,
 } from "../../DB/prisma-client/index.js";
 import { join, dirname } from "path";
 import { stat } from "fs/promises";
 import { Stats } from "node:fs";
 import { v4 as uuidv4 } from "uuid";
-import { HashWorkerPool } from "../utils/HashWorkerPool.js";
 import {
   FileMetadata,
   DirectoryMetadata,
   ScannedFile,
   ScannedDirectory,
+  CloudFileMetadata,
+  CloudFolderMetadata
 } from "../types/index.js";
 
 export class DatabaseManager {
@@ -198,6 +198,7 @@ export class DatabaseManager {
         inode: file.inode,
         absPath: file.absPath,
         sync_status: "new",
+        lastSyncedHashValue: file.hashvalue,
         dirID,
         uuid: uuidv4(),
         origin: "",
@@ -272,6 +273,7 @@ export class DatabaseManager {
           uuid: file.uuid,
           versions: file.versions,
           origin: file.origin,
+          lastSyncedHashValue: queuedFile.lastSyncedHashValue
         };
         await tx.fileQueue.update({
           where: {
@@ -292,7 +294,10 @@ export class DatabaseManager {
             filename: file.filename,
           },
         },
-        select: { dirID: true, uuid: true, origin: true, versions: true },
+        select: {
+          dirID: true, uuid: true, origin: true,
+          versions: true, lastSyncedHashValue: true,
+        },
       });
 
       // If not in main DB either, treat as new file
@@ -365,6 +370,7 @@ export class DatabaseManager {
         uuid: file.uuid || existingFile.uuid,
         versions: file.versions,
         origin: file.origin,
+        lastSyncedHashValue: existingFile.lastSyncedHashValue
       };
 
       await tx.fileQueue.create({
@@ -441,6 +447,7 @@ export class DatabaseManager {
         uuid: existingFile.uuid,
         origin: existingFile.origin,
         versions: existingFile.versions,
+        lastSyncedHashValue: existingFile.lastSyncedHashValue
       };
 
       await tx.fileQueue.upsert({
@@ -611,7 +618,7 @@ export class DatabaseManager {
         where: {
           path_filename: { path: oldFile.path, filename: oldFile.filename },
         },
-        select: { uuid: true },
+        select: { uuid: true, lastSyncedHashValue: true, origin: true },
       });
       let fileData = {
         path: newFile.path,
@@ -628,6 +635,7 @@ export class DatabaseManager {
         uuid: uuidv4(),
         origin: "",
         versions: 1,
+        lastSyncedHashValue: newFile.hashvalue
       };
       fileData.origin = fileData.uuid;
       if (existingOldFile) {
@@ -857,7 +865,8 @@ export class DatabaseManager {
           insertedDirs.push(upsertDir);
         }
         dirID = insertedDirs.at(-1)?.uuid;
-      } else {
+      }
+      else {
         const dirObj = {
           uuid: uuidv4(),
           path: "/",
@@ -899,11 +908,17 @@ export class DatabaseManager {
         uuid: uuidv4(),
         origin: "",
         versions: 1,
+        lastSyncedHashValue: file.hashvalue
       };
 
       const fileQueueExists = await tx.fileQueue.findUnique({
         where: { path_filename: { path: file.path, filename: file.filename } },
-        select: { uuid: true },
+        select: {
+          versions: true,
+          uuid: true,
+          origin: true,
+          lastSyncedHashValue: true
+        }
       });
       if (fileQueueExists) {
         fileObj = { ...fileObj, ...fileQueueExists };
@@ -1007,7 +1022,7 @@ export class DatabaseManager {
     try {
       const existing = await tx.file.findUnique({
         where: { path_filename: { path: file.path, filename: file.filename } },
-        select: { dirID: true },
+        select: { dirID: true, lastSyncedHashValue: true },
       });
       if (!existing) return;
 
@@ -1022,7 +1037,8 @@ export class DatabaseManager {
         dirID: existing.dirID,
         versions: file.versions,
         origin: file.origin,
-        uuid: file.uuid
+        uuid: file.uuid,
+        lastSyncedHashValue: existing.lastSyncedHashValue
       };
 
       await tx.file.update({
@@ -1053,7 +1069,6 @@ export class DatabaseManager {
         where: {
           path_filename: { path: oldFile.path, filename: oldFile.filename },
         },
-        select: { dirID: true, uuid: true },
       });
 
       if (existing) {
@@ -1072,10 +1087,10 @@ export class DatabaseManager {
           absPath: newFile.absPath,
           dirID: existing.dirID,
           uuid: existing.uuid,
-          origin: "",
-          versions: 1,
+          origin: existing.origin,
+          versions: existing.versions,
+          lastSyncedHashValue: existing.lastSyncedHashValue
         };
-        fileObj.origin = fileObj.uuid;
         await tx.file.upsert({
           where: {
             path_filename: { path: newFile.path, filename: newFile.filename },
@@ -1386,7 +1401,9 @@ export class DatabaseManager {
   async reconcileDatabaseWithFileSystem(
     scannedFiles: ScannedFile[],
     scannedDirs: ScannedDirectory[],
-    dbFiles: File[]
+    dbFiles: File[],
+    cloudFiles: CloudFileMetadata[],
+    cloudDirs: CloudFolderMetadata[]
   ) {
     console.log("Reconciling database with filesystem...");
 
@@ -1573,10 +1590,15 @@ export class DatabaseManager {
         if (dirID) {
           const existingFile = await tx.fileQueue.findUnique({
             where: { path_filename: { path: f.path, filename: f.filename } },
-            select: { uuid: true },
+            select: {
+              uuid: true,
+              lastSyncedHashValue: true,
+              origin: true,
+              versions: true
+            }
           });
           let fileObj = {
-            uuid: uuidv4(),
+            uuid: f.uuid,
             filename: f.filename,
             path: f.path,
             dirID,
@@ -1586,10 +1608,10 @@ export class DatabaseManager {
             hashvalue: f.hashvalue,
             size: BigInt(f.size),
             sync_status: "delete",
-            origin: "",
-            versions: 1,
+            origin: f.origin,
+            versions: f.versions,
+            lastSyncedHashValue: f.lastSyncedHashValue
           };
-          fileObj.origin = fileObj.uuid;
           if (existingFile) {
             fileObj = { ...fileObj, ...existingFile };
           }
@@ -1706,6 +1728,7 @@ export class DatabaseManager {
           uuid: uuidv4(),
           origin: "",
           versions: 1,
+          lastSyncedHashValue: f.hash
         };
         fileObj.origin = fileObj.uuid;
         // Add to Main
@@ -1777,16 +1800,14 @@ export class DatabaseManager {
         });
         const existingFile = await tx.file.findUnique({
           where: {
-            path_filename: {
-              path: f.path,
-              filename: f.filename,
-            },
+            path_filename: { path: f.path, filename: f.filename }
           },
           select: {
             uuid: true,
             origin: true,
             versions: true,
-          },
+            lastSyncedHashValue: true
+          }
         });
         let fileObj = {
           path: f.path,
@@ -1800,10 +1821,11 @@ export class DatabaseManager {
           uuid: uuidv4(),
           origin: "",
           versions: 1,
+          lastSyncedHashValue: f.hash
         };
         fileObj.origin = fileObj.uuid;
         if (existingFile) {
-          fileObj = { ...fileObj, ...existingFile };
+          fileObj = { ...fileObj, ...existingFile, versions: existingFile.versions + 1 };
         }
         // Update Main
         await tx.file.upsert({
@@ -1849,11 +1871,14 @@ export class DatabaseManager {
         where: { path_filename: { path: file.path, filename: file.filename } },
       });
       if (!existingFile) return;
+      const inConflict = await tx.conflictQueue.findUnique({ where: { origin: existingFile.origin } });
+      if (inConflict) return;
+      if (existingFile.hashvalue === file.hashvalue) return;
       let updatedFile = {
         ...file,
         origin: existingFile.origin,
         versions: existingFile.versions + 1,
-        uuid: file.uuid,
+        uuid: existingFile.uuid,
         dirID: existingFile.dirID
       };
       await this.updateFileQueue(tx, updatedFile);
