@@ -3,15 +3,11 @@ import { PrismaClient, File, Directory } from "../../DB/prisma-client/index.js";
 import { ApiClient } from "../core/ApiClient.js";
 import { DatabaseManager } from "../core/DatabaseManager.js";
 import { ReconciliationService } from "../core/ReconciliationService.js";
-import type {
-  DirectoryMetadata,
-  CloudFileMetadata,
-  CloudFolderMetadata,
-} from "../types/index.js";
+import type { DirectoryMetadata } from "../types/index.js";
 import { v4 as uuidv4 } from "uuid";
 import fs from "fs";
 import { join, parse, dirname } from "node:path";
-
+import os from "node:os";
 // Configuration from main thread
 const { apiUrl, userEmail, syncPath } = workerData;
 // Initialize services
@@ -102,11 +98,16 @@ async function processQueue() {
           };
           await apiClient.deleteFolder(dirMeta);
           await prisma.fileQueue.deleteMany({
-            where: { dirID: dir.uuid }
+            where: { dirID: dir.uuid },
           });
           await prisma.directoryQueue.delete({ where: { uuid: dir.uuid } });
         } catch (err: any) {
           await error(`Failed to delete folder ${dir.path}: ${err.message}`);
+        }
+      } else if (dir.sync_status === "FILE_LINKED") {
+        const filesInQueue = await prisma.fileQueue.findMany({ where: { dirID: dir.uuid } })
+        if (filesInQueue.length === 0) {
+          await prisma.directoryQueue.delete({ where: { uuid: dir.uuid } })
         }
       }
     }
@@ -124,6 +125,10 @@ async function processQueue() {
           if (result.success) {
             await log(`✅ Uploaded: ${file.filename}`);
             // Remove from queue
+            await prisma.file.update({
+              where: { path_filename: { path: file.path, filename: file.filename } },
+              data: { lastSyncedHashValue: file.hashvalue }
+            });
             await prisma.fileQueue.delete({
               where: {
                 path_filename: {
@@ -132,6 +137,10 @@ async function processQueue() {
                 },
               },
             });
+            const filesInQueue = await prisma.fileQueue.findMany({ where: { dirID: file.dirID } })
+            if (filesInQueue.length === 0) {
+              await prisma.directoryQueue.delete({ where: { uuid: file.dirID } });
+            }
             // Ensure it's in main DB (it should be added by DatabaseManager already, but we confirm sync)
           } else {
             await error(
@@ -188,13 +197,14 @@ async function pollCloud() {
         foldersToCreateLocal,
         foldersToDeleteLocal,
         filesInConflict,
-        filesToUpdate
+        filesToUpdate,
       } = await reconciliationService.reconcile(
         metadata.files,
         metadata.directories,
         dbFiles,
         dbDirs
       );
+      console.log("FoldersToDelete: ", foldersToDeleteLocal);
       // Handle Reconciliation Results
       // 1. Download Files
       if (filesToDownload && filesToDownload.length > 0) {
@@ -222,11 +232,11 @@ async function pollCloud() {
                 origin: file.origin,
                 versions: file.versions,
                 lastSyncedHashValue: file.hashvalue,
-              }
+              };
               const fileExists = await prisma.file.findUnique({
                 where: {
-                  path_filename: { path: file.path, filename: file.filename }
-                }
+                  path_filename: { path: file.path, filename: file.filename },
+                },
               });
 
               if (!fileExists) {
@@ -257,16 +267,17 @@ async function pollCloud() {
                 });
               }
               if (fileExists) {
-                fileObj = { ...fileObj, ...fileExists }
+                fileObj = { ...fileObj, ...fileExists };
                 await prisma.file.update({
-                  where: { path_filename: { path: file.path, filename: file.filename } },
-                  data: { ...fileObj }
-                })
+                  where: {
+                    path_filename: { path: file.path, filename: file.filename },
+                  },
+                  data: { ...fileObj },
+                });
               }
-
             } else {
               await error(`❌ Failed to download: ${file.filename}`);
-              await fs.promises.unlink(localPath)
+              await fs.promises.unlink(localPath);
             }
           } catch (err: any) {
             await error(
@@ -302,9 +313,11 @@ async function pollCloud() {
                 origin: file.origin,
                 versions: file.versions,
                 lastSyncedHashValue: file.hashvalue,
-              }
+              };
               const upserted = await prisma.file.upsert({
-                where: { path_filename: { path: file.path, filename: file.filename } },
+                where: {
+                  path_filename: { path: file.path, filename: file.filename },
+                },
                 update: {
                   ...fileObj,
                   directoryID: {
@@ -355,7 +368,7 @@ async function pollCloud() {
               await log(`✅ Updated: ${file.filename}`);
             } else {
               await error(`❌ Failed to download: ${file.filename}`);
-              await fs.promises.unlink(localPath)
+              await fs.promises.unlink(localPath);
             }
           } catch (err: any) {
             await error(
@@ -373,7 +386,9 @@ async function pollCloud() {
             await fs.promises.unlink(file.absPath);
             // Remove from Main DB immediately to keep state consistent?
             await prisma.file.delete({
-              where: { path_filename: { path: file.path, filename: file.filename } }
+              where: {
+                path_filename: { path: file.path, filename: file.filename },
+              },
             });
           } catch (err: any) {
             await error(
@@ -393,22 +408,37 @@ async function pollCloud() {
             const { device } = getDirDevicePath(f.path);
             const { ino, mtime } = await fs.promises.stat(absPath);
             let dirObj: Directory = {
-              absPath, device: device || "/", inode: ino.toString(),
-              created_at: mtime, path: f.path, folder: f.folder, uuid: uuidv4()
-            }
+              absPath,
+              device: device || "/",
+              inode: ino.toString(),
+              created_at: mtime,
+              path: f.path,
+              folder: f.folder,
+              uuid: uuidv4(),
+            };
             const dirExists = await prisma.directory.findUnique({
-              where: { device_folder_path: { device: device || "/", folder: f.folder, path: f.path } },
+              where: {
+                device_folder_path: {
+                  device: device || "/",
+                  folder: f.folder,
+                  path: f.path,
+                },
+              },
             });
-            if (dirExists) dirObj.uuid = dirExists.uuid
+            if (dirExists) dirObj.uuid = dirExists.uuid;
             await prisma.directory.upsert({
-              where: { device_folder_path: { device: device || "/", folder: f.folder, path: f.path } },
+              where: {
+                device_folder_path: {
+                  device: device || "/",
+                  folder: f.folder,
+                  path: f.path,
+                },
+              },
               update: {},
-              create: dirObj
+              create: dirObj,
             });
           } catch (err: any) {
-            await error(
-              `Failed to create folder ${f.path}: ${err.message}`
-            );
+            await error(`Failed to create folder ${f.path}: ${err.message}`);
           }
         }
       }
@@ -421,16 +451,15 @@ async function pollCloud() {
             await fs.promises.rm(f.absPath, { force: true, recursive: true });
             const { device } = getDirDevicePath(f.path);
             await prisma.file.deleteMany({
-              where: { path: f.path }
+              where: { path: f.path },
             });
             await prisma.directory.delete({
-              where: { device_folder_path: { device, folder: f.folder, path: f.path } }
+              where: {
+                device_folder_path: { device, folder: f.folder, path: f.path },
+              },
             });
-
           } catch (err: any) {
-            await error(
-              `Failed to delete folder ${f.folder}: ${err.message}`
-            );
+            await error(`Failed to delete folder ${f.folder}: ${err.message}`);
           }
         }
       }
@@ -438,83 +467,94 @@ async function pollCloud() {
         for (const file of filesInConflict) {
           try {
             const inQueue = await prisma.fileQueue.findUnique({
-              where: { path_filename: { path: file.path, filename: file.filename }, AND: { sync_status: "modified" } }
+              where: {
+                path_filename: { path: file.path, filename: file.filename },
+                AND: { sync_status: "modified" },
+              },
             });
             if (!inQueue) continue;
             const { ext, name } = parse(file.filename);
-            const abspath = join(syncPath, file.path, file.filename)
+            const abspath = join(syncPath, file.path, file.filename);
             const path = dirname(abspath);
-            const conflictedName = `${name} (Conflicted Copy) - ${file.uuid} ${ext}`;
+            const hostname = os.hostname();
+            const timestamp = new Date().toTimeString();
+            const conflictedName = `${name}(Conflicted Copy) - ${hostname} - ${timestamp} ${ext}`;
             const newPath = join(path, conflictedName);
             const localDirPath = join(syncPath, file.path);
-            const { device, folder } = getDirDevicePath(file.path);
-            // Ensure directory exists
+            await log(`⬇️ Renaming Conflicted Copy: ${conflictedName}`);
             await fs.promises.mkdir(localDirPath, { recursive: true });
-            const { ino, mtime } = await fs.promises.stat(localDirPath);
-            await log(`⬇️ Downloadig Conflicted Copy: ${conflictedName}`);
-            const status = await apiClient.downloadFile(file, newPath);
-            if (status && status.success) {
-              await log(`✅ Downloaded Conflicted Copy: ${conflictedName}`);
-              let fileObj = {
-                path: file.path,
-                filename: conflictedName,
-                absPath: newPath,
-                size: file.size,
-                last_modified: file.last_modified,
-                hashvalue: file.hashvalue || "",
-                inode: status.ino.toString(), // Placeholder
-                uuid: uuidv4(),
-                origin: "",
-                versions: 1,
-                lastSyncedHashValue: file.hashvalue,
-              }
-              fileObj.origin = fileObj.uuid
-              await prisma.$transaction(async (prisma) => {
-                await prisma.file.create({
-                  data: {
-                    ...fileObj,
-                    directoryID: {
-                      connectOrCreate: {
-                        where: {
-                          device_folder_path: {
+            const fileExists = fs.existsSync(abspath);
+            console.log("FileExists: ", fileExists, abspath, newPath);
+            if (fileExists) {
+              await fs.promises.rename(abspath, newPath);
+              await prisma.file.delete({
+                where: {
+                  path_filename: { path: file.path, filename: file.filename },
+                },
+              });
+              const { device, folder } = getDirDevicePath(file.path);
+              // Ensure directory exists
+              const { ino, mtime } = await fs.promises.stat(localDirPath);
+              const status = await apiClient.downloadFile(file, abspath);
+              if (status && status.success) {
+                await log(
+                  `✅ Downloaded Cloud Conflicted Copy: ${file.filename}`
+                );
+                let fileObj = {
+                  path: file.path,
+                  filename: file.filename,
+                  absPath: newPath,
+                  size: file.size,
+                  last_modified: file.last_modified,
+                  hashvalue: file.hashvalue || "",
+                  inode: status.ino.toString(), // Placeholder
+                  uuid: file.uuid,
+                  origin: file.origin,
+                  versions: file.versions,
+                  lastSyncedHashValue: file.hashvalue,
+                };
+                fileObj.origin = fileObj.uuid;
+                await prisma.$transaction(async (prisma) => {
+                  await prisma.file.create({
+                    data: {
+                      ...fileObj,
+                      directoryID: {
+                        connectOrCreate: {
+                          where: {
+                            device_folder_path: {
+                              device: device, // Placeholder
+                              folder: folder, // Placeholder
+                              path: file.path,
+                            },
+                          },
+                          create: {
+                            uuid: uuidv4(),
                             device: device, // Placeholder
                             folder: folder, // Placeholder
                             path: file.path,
+                            created_at: mtime,
+                            inode: ino.toString(),
+                            absPath: localDirPath,
                           },
-                        },
-                        create: {
-                          uuid: uuidv4(),
-                          device: device, // Placeholder
-                          folder: folder, // Placeholder
-                          path: file.path,
-                          created_at: mtime,
-                          inode: ino.toString(),
-                          absPath: localDirPath,
                         },
                       },
                     },
-                  },
+                  });
+                  await prisma.fileQueue.delete({
+                    where: {
+                      path_filename: {
+                        path: file.path,
+                        filename: file.filename,
+                      },
+                    },
+                  });
                 });
-                await prisma.file.update({
-                  where: { path_filename: { path: file.path, filename: file.filename } },
-                  data: { conflictId: fileObj.uuid }
-                });
-                await prisma.fileQueue.delete({
-                  where: { path_filename: { path: file.path, filename: file.filename } }
-                });
-                /* await prisma.fileQueue.create({
-                  data: { ...fileObj, dirID: deleted.dirID, sync_status: "new", versions: 1 }
-                }); */
-                await prisma.conflictQueue.upsert({
-                  where: { path_filename: { path: file.path, filename: file.filename } },
-                  update: { ...fileObj, filename: file.filename, uuid: file.uuid, origin: file.origin, conflictId: fileObj.uuid },
-                  create: { ...fileObj, filename: file.filename, uuid: file.uuid, origin: file.origin, conflictId: fileObj.uuid }
-                });
-
-              });
-            } else {
-              await error(`❌ Failed to download Conflicted Copy : ${conflictedName}`);
-              await fs.promises.unlink(newPath)
+              } else {
+                await error(
+                  `❌ Failed to download Conflicted Copy : ${conflictedName}`
+                );
+                await fs.promises.unlink(newPath);
+              }
             }
           } catch (err: any) {
             console.error(err);
@@ -546,13 +586,12 @@ async function start() {
         isSyncing = true;
         await pollCloud();
         await processQueue();
-
       }
     }, POLLING_INTERVAL);
   } catch (err: any) {
     await error(`DB Connection failed: ${err.message}`);
     return;
   }
-};
+}
 
 start();

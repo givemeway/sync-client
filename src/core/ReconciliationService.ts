@@ -70,8 +70,6 @@ export class ReconciliationService {
         }
         else {
           // Case: Exists locally -> Check for modifications
-          const inConflictQueue = await this.prisma.conflictQueue.findUnique({ where: { path_filename: { path: cloudFile.path, filename: cloudFile.filename } } })
-          if (inConflictQueue) continue;
           const inQueue = await this.prisma.fileQueue.findUnique({
             where: { path_filename: { path: localFile.path, filename: localFile.filename } }
           });
@@ -111,14 +109,7 @@ export class ReconciliationService {
           });
           if (!inQueue) {
             // It's a new local file waiting to be uploaded, so it's expected not to be in cloud yet.
-            const inConflict = await this.prisma.conflictQueue.findUnique({
-              where: {
-                conflictId: dbFile.uuid
-              }
-            });
-            if (!inConflict) {
-              filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
-            }
+            filesToDeleteLocal.push({ filename: dbFile.filename, absPath: dbFile.absPath, path: dbFile.path })
           }
           // console.log(`[Reconcile] File deleted in cloud: ${dbFile.filename}. Deleting locally...`);
           // TODO: Implement delete local file logic
