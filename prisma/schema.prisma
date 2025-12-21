@@ -57,7 +57,7 @@ model Directory {
   path String
   created_at DateTime
   absPath String
-  inode String?
+  inode String
   @@unique([device,folder,path])
   files File[] 
   @@index([path])
@@ -93,7 +93,7 @@ model DirectoryQueue {
   sync_status String
   absPath String
   old_path String?
-  inode String?
+  inode String
   @@unique([device,folder,path])
   files FileQueue[] 
   @@index([path])

@@ -1,4 +1,5 @@
 // src/types/index.ts - Type definitions for the sync client
+import { File } from "../../DB/prisma-client/index.js";
 
 export interface SyncClientConfig {
   syncPath: string;
@@ -47,11 +48,17 @@ export interface FileMetadata {
   inode: string;
   last_modified: Date;
   absPath: string;
-  sync_status: "new" | "modified" | "delete" | "rename" | "DIR_RENAMED" | "downloading";
+  sync_status:
+  | "new"
+  | "modified"
+  | "delete"
+  | "rename"
+  | "DIR_RENAMED"
+  | "downloading";
   old_path?: string;
   old_filename?: string;
-  dirID?: string;
-  uuid?: string;
+  dirID: string;
+  uuid: string;
   height?: number;
   width?: number;
   versions: number;
@@ -98,8 +105,8 @@ export interface WatcherOptions {
   alwaysStat?: boolean;
   atomic?: boolean;
   awaitWriteFinish?: {
-    stabilityThreshold?: number,
-    pollInterval?: number
+    stabilityThreshold?: number;
+    pollInterval?: number;
   };
 }
 
@@ -127,6 +134,7 @@ export interface SyncDeleteResult {
 export interface SyncRenameResult {
   success: boolean;
   type?: string;
+  renamedItem?: CloudFolderMetadata[];
   oldName?: string;
   newName?: string;
   error?: string;
@@ -202,9 +210,8 @@ export interface CloudFolderRenameMetadata {
   to: string;
 }
 export interface LocalFileRenameMetadata {
-  filename: string;
-  old_filename: string;
-  path: string;
+  oldFile: File;
+  newFile: CloudFileMetadata;
 }
 export interface LocalFileDeleteMetadata {
   filename: string;
@@ -222,14 +229,19 @@ export interface CloudFolderMetadata {
   path: string;
   uuid: string;
   device: string;
-  type: string;
+  type?: string;
   created_at: Date;
+  files?: { uuid: string; filename: string; path: string; origin: string; }[]
+
 }
 
 export interface LocalFolderCreateMetadata {
   absPath: string;
-  path: string;
+  uuid: string;
   folder: string;
+  path: string;
+  device: string;
+  created_at: Date;
 }
 
 export interface LocalFolderDeleteMetadata {

@@ -1,12 +1,12 @@
 // src/core/ApiClient.ts - Handles API communication with the sync server
 
-import axios, { AxiosInstance } from 'axios';
-import FormData from 'form-data';
-import { createReadStream, createWriteStream } from 'node:fs';
-import mime from 'mime-types';
-import sharp from 'sharp';
-import { stat, utimes } from "node:fs/promises"
-import { FileQueue, } from '../../DB/prisma-client/index.js'
+import axios, { AxiosInstance } from "axios";
+import FormData from "form-data";
+import { createReadStream, createWriteStream } from "node:fs";
+import mime from "mime-types";
+import sharp from "sharp";
+import { stat, utimes } from "node:fs/promises";
+import { FileQueue, DirectoryQueue } from "../../DB/prisma-client/index.js";
 import type {
   DirectoryMetadata,
   SyncUploadResult,
@@ -16,8 +16,8 @@ import type {
   CloudMetadataResult,
   CloudFolderMetadata,
   CloudFileMetadata,
-  CloudMetadataResultError
-} from '../types/index.js';
+  CloudMetadataResultError,
+} from "../types/index.js";
 
 /**
  * ApiClient handles all communication with the sync server
@@ -32,23 +32,34 @@ export class ApiClient {
       baseURL: baseUrl,
       timeout: 30000,
       maxContentLength: Infinity,
-      maxBodyLength: Infinity
+      maxBodyLength: Infinity,
     });
   }
 
-  private getDirDevice(path: string): { device: string, dir: string } {
-    const subPathArr = path.split(/[/\\]/)
+  private getPath(device: string, directory: string): string {
+    if (device === "/") return "/";
+    if (device !== "/" && directory === "/") return "/" + device;
+    return "/" + device + "/" + directory;
+  }
+
+  private getDirDevice(path: string): { device: string; dir: string } {
+    const subPathArr = path.split(/[/\\]/);
     const device = subPathArr[1] === "" ? "/" : subPathArr[1];
     const dir = subPathArr.slice(2).join("/");
-    return { device, dir: dir === "" ? "/" : dir }
+    return { device, dir: dir === "" ? "/" : dir };
   }
   /**
    * Download a file from the server
    */
-  async downloadFile(file: CloudFileMetadata, absPath: string): Promise<{ success: boolean, ino: number } | { success: false, error: string }> {
+  async downloadFile(
+    file: CloudFileMetadata,
+    absPath: string
+  ): Promise<
+    { success: boolean; ino: number } | { success: false; error: string }
+  > {
     try {
       const { dir, device } = this.getDirDevice(file.path);
-      const urlParam = new URLSearchParams("")
+      const urlParam = new URLSearchParams("");
       urlParam.set("file", file.filename);
       urlParam.set("dir", dir);
       urlParam.set("device", device);
@@ -60,12 +71,12 @@ export class ApiClient {
       const response = await this.client.get(`/syncDownFile?${queryString}`, {
         responseType: "stream",
       });
-      const last_modified = new Date(response.headers['mtime']);
+      const last_modified = new Date(response.headers["mtime"]);
       const writer = createWriteStream(absPath);
       response.data.pipe(writer);
 
       return new Promise((resolve, reject) => {
-        writer.on('finish', async () => {
+        writer.on("finish", async () => {
           try {
             const { ino } = await stat(absPath);
             writer.close();
@@ -79,7 +90,9 @@ export class ApiClient {
             resolve({ success: false, error: err.message });
           }
         });
-        writer.on('error', (err) => resolve({ success: false, error: err.message }));
+        writer.on("error", (err) =>
+          resolve({ success: false, error: err.message })
+        );
       });
     } catch (error: any) {
       console.error(`Failed to download file: ${error}`);
@@ -90,27 +103,32 @@ export class ApiClient {
   /**
    * Upload a file to the server
    */
-  async uploadFile(file: FileQueue): Promise<SyncUploadResult> {
+  async uploadFile(
+    file: FileQueue,
+    pathTreeIDs: any[]
+  ): Promise<SyncUploadResult> {
     try {
       const { directory, device } = this.parsePath(file.path);
-      let type = mime.lookup(file.filename)?.toString() || 'application/octet-stream';
+      let type =
+        mime.lookup(file.filename)?.toString() || "application/octet-stream";
       const versions = file.sync_status === "modified" ? file.versions : 1;
       const filestat: any = {
         mtime: file.last_modified,
         size: parseInt(file.size.toString()),
         type: type,
         checksum: file.hashvalue,
-        isModified: file.sync_status === 'modified',
+        isModified: file.sync_status === "modified",
         device: device,
         version: versions,
         username: this.userEmail,
         filename: file.filename,
         directory: directory,
         uuid: file.uuid,
-        origin: file.origin
+        origin: file.origin,
+        pathids: pathTreeIDs,
       };
       // Get image dimensions if it's an image
-      if (type.split('/')[0] === 'image') {
+      if (type.split("/")[0] === "image") {
         try {
           const image = sharp(file.absPath);
           const { height, width } = await image.metadata();
@@ -118,33 +136,33 @@ export class ApiClient {
           filestat.width = width;
         } catch (err) {
           // Not a valid image or sharp can't process it
-          filestat.type = file.filename.split('.').slice(-1)[0];
+          filestat.type = file.filename.split(".").slice(-1)[0];
         }
       } else {
-        filestat.type = file.filename.split('.').slice(-1)[0];
+        filestat.type = file.filename.split(".").slice(-1)[0];
       }
       const form = new FormData();
       const fileStream = createReadStream(file.absPath);
-      form.append('file', fileStream);
-      form.append('filestat', JSON.stringify(filestat));
+      form.append("file", fileStream);
+      form.append("filestat", JSON.stringify(filestat));
 
       const headers = {
         ...form.getHeaders(),
-        filestat: JSON.stringify(filestat)
+        filestat: JSON.stringify(filestat),
       };
 
-      const response = await this.client.post('/syncUpFile', form, {
-        headers
+      const response = await this.client.post("/syncUpFile", form, {
+        headers,
       });
 
       return {
         success: true,
-        fileId: response.data.id
+        fileId: response.data.id,
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -152,22 +170,66 @@ export class ApiClient {
     try {
       const { dir, device } = this.getDirDevice(file.path);
       const data = {
-        type: 'fi',
-        dir, device, filename: file.old_filename, to: file.filename,
-        origin: ""
-      }
-      const response = await this.client.post('/renameItems', { data: { ...data } })
+        type: "fi",
+        dir,
+        device,
+        filename: file.old_filename,
+        to: file.filename,
+        origin: file.origin,
+        username: this.userEmail,
+      };
+      const response = await this.client.post("/renameFile", {
+        data: { ...data },
+      });
       return {
         success: true,
-        type: 'fi',
+        type: "fi",
         oldName: response.data.oldName || "",
-        newName: response.data.newName || ""
-      }
+        newName: response.data.newName || "",
+      };
     } catch (error: any) {
+      console.log(error.message);
       return {
         success: false,
-        error: error.message
-      }
+        error: error.message,
+      };
+    }
+  }
+
+  async renameFolder(dir: DirectoryQueue): Promise<SyncRenameResult> {
+    try {
+      const data = {
+        oldPath: dir.old_path,
+        newPath: dir.path,
+        username: this.userEmail,
+      };
+      const response = await this.client.post("/renameFolder", { ...data });
+      const renamedItems: CloudFolderMetadata[] = response.data.renamedItem.map(
+        (fo: any) => ({
+          uuid: fo.uuid,
+          device: fo.device,
+          folder: fo.folder,
+          created_at: fo.created_at,
+          path: fo.path,
+          files: fo?.files.map((f: any) => ({
+            uuid: f.uuid,
+            origin: f.origin,
+            filename: f.filename,
+            path: this.getPath(f.device, f.directory),
+          })),
+        })
+      );
+      return {
+        success: response.data.success,
+        oldName: response.data.oldName,
+        newName: response.data.newName,
+        renamedItem: renamedItems,
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err.message,
+      };
     }
   }
 
@@ -177,7 +239,7 @@ export class ApiClient {
       const queryParams = new URLSearchParams({
         device,
         dir: directory,
-        file: file.filename
+        file: file.filename,
       }).toString();
       const data = {
         id: file.uuid,
@@ -185,21 +247,21 @@ export class ApiClient {
         origin: file.uuid,
         dir: directory,
         versions: 1,
-        username: this.userEmail
+        username: this.userEmail,
       };
-      const response = await this.client.delete('/deleteFiles', {
-        data: { fileIds: [data], directories: [], username: this.userEmail }
+      const response = await this.client.delete("/deleteFiles", {
+        data: { fileIds: [data], directories: [], username: this.userEmail },
       });
       return {
         success: true,
         type: "fi",
         itemId: response.data.itemId || file.uuid,
-      }
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
-      }
+        error: error.message,
+      };
     }
   }
 
@@ -212,19 +274,21 @@ export class ApiClient {
         path: dir.path,
         device: dir.device,
         created_at: dir.created_at.toISOString(),
-        username: this.userEmail
+        username: this.userEmail,
+        uuid: dir.uuid,
+        folder: dir.folder,
       });
 
       const response = await this.client.post(`/createFolder?${params}`);
       return {
         success: true,
         folderCreated: response.data.folderCreated || dir.path,
-      }
+      };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
-      }
+        error: error.message,
+      };
     }
   }
   /**
@@ -238,20 +302,20 @@ export class ApiClient {
         folder: dir.folder,
         directory: directory,
         username: this.userEmail,
-        device: dir.device
+        device: dir.device,
       });
 
       const response = await this.client.delete(`/deleteFolder?${params}`);
       return {
         success: true,
         type: "fo",
-        itemId: response.data.itemId || dir.path
-      }
+        itemId: response.data.itemId || dir.path,
+      };
     } catch (err: any) {
       return {
         success: false,
-        error: err.message
-      }
+        error: err.message,
+      };
     }
   }
   /**
@@ -259,30 +323,36 @@ export class ApiClient {
    */
   async getMetadata(): Promise<CloudMetadataResult | CloudMetadataResultError> {
     try {
-      const response = await this.client.get(`/getSyncItems?username=${this.userEmail}`);
+      const response = await this.client.get(
+        `/getSyncItems?username=${this.userEmail}`
+      );
       const items = response.data.items;
-      const files: CloudFileMetadata[] = items.filter((f: CloudFileMetadata) => f.type === "file");
-      const folders: CloudFolderMetadata[] = items.filter((f: CloudFolderMetadata) => f.type !== "file");
+      const files: CloudFileMetadata[] = items.filter(
+        (f: CloudFileMetadata) => f.type === "file"
+      );
+      const folders: CloudFolderMetadata[] = items.filter(
+        (f: CloudFolderMetadata) => f.type !== "file"
+      );
       return {
         success: true,
         files: files || [],
-        directories: folders || []
+        directories: folders || [],
       };
     } catch (error: any) {
       return {
         success: false,
-        error: error.message
-      }
+        error: error.message,
+      };
     }
   }
   /**
    * Parse path into directory and device
    */
   private parsePath(path: string): { directory: string; device: string } {
-    const deviceParts = path.split('/').slice(1);
-    const device = deviceParts[0] === '' ? '/' : deviceParts[0];
-    const dirParts = path.split('/').slice(2).join('/');
-    const directory = dirParts === '' ? '/' : dirParts;
+    const deviceParts = path.split("/").slice(1);
+    const device = deviceParts[0] === "" ? "/" : deviceParts[0];
+    const dirParts = path.split("/").slice(2).join("/");
+    const directory = dirParts === "" ? "/" : dirParts;
 
     return { directory, device };
   }

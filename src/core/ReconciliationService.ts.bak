@@ -1,0 +1,225 @@
+import { ApiClient } from './ApiClient.js';
+import { join, parse } from "node:path"
+import { rename } from "node:fs/promises"
+import { DatabaseManager } from './DatabaseManager.js';
+import { PrismaClient, File, Directory } from '../../DB/prisma-client/index.js';
+import {
+  LocalFolderCreateMetadata,
+  LocalFolderDeleteMetadata,
+  CloudFileMetadata,
+  CloudFolderMetadata,
+  LocalFileDeleteMetadata,
+  LocalFileRenameMetadata
+} from '../types/index.js';
+
+export class ReconciliationService {
+  private apiClient: ApiClient;
+  private dbManager: DatabaseManager;
+  private prisma: PrismaClient;
+  private syncPath: string;
+
+  constructor(apiClient: ApiClient, dbManager: DatabaseManager, prisma: PrismaClient, syncPath: string) {
+    this.apiClient = apiClient;
+    this.dbManager = dbManager;
+    this.prisma = prisma;
+    this.syncPath = syncPath
+  }
+
+  async reconcile(
+    cloudFiles: CloudFileMetadata[],
+    cloudDirs: CloudFolderMetadata[],
+    dbFiles: File[],
+    dbDirs: Directory[]
+  ): Promise<{
+    filesToDownload: CloudFileMetadata[],
+    filesToDeleteLocal: File[],
+    foldersToCreateLocal: LocalFolderCreateMetadata[],
+    foldersToDeleteLocal: LocalFolderDeleteMetadata[],
+    filesInConflict: CloudFileMetadata[],
+    filesToUpdate: CloudFileMetadata[],
+    filesToRename: LocalFileRenameMetadata[]
+  }> {
+
+    try {
+      console.log('Starting reconciliation...');
+      let filesToDownload: CloudFileMetadata[] = [];
+      let filesToDeleteLocal: File[] = [];
+      let foldersToCreateLocal: LocalFolderCreateMetadata[] = [];
+      let foldersToDeleteLocal: LocalFolderDeleteMetadata[] = [];
+      let filesInConflict: CloudFileMetadata[] = [];
+      let filesToUpdate: CloudFileMetadata[] = [];
+      let filesToRename: { oldFile: File, newFile: CloudFileMetadata }[] = []
+      // 1. Indexing for fast lookup
+      const cloudFileMap = new Map(cloudFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
+      const cloudDirMap = new Map(cloudDirs.map(d => [d.path, d]));
+      const dbFileMap = new Map(dbFiles.map(f => [this.getUniqueKey(f.path, f.filename), f]));
+      const dbDirMap = new Map(dbDirs.map(d => [d.path, d]));
+      // 2. Process Cloud Files (Download / Update / Conflict)
+      for (const cloudFile of cloudFiles) {
+        const key = this.getUniqueKey(cloudFile.path, cloudFile.filename);
+        const localFile = dbFileMap.get(key);
+        if (!localFile) {
+          // Case: New in Cloud -> Download
+          // console.log(`[Reconcile] New file in cloud: ${cloudFile.filename}. Downloading...`);
+          // TODO: Implement download logic
+          // await this.downloadFile(cloudFile);
+          // checking cloud file rename
+          const cloudRenameCandidate = await this.prisma.file.findUnique({
+            where: { uuid: cloudFile.uuid }
+          });
+          if (cloudRenameCandidate) {
+            // file is renamed but not modified. 
+            // Need to find where the rename happened -- local rename or cloud rename 
+            const renameInQueue = await this.prisma.fileQueue.findUnique({
+              where: {
+                uuid: cloudRenameCandidate.uuid,
+                hashvalue: cloudRenameCandidate.hashvalue,
+                lastSyncedHashValue: cloudRenameCandidate.lastSyncedHashValue
+              }
+            });
+            if (renameInQueue) {
+              //**********************************************************************************
+              // cloud rename A.txt -> B.txt
+              // local rename A.txt -> C.txt
+              // renameInQueue.filename        -> c.txt => renameInQueue.old_filename => a.txt 
+              // cloudFile.filename            -> b.txt 
+              // cloudRenameCandidate.filename -> c.txt
+              // *********************************************************************************
+              // cloud A.txt 
+              // local rename A.txt -> c.txt 
+              // renameInQueue.filename        -> c.txt => renameInQueue.old_filename => a.txt 
+              // cloudFile.filename            -> a.txt 
+              // cloudRenameCandidate.filename -> c.txt
+              // **********************************************************************************
+              if (renameInQueue.old_filename === cloudFile.filename) {
+                // file is renamed on local device --> rename it on cloud 
+                // processQueue will take care of renaming the file in cloud 
+                continue;
+              } else {
+                // file renamed both on local and cloud 
+                // TODO: handle rename conflict
+                console.log(`[Reconcile] File Renamed in Cloud: ${renameInQueue.old_filename} -> ${cloudFile.filename}`);
+                console.log(`[Reconcile] File Renamed in Local: ${renameInQueue.old_filename} -> ${renameInQueue.filename}`);
+                continue;
+              }
+            } else {
+              //file renamed on cloud --> rename it on local 
+              filesToRename.push({ oldFile: cloudRenameCandidate, newFile: cloudFile });
+              continue;
+            }
+          }
+          else {
+            // TODO: handle rename & update conflict 
+            // file renamed in cloud
+            // file updated either on local or cloud 
+          }
+
+          const fileInQueue = await this.prisma.fileQueue.findUnique({
+            where: {
+              path_filename: { path: cloudFile.path, filename: cloudFile.filename },
+            }
+          });
+          if (!fileInQueue) filesToDownload.push(cloudFile);
+        }
+        else {
+          // Case: Exists locally -> Check for modifications
+          const inQueue = await this.prisma.fileQueue.findUnique({
+            where: { path_filename: { path: localFile.path, filename: localFile.filename } }
+          });
+          if (!inQueue && localFile.hashvalue !== cloudFile.hashvalue) {
+            // the file in the cloud is modified has to be downloaded.
+            filesToUpdate.push(cloudFile)
+          }
+          if (inQueue) {
+            if (inQueue.lastSyncedHashValue !== cloudFile.hashvalue) {
+              console.log(`[Reconcile] File modified in cloud & local: ${cloudFile.filename}. Adding files to conflicts...`);
+              filesInConflict.push(cloudFile);
+            }
+          }
+
+        }
+      }
+      // 3. Process Cloud Directories (Create locally)
+      for (const cloudDir of cloudDirs) {
+        if (cloudDir.path === '/') continue; // Skip root        
+        if (!dbDirMap.has(cloudDir.path)) {
+          //console.log(`[Reconcile] New directory in cloud: ${cloudDir.path}. Creating locally...`);
+          // TODO: Implement create directory logic
+          const inQueue = await this.prisma.directoryQueue.findUnique({ where: { device_folder_path: { device: cloudDir.device, path: cloudDir.path, folder: cloudDir.folder } } })
+          if (!inQueue) {
+            foldersToCreateLocal.push({
+              absPath: join(this.syncPath, cloudDir.path),
+              path: cloudDir.path,
+              folder: cloudDir.folder,
+              uuid: cloudDir.uuid,
+              device: cloudDir.device,
+              created_at: cloudDir.created_at
+            });
+          }
+        }
+      }
+      // 4. Detect Deletions (Cloud -> Local)
+      // Iterate local DB files, if not in Cloud Map -> It was deleted on Cloud
+      for (const dbFile of dbFiles) {
+        const key = this.getUniqueKey(dbFile.path, dbFile.filename);
+        if (!cloudFileMap.has(key)) {
+          // Check if it's currently being uploaded (in Queue with 'new' status)
+          const inQueue = await this.prisma.fileQueue.findUnique({
+            where: { path_filename: { path: dbFile.path, filename: dbFile.filename } }
+          });
+          if (!inQueue) {
+            // It's a new local file waiting to be uploaded, so it's expected not to be in cloud yet.
+            filesToDeleteLocal.push(dbFile)
+          }
+          // console.log(`[Reconcile] File deleted in cloud: ${dbFile.filename}. Deleting locally...`);
+          // TODO: Implement delete local file logic
+        }
+      }
+
+      // Iterate local DB dirs, if not in Cloud Map -> Deleted on Cloud
+      for (const dbDir of dbDirs) {
+        if (dbDir.path === '/') continue; // Skip root
+        if (!cloudDirMap.has(dbDir.path)) {
+          // Check queue
+          const inQueue = await this.prisma.directoryQueue.findUnique({
+            where: { device_folder_path: { device: dbDir.device, folder: dbDir.folder, path: dbDir.path } }
+          });
+          if (!inQueue)
+            foldersToDeleteLocal.push({ absPath: dbDir.absPath, path: dbDir.path, folder: dbDir.folder });
+          // console.log(`[Reconcile] Directory deleted in cloud: ${dbDir.path}. Deleting locally...`);
+          // TODO: Implement delete local dir logic
+        }
+      }
+
+      let filesToDeleteMap = new Map(filesToDeleteLocal.map(f => [f.path === "/" ? "/" + f.filename : f.path + "/" + f.filename, f]))
+      for (const { oldFile, newFile } of filesToRename) {
+        const key = oldFile.path === "/" ? "/" + oldFile.filename : oldFile.path + "/" + oldFile.filename
+        const commonFile = filesToDeleteMap.has(key);
+        if (commonFile) {
+          const dbFile = filesToDeleteMap.get(key);
+          if (dbFile && dbFile.uuid === newFile.uuid &&
+            dbFile.hashvalue === newFile.hashvalue &&
+            dbFile.lastSyncedHashValue === newFile.hashvalue) {
+            filesToDeleteMap.delete(key)
+          }
+        }
+      }
+      return {
+        filesToDeleteLocal: Array.from(filesToDeleteMap.values()), filesToDownload,
+        foldersToDeleteLocal, foldersToCreateLocal,
+        filesInConflict, filesToUpdate, filesToRename
+      }
+
+    } catch (error: any) {
+      return error?.message;
+    }
+  }
+
+  private getUniqueKey(dir: string, filename: string): string {
+    // Ensure consistent path format
+    const normalizedDir = dir.endsWith('/') ? dir : dir + '/';
+    return `${normalizedDir}${filename}`;
+  }
+
+
+}

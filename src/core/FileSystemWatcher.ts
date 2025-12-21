@@ -1,6 +1,7 @@
 // src/core/FileSystemWatcher.ts - Monitors file system changes with rename detection
 import { EventEmitter } from 'events';
 import chokidar, { FSWatcher } from 'chokidar';
+import { NativeWatcher } from './NativeWatcher.js';
 import { dirname, join } from 'path';
 import { Stats } from "node:fs"
 import { Directory, DirectoryQueue } from "../../DB/prisma-client/index.js"
@@ -27,7 +28,7 @@ import type { FilesystemScanner } from '../utils/FilesystemScanner.js';
  * @fires FileSystemWatcher#rename:detected
  */
 export class FileSystemWatcher extends EventEmitter {
-  private watcher?: FSWatcher;
+  private watcher?: FSWatcher | NativeWatcher;
   private syncPath: string;
   private options: WatcherOptions;
   private dbManager?: DatabaseManager;
@@ -35,13 +36,13 @@ export class FileSystemWatcher extends EventEmitter {
   private dirRemoveQueue: string[] = [];
   // Rename detection
   // We use immediate detection in bufferFileRemoval instead of timing-based buffering
-  private debouncedRemoveDir: (...args: any[]) => void;
+  // private debouncedRemoveDir: (...args: any[]) => void;
 
   constructor(syncPath: string, options: WatcherOptions = {}, dbManager?: DatabaseManager, fsScanner?: FilesystemScanner) {
     super();
     this.syncPath = syncPath;
     this.dbManager = dbManager;
-    this.debouncedRemoveDir = this.debounce(this.processDirRemoveQueue.bind(this), 500);
+    //this.debouncedRemoveDir = this.debounce(this.processDirRemoveQueue.bind(this), 500);
     this.fsScanner = fsScanner;
     this.options = {
       //    ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -54,23 +55,28 @@ export class FileSystemWatcher extends EventEmitter {
       ...options
     };
   }
-
-  private async processDirRemoveQueue() {
-    if (!this.dbManager) return;
-    const currentQueue = [...this.dirRemoveQueue];
-    this.dirRemoveQueue = [];
-
-    try {
-      const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
-      console.log("Renamed watcher Candidates: ", renameCandidates);
-      for (const path of renameCandidates) {
-        const absPath = join(this.syncPath, path);
-        this.bufferDirRemoval(absPath);
+  /*
+    private async processDirRemoveQueue() {
+      if (!this.dbManager) return;
+      const currentQueue = [...this.dirRemoveQueue];
+      this.dirRemoveQueue = [];
+  
+      try {
+        const renameCandidates = this.identifyDirRenameCandidates(currentQueue);
+        console.log("Renamed watcher Candidates: ", renameCandidates);
+        for (const path of renameCandidates) {
+          //     const absPath = join(this.syncPath, path);
+          //     this.bufferDirRemoval(absPath);
+          console.log("$$$$$$$$$$$$$$$$$$$$$$$$ triggering dir: remove $$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+          this.emit("dir:remove", path);
+          console.log("Path: ", path);
+          console.log("$$$$$$$$$$$$$$$$$$$$$$$$ triggering dir: remove $$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        }
+      } catch (err) {
+        console.error("Error in processDirRemoveQueue:", err);
       }
-    } catch (err) {
-      console.error("Error in processDirRemoveQueue:", err);
     }
-  }
+    */
   private normalizeToRelPath(abspath: string, isFile: boolean = false): string {
     const normalizedPath = abspath.replace(/\\/g, '/');
     const normalizedSyncPath = this.syncPath.replace(/\\/g, '/');
@@ -127,7 +133,13 @@ export class FileSystemWatcher extends EventEmitter {
       throw new Error('Watcher is already running');
     }
 
-    this.watcher = chokidar.watch(this.syncPath, this.options);
+    const useNative = process.env.USE_NATIVE_WATCHER === 'true';
+    if (useNative) {
+      console.log('🚀 Using Native C++ Watcher');
+      this.watcher = new NativeWatcher(this.syncPath, this.options);
+    } else {
+      this.watcher = chokidar.watch(this.syncPath, this.options);
+    }
 
     this.watcher
       .on('ready', () => {
@@ -140,6 +152,29 @@ export class FileSystemWatcher extends EventEmitter {
       .on('addDir', (path, stats) => this.handleDirAdd(path, stats))
       .on('unlinkDir', (path) => this.handleDirRemove(path))
       .on('error', (error) => this.emit('error', error));
+
+    // Native Watcher Rename Forwarding
+    if (useNative) {
+      (this.watcher as NativeWatcher)
+        .on('file:rename', (oldPath, newPath, stats) => {
+          this.emit('file:rename', oldPath, newPath, stats);
+        })
+        .on('dir:rename', (oldPath, newPath, stats) => {
+          // We need to construct Metadata objects if SyncClient expects them?
+          // SyncClient expects (oldFolder, newFolder).
+          // This is checking SyncClient code:
+          // this.watcher.on("dir:rename", async (oldFolder: DirectoryMetadata, newFolder: DirectoryMetadata) => ...
+          // So we CANNOT just emit paths. We must construct metadata.
+          // But we don't have UUIDs etc easily here without DB lookup. 
+          // However, SyncClient uses oldFolder.path and newFolder.path.
+          // Let's create mock objects with just paths if possible, or leave it to SyncClient to fetch?
+          // SyncClient access oldFolder.uuid? No, it just calls dbManager.renameDirWithTransaction(oldFolder.path, newFolder.path).
+          // So mocking is safe!
+          const oldFolder = { path: this.normalizeToRelPath(oldPath), folder: oldPath.split(/[/\\]/).pop() } as any;
+          const newFolder = { path: this.normalizeToRelPath(newPath), folder: newPath.split(/[/\\]/).pop() } as any;
+          this.emit('dir:rename', oldFolder, newFolder);
+        });
+    }
   }
 
   /**
@@ -198,119 +233,120 @@ export class FileSystemWatcher extends EventEmitter {
     this.emit('dir:remove', path);
   }
 
-
-  private async bufferDirRemoval(path: string): Promise<void> {
-    try {
-      if (!this.dbManager || !this.fsScanner) {
-        this.emit("dir:remove", path);
-        return;
-      }
-      // after renaming - /users/sandeep/desktop/sync_folder/sandeep --> /users/sandeep/desktop/sync_folder/sandeepkumar
-      // find all the folders in the parent path i.e /users/sandeep/desktop/sync_folder
-      // After pulling details it should look like this
-      // sandeep (deleted in FS)
-      // sandeepkumar (renamed in FS)
-      // 1. Get the Parent directory of the deleted folder. 
-      // 2. Fetch all the folders in the Parent directory with identical INODE 
-      //     a) Fetch the list from FS & filter by idential inode
-      //            sandeepkumar - this would be fetched
-      //     b) fetch the list from DB DirectoryQueue & filter by idential inode;
-      //            sandeep & sandeepkumar - these two would be fetched \
-      // 3. Find the difference between 2 a) and 2 b) list.
-      //     a) Missing Directory - sandeep 
-      //     b) Directory to Add - sandeepkumar
-      // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder
-      const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
-      const normalizedABSPath = path.replace(/[/\\]/g, "/");
-      let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
-      relPath = relPath === "" ? "/" : relPath;
-      let deletedDir = await this.dbManager?.getDirFromMain(relPath);
-      if (!deletedDir) {
-        deletedDir = await this.dbManager?.getDirFromQueue(relPath);
-      }
-      if (!deletedDir || !deletedDir.inode) {
-        this.emit("dir:remove", path);
-        return;
-      }
-      console.log("Deleted Dir: ", deletedDir);
-      console.log("relPath: ", relPath)
-      let dbFoldersMain = await this.dbManager?.getDirSubFoldersFromMain(relPath, deletedDir?.inode);
-      let dbFoldersQueue = await this.dbManager?.getDirSubFoldersFromQueue(relPath, deletedDir?.inode);
-      const parentDir = path.replace(/[/\\]/g, "/").split(/[/\\]/g).slice(0, -1).join("/");
-      const fsDirs = await this.fsScanner?.scanSubdirectories(parentDir, deletedDir?.inode);
-      //
-      // path: string;
-      // name: string;
-      // inode: string;
-      // mtime: Date;
-      // absPath: string;
-      //
-      let dbFoldersMap = new Map<string, DirectoryMetadata>();
-      let fsFoldersMap = new Map<string, ScannedDirectory>();
-      if (dbFoldersMain) {
-        for (const f of dbFoldersMain) {
-          const dirMetaData: DirectoryMetadata = {
-            uuid: f.uuid,
-            absPath: f.absPath,
-            created_at: f.created_at,
-            device: f.device,
-            old_path: "",
-            sync_status: "rename",
-            path: f.path,
-            folder: f.folder,
-            inode: f.inode || "",
+  /*
+    private async bufferDirRemoval(path: string): Promise<void> {
+      try {
+        if (!this.dbManager || !this.fsScanner) {
+          this.emit("dir:remove", path);
+          return;
+        }
+        // after renaming - /users/sandeep/desktop/sync_folder/sandeep --> /users/sandeep/desktop/sync_folder/sandeepkumar
+        // find all the folders in the parent path i.e /users/sandeep/desktop/sync_folder
+        // After pulling details it should look like this
+        // sandeep (deleted in FS)
+        // sandeepkumar (renamed in FS)
+        // 1. Get the Parent directory of the deleted folder. 
+        // 2. Fetch all the folders in the Parent directory with identical INODE 
+        //     a) Fetch the list from FS & filter by idential inode
+        //            sandeepkumar - this would be fetched
+        //     b) fetch the list from DB DirectoryQueue & filter by idential inode;
+        //            sandeep & sandeepkumar - these two would be fetched \
+        // 3. Find the difference between 2 a) and 2 b) list.
+        //     a) Missing Directory - sandeep 
+        //     b) Directory to Add - sandeepkumar
+        // 4. if count of 3 a) and 3 b) is exactly 1 - we find out original folder and renamed folder
+        const normalizedSyncPath = this.syncPath.replace(/[/\\]/g, "/");
+        const normalizedABSPath = path.replace(/[/\\]/g, "/");
+        let relPath = normalizedABSPath.substring(normalizedSyncPath.length)
+        relPath = relPath === "" ? "/" : relPath;
+        let deletedDir = await this.dbManager?.getDirFromMain(relPath);
+        if (!deletedDir) {
+          deletedDir = await this.dbManager?.getDirFromQueue(relPath);
+        }
+        if (!deletedDir || !deletedDir.inode) {
+          this.emit("dir:remove", path);
+          return;
+        }
+        console.log("Deleted Dir: ", deletedDir);
+        console.log("relPath: ", relPath)
+        let dbFoldersMain = await this.dbManager?.getDirSubFoldersFromMain(relPath, deletedDir?.inode);
+        let dbFoldersQueue = await this.dbManager?.getDirSubFoldersFromQueue(relPath, deletedDir?.inode);
+        const parentDir = path.replace(/[/\\]/g, "/").split(/[/\\]/g).slice(0, -1).join("/");
+        const fsDirs = await this.fsScanner?.scanSubdirectories(parentDir, deletedDir?.inode);
+        //
+        // path: string;
+        // name: string;
+        // inode: string;
+        // mtime: Date;
+        // absPath: string;
+        //
+        let dbFoldersMap = new Map<string, DirectoryMetadata>();
+        let fsFoldersMap = new Map<string, ScannedDirectory>();
+        if (dbFoldersMain) {
+          for (const f of dbFoldersMain) {
+            const dirMetaData: DirectoryMetadata = {
+              uuid: f.uuid,
+              absPath: f.absPath,
+              created_at: f.created_at,
+              device: f.device,
+              old_path: "",
+              sync_status: "rename",
+              path: f.path,
+              folder: f.folder,
+              inode: f.inode || "",
+            }
+            dbFoldersMap.set(f.path, dirMetaData);
           }
-          dbFoldersMap.set(f.path, dirMetaData);
         }
-      }
-      if (dbFoldersQueue) {
-        for (const f of dbFoldersQueue) {
-          const dirMetaData: DirectoryMetadata = {
-            uuid: f.uuid,
-            absPath: f.absPath,
-            created_at: f.created_at,
-            device: f.device,
-            old_path: "",
-            sync_status: "rename",
-            path: f.path,
-            folder: f.folder,
-            inode: f.inode || ""
+        if (dbFoldersQueue) {
+          for (const f of dbFoldersQueue) {
+            const dirMetaData: DirectoryMetadata = {
+              uuid: f.uuid,
+              absPath: f.absPath,
+              created_at: f.created_at,
+              device: f.device,
+              old_path: "",
+              sync_status: "rename",
+              path: f.path,
+              folder: f.folder,
+              inode: f.inode || ""
+            }
+            dbFoldersMap.set(f.path, dirMetaData)
           }
-          dbFoldersMap.set(f.path, dirMetaData)
         }
-      }
-      if (fsDirs) {
-        for (const f of fsDirs) {
-          fsFoldersMap.set(f.path, f);
+        if (fsDirs) {
+          for (const f of fsDirs) {
+            fsFoldersMap.set(f.path, f);
+          }
         }
-      }
-      const dbFolders = Array.from(dbFoldersMap.values());
-      const fsFolders = Array.from(fsFoldersMap.values());
-      const dbPaths = new Set(dbFolders.map(f => f.path));
-      const fsPaths = new Set(fsFolders.map(f => f.path));
-      const missingFolders = dbFolders.filter(f => !fsPaths.has(f.path));
-      const addedFolders = fsFolders.filter(f => !dbPaths.has(f.path));
-      if (missingFolders.length === 1 && addedFolders.length === 1) {
-        const oldDir = missingFolders[0];
-        const newDir = addedFolders[0];
-        const newFolder: DirectoryMetadata = {
-          uuid: oldDir.uuid, folder: newDir.name,
-          device: oldDir.device,
-          inode: newDir.inode,
-          created_at: newDir.mtime,
-          absPath: newDir.absPath,
-          path: newDir.path,
-          sync_status: "rename"
+        const dbFolders = Array.from(dbFoldersMap.values());
+        const fsFolders = Array.from(fsFoldersMap.values());
+        const dbPaths = new Set(dbFolders.map(f => f.path));
+        const fsPaths = new Set(fsFolders.map(f => f.path));
+        const missingFolders = dbFolders.filter(f => !fsPaths.has(f.path));
+        const addedFolders = fsFolders.filter(f => !dbPaths.has(f.path));
+        if (missingFolders.length === 1 && addedFolders.length === 1) {
+          const oldDir = missingFolders[0];
+          const newDir = addedFolders[0];
+          const newFolder: DirectoryMetadata = {
+            uuid: oldDir.uuid, folder: newDir.name,
+            device: oldDir.device,
+            inode: newDir.inode,
+            created_at: newDir.mtime,
+            absPath: newDir.absPath,
+            path: newDir.path,
+            sync_status: "rename"
+          }
+          console.log(`✨ Folder Rename detected: ${oldDir.folder} → ${newFolder.folder}`);
+          this.emit("dir:rename", oldDir, newFolder)
         }
-        console.log(`✨ Folder Rename detected: ${oldDir.folder} → ${newFolder.folder}`);
-        this.emit("dir:rename", oldDir, newFolder)
+      } catch (err) {
+        this.emit("dir:remove", path);
       }
-    } catch (err) {
-      this.emit("dir:remove", path);
+  
     }
-
-  }
-
+  
+  */
   /**
    * Buffer file removal and check for rename
    * Uses inode + hash-based detection with set-difference algorithm

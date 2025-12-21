@@ -97,7 +97,7 @@ model DirectoryQueue {
   sync_status String
   absPath     String
   old_path    String?
-  inode       String?
+  inode       String
   files       FileQueue[]
 
   @@unique([device, folder, path])

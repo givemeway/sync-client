@@ -1,0 +1,16 @@
+{
+  "name": "native-watcher",
+  "version": "1.0.0",
+  "description": "Native Windows File System Watcher using ReadDirectoryChangesW",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^8.3.0"
+  },
+  "gypfile": true
+}

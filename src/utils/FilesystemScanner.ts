@@ -198,7 +198,8 @@ export class FilesystemScanner {
       sync_status: 'new',
       uuid: uuidv4(),
       origin: "",
-      versions: 1
+      versions: 1,
+      dirID: ""
     };
   }
 }
